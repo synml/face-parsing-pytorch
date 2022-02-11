@@ -68,26 +68,8 @@ class Builder:
     def build_model(self, num_classes: int, pretrained=False) -> nn.Module:
         cfg_model_name = self.cfg['model']['name']
 
-        if cfg_model_name == 'Attention_DeepLabv3plus':
-            model = models.attention_deeplabv3plus.Attention_DeepLabv3plus(self.cfg[cfg_model_name]['backbone'],
-                                                                           self.cfg[cfg_model_name]['output_stride'],
-                                                                           num_classes)
-        elif cfg_model_name == 'DeepLabv3plus':
-            model = models.deeplabv3plus.DeepLabv3plus(self.cfg[cfg_model_name]['backbone'],
-                                                       self.cfg[cfg_model_name]['output_stride'], num_classes)
-        elif cfg_model_name == 'EAR_Net':
-            model = models.ear_net.EAR_Net(num_classes)
-        elif cfg_model_name == 'Proposed':
+        if cfg_model_name == 'Proposed':
             model = models.proposed.Proposed(num_classes)
-        elif cfg_model_name == 'UNet':
-            model = models.unet.UNet(num_classes)
-        elif cfg_model_name == 'GCMNet':
-            model = models.GCMNet.GCMNet(self.cfg[cfg_model_name]['backbone'],
-                                         self.cfg[cfg_model_name]['output_stride'], num_classes)
-        elif cfg_model_name == 'PSPNet':
-            model = models.PSPNet.PSPNet(self.cfg[cfg_model_name]['backbone'],
-                                         self.cfg[cfg_model_name]['output_stride'], num_classes,
-                                         self.cfg[cfg_model_name]['mode'])
         else:
             raise NotImplementedError('Wrong model name.')
 
