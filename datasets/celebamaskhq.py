@@ -68,6 +68,8 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
         assert target_type in ('mask', 'pose', 'attr')
         self.split = split
         self.target_type = target_type
+        self.images = []
+        self.targets = []
         self.class_names = ['background', 'skin', 'l_brow', 'r_brow', 'l_eye', 'r_eye', 'eye_g', 'l_ear', 'r_ear',
                             'ear_r', 'nose', 'mouth', 'u_lip', 'l_lip', 'neck', 'neck_l', 'cloth', 'hair', 'hat']
         self.num_classes = 19
