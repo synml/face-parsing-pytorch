@@ -1,3 +1,4 @@
+from collections import namedtuple
 import glob
 import os
 from typing import Callable, List, Optional, Union, Tuple
@@ -31,6 +32,29 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
             an image and a label and returns the transformed versions of both.
     """
 
+    CelebAMaskHQClass = namedtuple('CelebAMaskHQClass', ['name', 'id'])
+    classes = [
+        CelebAMaskHQClass('background', 0),
+        CelebAMaskHQClass('skin', 1),
+        CelebAMaskHQClass('l_brow', 2),
+        CelebAMaskHQClass('r_brow', 3),
+        CelebAMaskHQClass('l_eye', 4),
+        CelebAMaskHQClass('r_eye', 5),
+        CelebAMaskHQClass('eye_g', 6),
+        CelebAMaskHQClass('l_ear', 7),
+        CelebAMaskHQClass('r_ear', 8),
+        CelebAMaskHQClass('ear_r', 9),
+        CelebAMaskHQClass('nose', 10),
+        CelebAMaskHQClass('mouth', 11),
+        CelebAMaskHQClass('u_lip', 12),
+        CelebAMaskHQClass('l_lip', 13),
+        CelebAMaskHQClass('neck', 14),
+        CelebAMaskHQClass('neck_l', 15),
+        CelebAMaskHQClass('cloth', 16),
+        CelebAMaskHQClass('hair', 17),
+        CelebAMaskHQClass('hat', 18),
+    ]
+
     def __init__(self,
                  root: str,
                  split: str = 'train',
@@ -44,6 +68,9 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
         assert target_type in ('mask', 'pose', 'attr')
         self.split = split
         self.target_type = target_type
+        self.class_names = ['background', 'skin', 'l_brow', 'r_brow', 'l_eye', 'r_eye', 'eye_g', 'l_ear', 'r_ear',
+                            'ear_r', 'nose', 'mouth', 'u_lip', 'l_lip', 'neck', 'neck_l', 'cloth', 'hair', 'hat']
+        self.num_classes = 19
 
         if download:
             self.download()
@@ -105,21 +132,17 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
         mask_path = os.path.join(self.root, 'preprocessed_mask')
         os.makedirs(mask_path, exist_ok=True)
 
-        # id 0은 background
-        classes = ['skin', 'l_brow', 'r_brow', 'l_eye', 'r_eye', 'eye_g', 'l_ear', 'r_ear', 'ear_r',
-                   'nose', 'mouth', 'u_lip', 'l_lip', 'neck', 'neck_l', 'cloth', 'hair', 'hat']
-
         # i는 orig_mask_path의 하위 폴더 0 ~ 14를 지정
         # j는 각 하위 폴더의 이미지 index 범위를 지정
         for i in tqdm.tqdm(range(15), desc='Preprocess dataset'):
             for j in tqdm.tqdm(range(i * 2000, (i + 1) * 2000), leave=False):
                 mask = np.zeros((512, 512))
-                for id, cls in enumerate(classes, start=1):
-                    file_name = str(j).zfill(5) + '_' + cls + '.png'
+                for cls in self.classes[1:]:
+                    file_name = str(j).zfill(5) + '_' + cls.name + '.png'
                     path = os.path.join(orig_mask_path, str(i), file_name)
                     if os.path.exists(path):
                         orig_mask = np.array(Image.open(path).convert('L'))
-                        mask[orig_mask == 255] = id
+                        mask[orig_mask == 255] = cls.id
                 cv2.imwrite(os.path.join(mask_path, f'{j}.png'), mask)
 
     def __getitem__(self, index) -> Tuple[Image.Image, Image.Image]:
