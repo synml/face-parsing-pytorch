@@ -2,14 +2,14 @@
 dataset:
   name: CelebAMaskHQ
   root: ../../data/CelebAMask-HQ
-  num_workers: 4
+  num_workers: 8
   pin_memory: True
   normalize_mean: !!python/tuple [0.5, 0.5, 0.5]
   normalize_std: !!python/tuple [0.5, 0.5, 0.5]
 
 # Model definitions
 Proposed:
-  batch_size: 8
+  batch_size: 16
   epoch: 100
   criterion:
     name: CrossEntropyLoss
@@ -37,7 +37,7 @@ Proposed:
   pretrained_weights: weights/Proposed_best_miou.pth
 
 UNet:
-  batch_size: 8
+  batch_size: 16
   epoch: 100
   criterion:
     name: CrossEntropyLoss
