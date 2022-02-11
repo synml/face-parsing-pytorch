@@ -41,6 +41,7 @@ UNet:
   epoch: 100
   criterion:
     name: CrossEntropyLoss
+  aux_criterion:
   optimizer:
     name: RAdam
     lr: 0.001
