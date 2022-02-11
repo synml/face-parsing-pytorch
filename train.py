@@ -147,8 +147,7 @@ if __name__ == '__main__':
                 outputs = model(images)
                 outputs = torch.argmax(outputs, dim=1)
             if epoch == 0:
-                targets = datasets.utils.decode_segmap_to_color_image(targets, trainset.colors, trainset.num_classes,
-                                                                      trainset.ignore_index, trainset.ignore_color)
+                targets = datasets.utils.decode_segmap_to_color_image(targets, trainset.colors, trainset.num_classes)
                 writer.add_images('eval/0Groundtruth', targets, epoch)
             outputs = datasets.utils.decode_segmap_to_color_image(outputs, trainset.colors, trainset.num_classes)
             writer.add_images('eval/1' + model_name, outputs, epoch)
