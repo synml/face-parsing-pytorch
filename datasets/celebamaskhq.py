@@ -32,27 +32,27 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
             an image and a label and returns the transformed versions of both.
     """
 
-    CelebAMaskHQClass = namedtuple('CelebAMaskHQClass', ['name', 'id'])
+    CelebAMaskHQClass = namedtuple('CelebAMaskHQClass', ['name', 'id', 'color'])
     classes = [
-        CelebAMaskHQClass('background', 0),
-        CelebAMaskHQClass('skin', 1),
-        CelebAMaskHQClass('l_brow', 2),
-        CelebAMaskHQClass('r_brow', 3),
-        CelebAMaskHQClass('l_eye', 4),
-        CelebAMaskHQClass('r_eye', 5),
-        CelebAMaskHQClass('eye_g', 6),
-        CelebAMaskHQClass('l_ear', 7),
-        CelebAMaskHQClass('r_ear', 8),
-        CelebAMaskHQClass('ear_r', 9),
-        CelebAMaskHQClass('nose', 10),
-        CelebAMaskHQClass('mouth', 11),
-        CelebAMaskHQClass('u_lip', 12),
-        CelebAMaskHQClass('l_lip', 13),
-        CelebAMaskHQClass('neck', 14),
-        CelebAMaskHQClass('neck_l', 15),
-        CelebAMaskHQClass('cloth', 16),
-        CelebAMaskHQClass('hair', 17),
-        CelebAMaskHQClass('hat', 18),
+        CelebAMaskHQClass('background', 0, (255, 255, 255)),
+        CelebAMaskHQClass('skin', 1, (31, 119, 180)),
+        CelebAMaskHQClass('l_brow', 2, (174, 199, 232)),
+        CelebAMaskHQClass('r_brow', 3, (255, 127, 14)),
+        CelebAMaskHQClass('l_eye', 4, (255, 187, 120)),
+        CelebAMaskHQClass('r_eye', 5, (44, 160, 44)),
+        CelebAMaskHQClass('eye_g', 6, (152, 223, 138)),
+        CelebAMaskHQClass('l_ear', 7, (214, 39, 40)),
+        CelebAMaskHQClass('r_ear', 8, (255, 152, 150)),
+        CelebAMaskHQClass('ear_r', 9, (148, 103, 189)),
+        CelebAMaskHQClass('nose', 10, (197, 176, 213)),
+        CelebAMaskHQClass('mouth', 11, (140, 86, 75)),
+        CelebAMaskHQClass('u_lip', 12, (196, 156, 148)),
+        CelebAMaskHQClass('l_lip', 13, (227, 119, 194)),
+        CelebAMaskHQClass('neck', 14, (247, 182, 210)),
+        CelebAMaskHQClass('neck_l', 15, (127, 127, 127)),
+        CelebAMaskHQClass('cloth', 16, (199, 199, 199)),
+        CelebAMaskHQClass('hair', 17, (188, 189, 34)),
+        CelebAMaskHQClass('hat', 18, (23, 190, 207)),
     ]
 
     def __init__(self,
