@@ -70,9 +70,7 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
         self.target_type = target_type
         self.images = []
         self.targets = []
-        self.class_names = ['background', 'skin', 'l_brow', 'r_brow', 'l_eye', 'r_eye', 'eye_g', 'l_ear', 'r_ear',
-                            'ear_r', 'nose', 'mouth', 'u_lip', 'l_lip', 'neck', 'neck_l', 'cloth', 'hair', 'hat']
-        self.num_classes = 19
+        self.class_names, self.colors, self.num_classes = self._get_class_info()
 
         if download:
             self.download()
@@ -109,6 +107,18 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
 
         self.images.sort(key=lambda x: int(os.path.splitext(os.path.basename(x))[0]))
         self.targets.sort(key=lambda x: int(os.path.splitext(os.path.basename(x))[0]))
+
+    def _get_class_info(self):
+        class_names = []
+        colors = []
+        num_classes = 0
+
+        for celebamaskhq_class in self.classes:
+            class_names.append(celebamaskhq_class.name)
+            colors.append(celebamaskhq_class.color)
+            num_classes += 1
+
+        return class_names, colors, num_classes
 
     def download(self):
         dataset_file = {'id': '1PtttcVHOjC5-9xSBPWNHh0OOUrEgHWcl',
