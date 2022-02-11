@@ -35,3 +35,27 @@ Proposed:
       hue: 0
     RandomHorizontalFlip:
   pretrained_weights: weights/Proposed_best_miou.pth
+
+UNet:
+  batch_size: 8
+  epoch: 100
+  criterion:
+    name: CrossEntropyLoss
+  optimizer:
+    name: RAdam
+    lr: 0.001
+  scheduler:
+    name: PolyLR
+  augmentation:
+    RandomResize:
+      min_scale: 1.0
+      max_scale: 2.0
+    RandomCrop:
+      size: !!python/tuple [512, 512]
+    ColorJitter:
+      brightness: 0.5
+      contrast: 0.5
+      saturation: 0.5
+      hue: 0
+    RandomHorizontalFlip:
+  pretrained_weights: weights/UNet_best_miou.pth
