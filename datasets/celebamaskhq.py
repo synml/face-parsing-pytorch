@@ -17,7 +17,7 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
 
     Args:
         root (string): Root directory where images are downloaded to.
-        split (string): One of {'train', 'valid', 'test', 'all'}.
+        split (string): One of {'train', 'val', 'test', 'all'}.
             Accordingly, dataset is selected.
         target_type (string or list, optional): Type of target to use, ``mask``, ``pose``, or ``attr``.
             Can also be a list to output a tuple with all specified target types.
@@ -64,7 +64,7 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
                  target_transform: Optional[Callable] = None,
                  transforms: Optional[Callable] = None):
         super(CelebAMaskHQ, self).__init__(root, transforms, transform, target_transform)
-        assert split in ('train', 'valid', 'test', 'all')
+        assert split in ('train', 'val', 'test', 'all')
         assert target_type in ('mask', 'pose', 'attr')
         self.split = split
         self.target_type = target_type
@@ -100,7 +100,7 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
                 hq_id = orig_to_hq_mapping[orig_file]
                 if self.split == 'train' and split_idx == '0':
                     self.images.append(os.path.join(self.root, 'CelebA-HQ-img', hq_id + '.jpg'))
-                elif self.split == 'valid' and split_idx == '1':
+                elif self.split == 'val' and split_idx == '1':
                     self.images.append(os.path.join(self.root, 'CelebA-HQ-img', hq_id + '.jpg'))
                 elif self.split == 'test' and split_idx == '2':
                     self.images.append(os.path.join(self.root, 'CelebA-HQ-img', hq_id + '.jpg'))
