@@ -1,0 +1,191 @@
+# Dataset settings
+dataset:
+  name: CelebAMaskHQ
+  root: ../../data/CelebAMask-HQ
+  num_workers: 4
+  pin_memory: True
+  normalize_mean: !!python/tuple [0.5, 0.5, 0.5]
+  normalize_std: !!python/tuple [0.5, 0.5, 0.5]
+  class_weight:
+
+# Model definitions
+Attention_DeepLabv3plus:
+  backbone: Xception
+  output_stride: 16
+  batch_size: 8
+  epoch: 100
+  criterion:
+    name: CrossEntropyLoss
+  optimizer:
+    name: AdamW
+    lr: 0.001
+  scheduler:
+    name: PolyLR
+  augmentation:
+    RandomCrop:
+      size: !!python/tuple [769, 769]
+    RandomAdjustSharpness:
+      sharpness_factor: 2
+    ColorJitter:
+      brightness: 0.5
+      contrast: 0.5
+      saturation: 0.5
+      hue: 0
+    RandomHorizontalFlip:
+  pretrained_weights: weights/Attention_DeepLabv3plus_best_miou.pth
+
+DeepLabv3plus:
+  backbone: Xception
+  output_stride: 16
+  batch_size: 8
+  epoch: 110
+  criterion:
+    name: CrossEntropyLoss
+  aux_criterion:
+  optimizer:
+    name: RAdam
+    lr: 0.001
+    weight_decay: 0
+  scheduler:
+    name: PolyLR
+  augmentation:
+    RandomResize:
+      min_scale: 0.75
+      max_scale: 2.0
+    RandomCrop:
+      size: !!python/tuple [768, 768]
+    ColorJitter:
+      brightness: 0.5
+      contrast: 0.5
+      saturation: 0.5
+      hue: 0
+    RandomHorizontalFlip:
+  pretrained_weights: weights/DeepLabv3plus_best_miou.pth
+
+EAR_Net:
+  batch_size: 6
+  epoch: 120
+  criterion:
+    name: FocalLoss
+    alpha: 1
+    gamma: 1
+  optimizer:
+    name: AdamW
+    lr: 0.001
+  scheduler:
+    name: PolyLR
+  augmentation:
+    RandomCrop:
+      size: !!python/tuple [512, 1024]
+    RandomAdjustSharpness:
+      sharpness_factor: 2
+    ColorJitter:
+      brightness: 0.5
+      contrast: 0.5
+      saturation: 0.5
+      hue: 0
+    RandomHorizontalFlip:
+  pretrained_weights: weights/EAR_Net_best_miou.pth
+
+UNet:
+  batch_size: 8
+  epoch: 100
+  criterion:
+    name: CrossEntropyLoss
+  optimizer:
+    name: AdamW
+    lr: 0.001
+  scheduler:
+    name: PolyLR
+  augmentation:
+    RandomCrop:
+      size: !!python/tuple [512, 1024]
+    RandomAdjustSharpness:
+      sharpness_factor: 2
+    ColorJitter:
+      brightness: 0.5
+      contrast: 0.5
+      saturation: 0.5
+      hue: 0
+    RandomHorizontalFlip:
+  pretrained_weights: weights/UNet_best_miou.pth
+
+Proposed:
+  batch_size: 8
+  epoch: 110
+  criterion:
+    name: CrossEntropyLoss
+  aux_criterion:
+    name: CrossEntropyLoss
+  aux_factor: !!python/tuple [0.2, 0.5]
+  optimizer:
+    name: RAdam
+    lr: 0.001
+    weight_decay: 0
+  scheduler:
+    name: PolyLR
+  augmentation:
+    RandomResize:
+      min_scale: 0.75
+      max_scale: 2.0
+    RandomCrop:
+      size: !!python/tuple [512, 1024]
+    ColorJitter:
+      brightness: 0.5
+      contrast: 0.5
+      saturation: 0.5
+      hue: 0
+    RandomHorizontalFlip:
+  pretrained_weights: weights/Proposed_best_miou.pth
+
+GCMNet:
+  backbone: Xception
+  output_stride: 16
+  batch_size: 8
+  epoch: 100
+  criterion:
+    name: FocalLoss
+    alpha: 1
+    gamma: 1
+  optimizer:
+    name: AdamW
+    lr: 0.0001
+  scheduler:
+    name: PolyLR
+  augmentation:
+    RandomCrop:
+      size: !!python/tuple [512, 1024]
+    RandomAdjustSharpness:
+      sharpness_factor: 2
+    ColorJitter:
+      brightness: 0.5
+      contrast: 0.5
+      saturation: 0.5
+      hue: 0
+    RandomHorizontalFlip:
+  pretrained_weights: weights/GCMNet_best_miou.pth
+
+PSPNet:
+  backbone: ResNet101
+  output_stride: 16
+  batch_size: 8
+  epoch: 100
+  criterion:
+    name: CrossEntropyLoss
+  optimizer:
+    name: AdamW
+    lr: 0.0001
+  scheduler:
+    name: PolyLR
+  augmentation:
+    RandomCrop:
+      size: !!python/tuple [512, 1024]
+    RandomAdjustSharpness:
+      sharpness_factor: 2
+    ColorJitter:
+      brightness: 0.5
+      contrast: 0.5
+      saturation: 0.5
+      hue: 0
+    RandomHorizontalFlip:
+  pretrained_weights: weights/PSPNet_best_miou.pth
