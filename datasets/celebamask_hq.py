@@ -44,8 +44,6 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
         assert target_type in ('mask', 'pose', 'attr')
         self.split = split
         self.target_type = target_type
-        self.images = []
-        self.targets = []
 
         if download:
             self.download()
