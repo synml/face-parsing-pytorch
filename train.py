@@ -52,7 +52,7 @@ if __name__ == '__main__':
     scheduler = builder.build_scheduler(optimizer, len(trainloader) * cfg[model_name]['epoch'])
     scaler = torch.cuda.amp.GradScaler(enabled=amp_enabled)
     if cfg[model_name]['aux_criterion'] is not None:
-        aux_criterion = builder.build_aux_criterion(trainset.ignore_index)
+        aux_criterion = builder.build_aux_criterion()
         aux_factor = builder.build_aux_factor()
     else:
         aux_criterion = None
