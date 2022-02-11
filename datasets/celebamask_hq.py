@@ -3,13 +3,11 @@ import os
 from typing import Callable, List, Optional, Union, Tuple
 import zipfile
 
-from PIL import Image
-import torch
-import torch.utils.data
-import torchvision
-import torchvision.datasets.utils
 import cv2
 import numpy as np
+from PIL import Image
+import torchvision
+import torchvision.datasets.utils
 import tqdm
 
 
