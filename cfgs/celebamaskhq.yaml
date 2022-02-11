@@ -24,7 +24,7 @@ Proposed:
     name: PolyLR
   augmentation:
     RandomResize:
-      min_scale: 0.75
+      min_scale: 1.0
       max_scale: 2.0
     RandomCrop:
       size: !!python/tuple [512, 512]
