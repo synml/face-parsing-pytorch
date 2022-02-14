@@ -7,15 +7,13 @@ import models
 
 def conv3x3(in_planes, out_planes, stride=1):
     """3x3 convolution with padding"""
-    return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
-                     padding=1, bias=False)
+    return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride, padding=1, bias=False)
 
 
 class Bottleneck(nn.Module):
     expansion = 4
 
-    def __init__(self, inplanes, planes, stride=1, abn=nn.BatchNorm2d, dilation=1, downsample=None, fist_dilation=1,
-                 multi_grid=1):
+    def __init__(self, inplanes, planes, stride=1, abn=nn.BatchNorm2d, dilation=1, downsample=None, multi_grid=1):
         super(Bottleneck, self).__init__()
         self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=1, bias=False)
         self.bn1 = abn(planes)
@@ -171,7 +169,7 @@ class EAGRModule(nn.Module):
 
         self.normalize = normalize
         self.num_s = int(plane_mid)
-        self.num_n = (mids) * (mids)
+        self.num_n = mids * mids
         self.priors = nn.AdaptiveAvgPool2d(output_size=(mids + 2, mids + 2))
 
         self.conv_state = nn.Conv2d(num_in, self.num_s, kernel_size=1)
