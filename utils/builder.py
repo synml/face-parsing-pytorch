@@ -72,6 +72,8 @@ class Builder:
             model = models.proposed.Proposed(num_classes)
         elif cfg_model_name == 'UNet':
             model = models.unet.UNet(num_classes)
+        elif cfg_model_name == 'EAGRNet':
+            model = models.eagr.EAGRNet(num_classes)
         else:
             raise NotImplementedError('Wrong model name.')
 
