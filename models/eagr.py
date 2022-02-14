@@ -121,9 +121,9 @@ class PSPModule(nn.Module):
         return bottle
 
 
-class Decoder_Module(nn.Module):
+class Decoder(nn.Module):
     def __init__(self, in_plane1, in_plane2, num_classes, abn=nn.BatchNorm2d):
-        super(Decoder_Module, self).__init__()
+        super(Decoder, self).__init__()
         self.conv1 = nn.Sequential(
             nn.Conv2d(in_plane1, 256, kernel_size=1, padding=0, dilation=1, bias=False),
             abn(256)
@@ -238,7 +238,7 @@ class EAGRNet(nn.Module):
         self.edge_layer = EdgeModule(abn)
         self.block1 = EAGRModule(512, 128, 4, abn)
         self.block2 = EAGRModule(256, 64, 4, abn)
-        self.layer6 = Decoder_Module(512, 256, num_classes, abn)
+        self.layer6 = Decoder(512, 256, num_classes, abn)
 
     def _make_layer(self, block, planes, blocks, stride=1, dilation=1, multi_grid=1):
         downsample = None
