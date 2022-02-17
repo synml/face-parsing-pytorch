@@ -7,7 +7,7 @@ import torchvision
 
 def draw_segmentation_masks(images: torch.Tensor,
                             masks: torch.Tensor,
-                            colormap: Union[list, tuple],
+                            colors: Union[list, tuple],
                             alpha: float = 0.5,
                             ignore_index: int = None,
                             ignore_color: Union[list, tuple] = None):
@@ -25,10 +25,10 @@ def draw_segmentation_masks(images: torch.Tensor,
     b = masks.clone()
 
     # Assign colors according to class for each channel (각 채널 별로 class에 따라 색상 대입)
-    for i in range(len(colormap)):
-        r[masks == i] = colormap[i][0]
-        g[masks == i] = colormap[i][1]
-        b[masks == i] = colormap[i][2]
+    for i in range(len(colors)):
+        r[masks == i] = colors[i][0]
+        g[masks == i] = colors[i][1]
+        b[masks == i] = colors[i][2]
     if ignore_index and ignore_color is not None:
         r[masks == ignore_index] = ignore_color[0]
         g[masks == ignore_index] = ignore_color[1]
