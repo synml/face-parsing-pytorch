@@ -80,7 +80,7 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
 
         if self.split == 'all':
             self.images = glob.glob(os.path.join(self.root, 'CelebA-HQ-img', '*'))
-            self.targets = glob.glob(os.path.join(self.root, 'preprocessed_mask', '*'))
+            self.targets = glob.glob(os.path.join(self.preprocessed_mask_path, '*'))
         else:
             # Load mapping information
             orig_to_hq_mapping = {}
@@ -173,7 +173,3 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
     def extra_repr(self) -> str:
         lines = ['Split: {split}', 'Type: {target_type}']
         return '\n'.join(lines).format(**self.__dict__)
-
-
-if __name__ == '__main__':
-    CelebAMaskHQ('d:/data/CelebAMask-HQ')
