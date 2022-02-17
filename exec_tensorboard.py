@@ -1,4 +1,8 @@
 import os
+import platform
 
-os.system('clear')
+if platform.system() == 'Windows':
+    os.system('cls')
+else:
+    os.system('clear')
 os.system('tensorboard --logdir=runs --bind_all --port=10000')
