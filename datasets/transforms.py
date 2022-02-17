@@ -1,5 +1,6 @@
 from typing import Sequence, Union
 
+from PIL import Image
 import numpy as np
 import torch
 import torch.nn as nn
@@ -8,7 +9,7 @@ import torchvision.transforms.functional as TF
 
 
 class Transforms:
-    def __init__(self, cfg: dict, augmentation=False):
+    def __init__(self, cfg: dict, device: torch.device, augmentation=False):
         self.augmentation = None
         if augmentation:
             cfg_augmentation: dict = cfg[cfg['model']['name']]['augmentation']
@@ -32,12 +33,12 @@ class Transforms:
                     compose_items.append(Resize(v['size']))
                 else:
                     raise NotImplementedError('Wrong augmentation.')
-            self.augmentation = torchvision.transforms.Compose(compose_items)
+            self.augmentation = torch.nn.Sequential(*compose_items)
 
-        self.to_tensor = ToTensor()
+        self.to_tensor = ToTensor(device)
         self.normalize = Normalize(cfg['dataset']['normalize_mean'], cfg['dataset']['normalize_std'])
 
-    def __call__(self, image, target):
+    def __call__(self, image: Image.Image, target: Image.Image) -> tuple[torch.Tensor, torch.Tensor]:
         data = {'image': image, 'target': target}
 
         data = self.to_tensor(data)
@@ -188,7 +189,10 @@ class Normalize(torchvision.transforms.Normalize):
 
 
 class ToTensor(torchvision.transforms.ToTensor):
+    def __init__(self, device: torch.device):
+        self.device = device
+
     def __call__(self, data: dict):
-        data['image'] = TF.to_tensor(data['image'])
-        data['target'] = torch.as_tensor(np.array(data['target']), dtype=torch.int64)
+        data['image'] = TF.to_tensor(data['image']).to(self.device)
+        data['target'] = torch.as_tensor(np.array(data['target']), dtype=torch.int64, device=self.device)
         return data

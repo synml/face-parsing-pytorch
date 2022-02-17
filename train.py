@@ -10,9 +10,8 @@ import eval
 import utils
 
 if __name__ == '__main__':
-    # Load cfg and create components builder
+    # Load cfg
     cfg = utils.builder.load_cfg()
-    builder = utils.builder.Builder(cfg)
 
     # Distributed Data-Parallel Training (DDP)
     ddp_enabled = cfg['ddp_enabled']
@@ -33,12 +32,15 @@ if __name__ == '__main__':
     else:
         device = torch.device('cpu')
 
+    # Create components builder
+    builder = utils.builder.Builder(cfg, device)
+
     # 1. Dataset
     trainset, trainloader = builder.build_dataset('train', ddp_enabled)
     _, valloader = builder.build_dataset('val', ddp_enabled)
 
     # 2. Model
-    model = builder.build_model(trainset.num_classes).to(device)
+    model = builder.build_model(trainset.num_classes)
     if ddp_enabled:
         model = torch.nn.parallel.DistributedDataParallel(model)
         model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)

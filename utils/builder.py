@@ -27,8 +27,9 @@ def load_cfg() -> dict:
 
 
 class Builder:
-    def __init__(self, cfg: dict):
+    def __init__(self, cfg: dict, device: torch.device):
         self.cfg = cfg
+        self.device = device
 
     def build_dataset(self, dataset_type: str, ddp_enabled=False) -> tuple[torch.utils.data.Dataset,
                                                                            torch.utils.data.DataLoader]:
@@ -40,11 +41,11 @@ class Builder:
         else:
             num_workers = self.cfg['dataset']['num_workers']
         if dataset_type == 'train':
-            transforms = datasets.transforms.Transforms(self.cfg, augmentation=True)
+            transforms = datasets.transforms.Transforms(self.cfg, self.device, augmentation=True)
             shuffle = True
             pin_memory = cfg_dataset['pin_memory']
         else:
-            transforms = datasets.transforms.Transforms(self.cfg)
+            transforms = datasets.transforms.Transforms(self.cfg, self.device)
             shuffle = False
             pin_memory = False
 
@@ -85,7 +86,7 @@ class Builder:
                 model.load_state_dict(state_dict)
             else:
                 print(f'FileNotFound: pretrained_weights ({cfg_model_name})')
-        return model
+        return model.to(self.device)
 
     def build_criterion(self) -> nn.Module:
         cfg_criterion = self.cfg[self.cfg['model']['name']]['criterion']
