@@ -53,8 +53,8 @@ if __name__ == '__main__':
                 outputs = torch.argmax(outputs, dim=1)
 
         if gt:
-            targets = datasets.utils.decode_segmap_to_color_image(targets, valset.colors, valset.num_classes)
-        outputs = datasets.utils.decode_segmap_to_color_image(outputs, valset.colors, valset.num_classes)
+            targets = datasets.utils.draw_segmentation_masks(images, targets, valset.colors)
+        outputs = datasets.utils.draw_segmentation_masks(images, outputs, valset.colors)
 
         # process per 1 batch
         for i in range(targets.shape[0]):

@@ -147,9 +147,9 @@ if __name__ == '__main__':
                 outputs = model(images)
                 outputs = torch.argmax(outputs, dim=1)
             if epoch == 0:
-                targets = datasets.utils.decode_segmap_to_color_image(targets, trainset.colors, trainset.num_classes)
+                targets = datasets.utils.draw_segmentation_masks(images, targets, trainset.colors)
                 writer.add_images('eval/0Groundtruth', targets, epoch)
-            outputs = datasets.utils.decode_segmap_to_color_image(outputs, trainset.colors, trainset.num_classes)
+            outputs = datasets.utils.draw_segmentation_masks(images, outputs, trainset.colors)
             writer.add_images('eval/1' + model_name, outputs, epoch)
 
         if local_rank == 0:
