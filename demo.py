@@ -41,7 +41,7 @@ if __name__ == '__main__':
     # Save segmentation results
     result_dir = os.path.join('demo', model_name.lower())
     groundtruth_dir = os.path.join('demo', 'groundtruth')
-    os.makedirs(result_dir, exist_ok=True)f
+    os.makedirs(result_dir, exist_ok=True)
     os.makedirs(groundtruth_dir, exist_ok=True)
     step = 0
     for images, targets in tqdm.tqdm(valloader, desc='Demo'):
