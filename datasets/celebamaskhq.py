@@ -173,3 +173,7 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
     def extra_repr(self) -> str:
         lines = ['Split: {split}', 'Type: {target_type}']
         return '\n'.join(lines).format(**self.__dict__)
+
+
+if __name__ == '__main__':
+    dataset = CelebAMaskHQ('../../../data/CelebAMask-HQ')
