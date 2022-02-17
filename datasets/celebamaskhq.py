@@ -4,16 +4,15 @@ import os
 from typing import Callable, List, Optional, Union, Tuple
 import zipfile
 
-import cv2
-import numpy as np
 from PIL import Image
+import torch
 import torchvision
 import torchvision.datasets.utils
 import tqdm
 
 
 class CelebAMaskHQ(torchvision.datasets.VisionDataset):
-    """CelebAMask-HQ Dataset <http://mmlab.ie.cuhk.edu.hk/projects/CelebA/CelebAMask_HQ.html>
+    """CelebAMask-HQ Dataset
 
     Args:
         root (string): Root directory where images are downloaded to.
@@ -71,11 +70,12 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
         self.images = []
         self.targets = []
         self.class_names, self.colors, self.num_classes = self._get_class_info()
+        self.preprocessed_mask_path = os.path.join(self.root, 'preprocessed_mask')
 
         if download:
             self.download()
 
-        if not os.path.exists(os.path.join(self.root, 'preprocessed_mask')):
+        if not (os.path.exists(self.preprocessed_mask_path) and len(os.listdir(self.preprocessed_mask_path)) == 30000):
             self.preprocess()
 
         if self.split == 'all':
@@ -141,21 +141,20 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
 
     def preprocess(self):
         orig_mask_path = os.path.join(self.root, 'CelebAMask-HQ-mask-anno')
-        mask_path = os.path.join(self.root, 'preprocessed_mask')
-        os.makedirs(mask_path, exist_ok=True)
+        os.makedirs(self.preprocessed_mask_path, exist_ok=True)
 
         # i는 orig_mask_path의 하위 폴더 0 ~ 14를 지정
         # j는 각 하위 폴더의 이미지 index 범위를 지정
-        for i in tqdm.tqdm(range(15), desc='Preprocess dataset'):
-            for j in tqdm.tqdm(range(i * 2000, (i + 1) * 2000), leave=False):
-                mask = np.zeros((512, 512), np.uint8)
+        for i in range(15):
+            for j in tqdm.tqdm(range(i * 2000, (i + 1) * 2000), desc=f'Preprocess dataset ({i}/14)', leave=False):
+                mask = torch.zeros((512, 512), dtype=torch.uint8)
                 for cls in self.classes[1:]:
                     file_name = str(j).zfill(5) + '_' + cls.name + '.png'
                     path = os.path.join(orig_mask_path, str(i), file_name)
                     if os.path.exists(path):
-                        orig_mask = np.array(Image.open(path).convert('L'))
+                        orig_mask = torchvision.io.read_image(path, torchvision.io.ImageReadMode.GRAY).squeeze(0)
                         mask[orig_mask == 255] = cls.id
-                cv2.imwrite(os.path.join(mask_path, f'{j}.png'), mask)
+                torchvision.io.write_png(mask.unsqueeze(0), os.path.join(self.preprocessed_mask_path, f'{j}.png'))
 
     def __getitem__(self, index) -> Tuple[Image.Image, Image.Image]:
         image = Image.open(self.images[index]).convert('RGB')
@@ -174,3 +173,7 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
     def extra_repr(self) -> str:
         lines = ['Split: {split}', 'Type: {target_type}']
         return '\n'.join(lines).format(**self.__dict__)
+
+
+if __name__ == '__main__':
+    CelebAMaskHQ('d:/data/CelebAMask-HQ')
