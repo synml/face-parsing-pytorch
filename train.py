@@ -142,7 +142,7 @@ if __name__ == '__main__':
         # Write predicted segmentation map
         if writer is not None:
             images, targets = valloader.__iter__().__next__()
-            images, targets = images[2:4].to(device), targets[2:4]
+            images, targets = images[:3].to(device), targets[:3]
             with torch.no_grad():
                 outputs = model(images)
                 outputs = torch.argmax(outputs, dim=1)
