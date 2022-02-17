@@ -148,7 +148,7 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
         # j는 각 하위 폴더의 이미지 index 범위를 지정
         for i in tqdm.tqdm(range(15), desc='Preprocess dataset'):
             for j in tqdm.tqdm(range(i * 2000, (i + 1) * 2000), leave=False):
-                mask = np.zeros((512, 512))
+                mask = np.zeros((512, 512), np.uint8)
                 for cls in self.classes[1:]:
                     file_name = str(j).zfill(5) + '_' + cls.name + '.png'
                     path = os.path.join(orig_mask_path, str(i), file_name)
