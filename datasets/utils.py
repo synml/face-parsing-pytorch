@@ -18,6 +18,7 @@ def draw_segmentation_masks(images: torch.Tensor,
     assert masks.ndim == 3, 'The masks must be of shape (Batch, H, W)'
     assert masks.dtype == torch.int64, f'The masks must be of dtype int64. Got {masks.dtype}'
     assert 0 <= alpha <= 1, 'alpha must be between 0 and 1. 0 means full transparency, 1 means no transparency'
+    assert len(colors[0]) == 3, 'The colors must be RGB format'
 
     # 각 채널 별로 디코딩하기 위해 복사
     r = masks.clone()
@@ -43,6 +44,11 @@ def draw_segmentation_masks(images: torch.Tensor,
     else:
         alpha_decoded_mask = images * (1 - alpha) + decoded_masks * alpha
         return alpha_decoded_mask
+
+
+def generate_color_palette(num_classes):
+    palette = torch.tensor([2 ** 25 - 1, 2 ** 15 - 1, 2 ** 21 - 1])
+    return [tuple((i * palette) % 255) for i in range(num_classes)]
 
 
 # Validate dataset loading code
