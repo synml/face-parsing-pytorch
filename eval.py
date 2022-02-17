@@ -29,8 +29,6 @@ def evaluate(model: torch.nn.Module,
     inference_time = torch.zeros(1, device=device)
     val_loss = torch.zeros(1, device=device)
     for images, targets in tqdm.tqdm(valloader, desc='Eval', leave=False, disable=False if local_rank == 0 else True):
-        images, targets = images.to(device), targets.to(device)
-
         with torch.cuda.amp.autocast(enabled=amp_enabled):
             torch.cuda.synchronize()
             start_time = time.time()

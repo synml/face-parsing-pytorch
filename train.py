@@ -104,7 +104,6 @@ if __name__ == '__main__':
         for batch_idx, (images, targets) in enumerate(tqdm.tqdm(trainloader, desc='Batch', leave=False,
                                                                 disable=False if local_rank == 0 else True)):
             iters = len(trainloader) * epoch + batch_idx
-            images, targets = images.to(device), targets.to(device)
 
             optimizer.zero_grad(set_to_none=True)
             with torch.cuda.amp.autocast(enabled=amp_enabled):

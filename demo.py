@@ -45,8 +45,6 @@ if __name__ == '__main__':
     os.makedirs(groundtruth_dir, exist_ok=True)
     step = 0
     for images, targets in tqdm.tqdm(valloader, desc='Demo'):
-        images, targets = images.to(device), targets.to(device)
-
         with torch.cuda.amp.autocast(enabled=amp_enabled):
             with torch.no_grad():
                 outputs = model(images)
