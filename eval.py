@@ -3,6 +3,7 @@ import os
 import time
 
 import torch
+import torch.utils.data
 import torch.distributed
 import tqdm
 
