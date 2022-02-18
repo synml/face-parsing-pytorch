@@ -1,8 +1,7 @@
 import os
 
-import torch.utils.data
+import torch
 import torchvision
-import torchvision.transforms.functional as TF
 import tqdm
 
 import datasets
