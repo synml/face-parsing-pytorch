@@ -150,10 +150,9 @@ if __name__ == '__main__':
                 mean = torch.tensor(trainset.transforms.normalize.mean)
                 std = torch.tensor(trainset.transforms.normalize.std)
                 images = datasets.utils.inverse_to_tensor_normalize(datasets.utils.inverse_normalize(images, mean, std))
-                targets = datasets.utils.draw_segmentation_masks(images, targets, trainset.colors, 1)
-                writer.add_images('eval/0Input image', images, epoch)
+                targets = datasets.utils.draw_segmentation_masks(images, targets, trainset.colors)
                 writer.add_images('eval/1Groundtruth', targets, epoch)
-            outputs = datasets.utils.draw_segmentation_masks(images, outputs, trainset.colors, 1)
+            outputs = datasets.utils.draw_segmentation_masks(images, outputs, trainset.colors)
             writer.add_images('eval/2' + model_name, outputs, epoch)
 
         if local_rank == 0:
