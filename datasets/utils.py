@@ -13,7 +13,7 @@ def inverse_to_tensor_normalize(tensor: torch.Tensor) -> torch.Tensor:
     return tensor.mul_(255).to(torch.uint8)
 
 
-def draw_segmentation_masks(images: torch.Tensor, masks: torch.Tensor, colors: list, alpha=0.4) -> torch.Tensor:
+def draw_segmentation_masks(images: torch.Tensor, masks: torch.Tensor, colors: list, alpha=0.34) -> torch.Tensor:
     assert images.dtype == torch.uint8, f'The images dtype must be uint8, got {images.dtype}'
     assert images.dim() == 4, 'Pass batches, not individual images'
     assert images.size()[1] == 3, 'Pass RGB images. Other Image formats are not supported'
