@@ -2,8 +2,8 @@ import csv
 import os
 import time
 
+import torch
 import torch.distributed
-import torch.utils.data
 import tqdm
 
 import utils
@@ -80,6 +80,7 @@ if __name__ == '__main__':
 
     # 2. Model
     model = builder.build_model(valset.num_classes, pretrained=True)
+    model.eval()
     model_name = cfg['model']['name']
     amp_enabled = cfg['model']['amp_enabled']
     print(f'Activated model: {model_name}')
