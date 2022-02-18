@@ -143,15 +143,19 @@ if __name__ == '__main__':
         # Write predicted segmentation map
         if writer is not None:
             images, targets = valloader.__iter__().__next__()
-            images, targets = images[:3].to(device), targets[:3]
+            images, targets = images[10:13].to(device), targets[10:13]
             with torch.no_grad():
                 outputs = model(images)
                 outputs = torch.argmax(outputs, dim=1)
             if epoch == 0:
+                mean = torch.tensor(trainset.transforms.normalize.mean)
+                std = torch.tensor(trainset.transforms.normalize.std)
+                images = datasets.utils.inverse_to_tensor_normalize(datasets.utils.inverse_normalize(images, mean, std))
                 targets = datasets.utils.draw_segmentation_masks(images, targets, trainset.colors, 1)
-                writer.add_images('eval/0Groundtruth', targets, epoch)
+                writer.add_images('eval/0Input image', images, epoch)
+                writer.add_images('eval/1Groundtruth', targets, epoch)
             outputs = datasets.utils.draw_segmentation_masks(images, outputs, trainset.colors, 1)
-            writer.add_images('eval/1' + model_name, outputs, epoch)
+            writer.add_images('eval/2' + model_name, outputs, epoch)
 
         if local_rank == 0:
             # Save checkpoint
