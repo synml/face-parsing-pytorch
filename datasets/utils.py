@@ -1,14 +1,19 @@
-from typing import Union
-
 import matplotlib.pyplot as plt
 import torch
 import torchvision
+import torchvision.transforms.functional as TF
 
 
-def draw_segmentation_masks(images: torch.Tensor,
-                            masks: torch.Tensor,
-                            colors: Union[list, tuple],
-                            alpha: float = 0.4):
+def inverse_normalize(tensor: torch.Tensor, mean: torch.Tensor, std: torch.Tensor, inplace=False) -> torch.Tensor:
+    tensor = TF.normalize(tensor, (-mean / std).tolist(), (1.0 / std).tolist(), inplace)
+    return tensor
+
+
+def inverse_to_tensor_normalize(tensor: torch.Tensor) -> torch.Tensor:
+    return tensor.mul_(255).to(torch.uint8)
+
+
+def draw_segmentation_masks(images: torch.Tensor, masks: torch.Tensor, colors: list, alpha=0.4) -> torch.Tensor:
     assert images.dtype == torch.uint8, f'The images dtype must be uint8, got {images.dtype}'
     assert images.dim() == 4, 'Pass batches, not individual images'
     assert images.size()[1] == 3, 'Pass RGB images. Other Image formats are not supported'
@@ -36,7 +41,7 @@ def draw_segmentation_masks(images: torch.Tensor,
         return alpha_colored_mask.to(torch.uint8)
 
 
-def generate_color_palette(num_classes):
+def generate_color_palette(num_classes) -> list[tuple]:
     palette = torch.tensor([2 ** 25 - 1, 2 ** 15 - 1, 2 ** 21 - 1])
     return [tuple((i * palette) % 255) for i in range(num_classes)]
 
