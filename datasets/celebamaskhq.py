@@ -34,24 +34,24 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
     CelebAMaskHQClass = namedtuple('CelebAMaskHQClass', ['name', 'id', 'color'])
     classes = [
         CelebAMaskHQClass('background', 0, (0, 0, 0)),
-        CelebAMaskHQClass('skin', 1, (128, 0, 0)),
-        CelebAMaskHQClass('nose', 2, (0, 128, 0)),
-        CelebAMaskHQClass('eye_g', 3, (128, 128, 0)),
-        CelebAMaskHQClass('l_eye', 4, (0, 0, 128)),
-        CelebAMaskHQClass('r_eye', 5, (128, 0, 128)),
-        CelebAMaskHQClass('l_brow', 6, (0, 128, 128)),
-        CelebAMaskHQClass('r_brow', 7, (128, 128, 128)),
-        CelebAMaskHQClass('l_ear', 8, (64, 0, 0)),
-        CelebAMaskHQClass('r_ear', 9, (192, 0, 0)),
-        CelebAMaskHQClass('mouth', 10, (64, 128, 0)),
-        CelebAMaskHQClass('u_lip', 11, (192, 128, 0)),
-        CelebAMaskHQClass('l_lip', 12, (64, 0, 128)),
-        CelebAMaskHQClass('hair', 13, (192, 0, 128)),
-        CelebAMaskHQClass('hat', 14, (64, 128, 128)),
-        CelebAMaskHQClass('ear_r', 15, (192, 128, 128)),
-        CelebAMaskHQClass('neck_l', 16, (0, 64, 0)),
-        CelebAMaskHQClass('neck', 17, (128, 64, 0)),
-        CelebAMaskHQClass('cloth', 18, (0, 192, 0)),
+        CelebAMaskHQClass('skin', 1, (204, 0, 0)),
+        CelebAMaskHQClass('nose', 2, (76, 153, 0)),
+        CelebAMaskHQClass('eye_g', 3, (204, 204, 0)),
+        CelebAMaskHQClass('l_eye', 4, (51, 51, 255)),
+        CelebAMaskHQClass('r_eye', 5, (204, 0, 204)),
+        CelebAMaskHQClass('l_brow', 6, (0, 255, 255)),
+        CelebAMaskHQClass('r_brow', 7, (255, 204, 204)),
+        CelebAMaskHQClass('l_ear', 8, (102, 51, 0)),
+        CelebAMaskHQClass('r_ear', 9, (255, 0, 0)),
+        CelebAMaskHQClass('mouth', 10, (102, 204, 0)),
+        CelebAMaskHQClass('u_lip', 11, (255, 255, 0)),
+        CelebAMaskHQClass('l_lip', 12, (0, 0, 153)),
+        CelebAMaskHQClass('hair', 13, (0, 0, 204)),
+        CelebAMaskHQClass('hat', 14, (255, 51, 153)),
+        CelebAMaskHQClass('ear_r', 15, (0, 204, 204)),
+        CelebAMaskHQClass('neck_l', 16, (0, 51, 0)),
+        CelebAMaskHQClass('neck', 17, (255, 153, 51)),
+        CelebAMaskHQClass('cloth', 18, (0, 204, 0)),
     ]
 
     def __init__(self,
@@ -171,3 +171,4 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
 
 if __name__ == '__main__':
     dataset = CelebAMaskHQ('../../../data/CelebAMask-HQ')
+    print(dataset.colors)
