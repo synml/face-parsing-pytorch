@@ -8,42 +8,32 @@ import torchvision
 def draw_segmentation_masks(images: torch.Tensor,
                             masks: torch.Tensor,
                             colors: Union[list, tuple],
-                            alpha: float = 0.5,
-                            ignore_index: int = None,
-                            ignore_color: Union[list, tuple] = None):
-    assert images.dtype == torch.float32, f'The images dtype must be float32, got {images.dtype}'
+                            alpha: float = 0.4):
+    assert images.dtype == torch.uint8, f'The images dtype must be uint8, got {images.dtype}'
     assert images.dim() == 4, 'Pass batches, not individual images'
     assert images.size()[1] == 3, 'Pass RGB images. Other Image formats are not supported'
     assert images.shape[-2:] == masks.shape[-2:], 'The images and the masks must have the same height and width'
     assert masks.ndim == 3, 'The masks must be of shape (Batch, H, W)'
     assert masks.dtype == torch.int64, f'The masks must be of dtype int64. Got {masks.dtype}'
+    assert images.device == masks.device, 'The device of images and masks must be the same'
     assert 0 <= alpha <= 1, 'alpha must be between 0 and 1. 0 means full transparency, 1 means no transparency'
     assert len(colors[0]) == 3, 'The colors must be RGB format'
 
-    # 각 채널 별로 디코딩하기 위해 복사
-    r = masks.clone()
-    g = masks.clone()
-    b = masks.clone()
-
-    # Assign colors according to class for each channel (각 채널 별로 class에 따라 색상 대입)
-    for i in range(len(colors)):
-        r[masks == i] = colors[i][0]
-        g[masks == i] = colors[i][1]
-        b[masks == i] = colors[i][2]
-    if ignore_index and ignore_color is not None:
-        r[masks == ignore_index] = ignore_color[0]
-        g[masks == ignore_index] = ignore_color[1]
-        b[masks == ignore_index] = ignore_color[2]
-
-    decoded_masks = (r.unsqueeze(dim=1), g.unsqueeze(dim=1), b.unsqueeze(dim=1))
-    decoded_masks = torch.cat(decoded_masks, dim=1).to(torch.float32)
-    decoded_masks /= 255
+    n, h, w = masks.size()
+    colored_mask = torch.zeros([n, 3, h, w], dtype=torch.uint8, device=masks.device)
+    r = colored_mask[:, 0, :, :]
+    g = colored_mask[:, 1, :, :]
+    b = colored_mask[:, 2, :, :]
+    for i, color in enumerate(colors):
+        r[masks == i] = color[0]
+        g[masks == i] = color[1]
+        b[masks == i] = color[2]
 
     if alpha == 1:
-        return decoded_masks
+        return colored_mask
     else:
-        alpha_decoded_mask = images * (1 - alpha) + decoded_masks * alpha
-        return alpha_decoded_mask
+        alpha_colored_mask = images * (1 - alpha) + colored_mask * alpha
+        return alpha_colored_mask.to(torch.uint8)
 
 
 def generate_color_palette(num_classes):

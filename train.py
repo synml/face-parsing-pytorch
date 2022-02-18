@@ -148,9 +148,9 @@ if __name__ == '__main__':
                 outputs = model(images)
                 outputs = torch.argmax(outputs, dim=1)
             if epoch == 0:
-                targets = datasets.utils.draw_segmentation_masks(images, targets, trainset.colors)
+                targets = datasets.utils.draw_segmentation_masks(images, targets, trainset.colors, 1)
                 writer.add_images('eval/0Groundtruth', targets, epoch)
-            outputs = datasets.utils.draw_segmentation_masks(images, outputs, trainset.colors)
+            outputs = datasets.utils.draw_segmentation_masks(images, outputs, trainset.colors, 1)
             writer.add_images('eval/1' + model_name, outputs, epoch)
 
         if local_rank == 0:
