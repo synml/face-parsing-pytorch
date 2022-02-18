@@ -1,5 +1,4 @@
 import os
-import platform
 
 import torch
 import torch.nn as nn
@@ -36,10 +35,7 @@ class Builder:
         cfg_dataset = self.cfg['dataset']
         root = cfg_dataset['root']
         batch_size = self.cfg[self.cfg['model']['name']]['batch_size']
-        if platform.system() == 'Windows':
-            num_workers = 0
-        else:
-            num_workers = self.cfg['dataset']['num_workers']
+        num_workers = self.cfg['dataset']['num_workers']
         if dataset_type == 'train':
             transforms = datasets.transforms.Transforms(self.cfg, self.device, augmentation=True)
             shuffle = True
