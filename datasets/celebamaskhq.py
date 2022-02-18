@@ -16,7 +16,7 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
 
     Args:
         root (string): Root directory where images are downloaded to.
-        split (string): One of {'train', 'val', 'test', 'all'}.
+        split (string): One of {'train', 'val', 'trainval', 'test', 'all'}.
             Accordingly, dataset is selected.
         target_type (string or list, optional): Type of target to use, ``mask``, ``pose``, or ``attr``.
             Can also be a list to output a tuple with all specified target types.
