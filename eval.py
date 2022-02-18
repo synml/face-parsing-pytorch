@@ -30,6 +30,8 @@ def evaluate(model: torch.nn.Module,
     inference_time = torch.zeros(1, device=device)
     val_loss = torch.zeros(1, device=device)
     for images, targets in tqdm.tqdm(valloader, desc='Eval', leave=False, disable=False if local_rank == 0 else True):
+        images, targets = images.to(device), targets.to(device)
+
         with torch.cuda.amp.autocast(enabled=amp_enabled):
             torch.cuda.synchronize()
             start_time = time.time()
@@ -69,18 +71,18 @@ def evaluate(model: torch.nn.Module,
 
 
 if __name__ == '__main__':
-    # Device
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
     # Load cfg and create components builder
     cfg = utils.builder.load_cfg()
-    builder = utils.builder.Builder(cfg, device)
+    builder = utils.builder.Builder(cfg)
+
+    # Device
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # 1. Dataset
     valset, valloader = builder.build_dataset('val')
 
     # 2. Model
-    model = builder.build_model(valset.num_classes, pretrained=True)
+    model = builder.build_model(valset.num_classes, pretrained=True).to(device)
     model.eval()
     model_name = cfg['model']['name']
     amp_enabled = cfg['model']['amp_enabled']

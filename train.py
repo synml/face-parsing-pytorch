@@ -10,8 +10,9 @@ import eval
 import utils
 
 if __name__ == '__main__':
-    # Load cfg
+    # Load cfg and create components builder
     cfg = utils.builder.load_cfg()
+    builder = utils.builder.Builder(cfg)
 
     # Distributed Data-Parallel Training (DDP)
     ddp_enabled = cfg['ddp_enabled']
@@ -32,15 +33,12 @@ if __name__ == '__main__':
     else:
         device = torch.device('cpu')
 
-    # Create components builder
-    builder = utils.builder.Builder(cfg, device)
-
     # 1. Dataset
     trainset, trainloader = builder.build_dataset('train', ddp_enabled)
     _, valloader = builder.build_dataset('val', ddp_enabled)
 
     # 2. Model
-    model = builder.build_model(trainset.num_classes)
+    model = builder.build_model(trainset.num_classes).to(device)
     if ddp_enabled:
         model = torch.nn.parallel.DistributedDataParallel(model)
         model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
@@ -104,6 +102,7 @@ if __name__ == '__main__':
         for batch_idx, (images, targets) in enumerate(tqdm.tqdm(trainloader, desc='Batch', leave=False,
                                                                 disable=False if local_rank == 0 else True)):
             iters = len(trainloader) * epoch + batch_idx
+            images, targets = images.to(device), targets.to(device)
 
             optimizer.zero_grad(set_to_none=True)
             with torch.cuda.amp.autocast(enabled=amp_enabled):
