@@ -9,7 +9,7 @@ import torchvision.transforms.functional as TF
 
 
 class Transforms:
-    def __init__(self, cfg: dict, device: torch.device, augmentation=False):
+    def __init__(self, cfg: dict, augmentation=False):
         self.augmentation = None
         if augmentation:
             cfg_augmentation: dict = cfg[cfg['model']['name']]['augmentation']
@@ -35,7 +35,7 @@ class Transforms:
                     raise NotImplementedError('Wrong augmentation.')
             self.augmentation = torch.nn.Sequential(*compose_items)
 
-        self.to_tensor = ToTensor(device)
+        self.to_tensor = ToTensor()
         self.normalize = Normalize(cfg['dataset']['normalize_mean'], cfg['dataset']['normalize_std'])
 
     def __call__(self, image: Image.Image, target: Image.Image) -> tuple[torch.Tensor, torch.Tensor]:
@@ -189,10 +189,7 @@ class Normalize(torchvision.transforms.Normalize):
 
 
 class ToTensor(torchvision.transforms.ToTensor):
-    def __init__(self, device: torch.device):
-        self.device = device
-
     def __call__(self, data: dict):
-        data['image'] = TF.to_tensor(data['image']).to(self.device)
-        data['target'] = torch.as_tensor(np.array(data['target']), dtype=torch.int64, device=self.device)
+        data['image'] = TF.to_tensor(data['image'])
+        data['target'] = torch.as_tensor(np.array(data['target']), dtype=torch.int64)
         return data
