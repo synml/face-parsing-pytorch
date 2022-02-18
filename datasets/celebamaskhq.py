@@ -63,7 +63,7 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
                  target_transform: Optional[Callable] = None,
                  transforms: Optional[Callable] = None):
         super(CelebAMaskHQ, self).__init__(root, transforms, transform, target_transform)
-        assert split in ('train', 'val', 'test', 'all')
+        assert split in ('train', 'val', 'trainval', 'test', 'all')
         assert target_type in ('mask', 'pose', 'attr')
         self.split = split
         self.target_type = target_type
@@ -102,6 +102,8 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
                     self.images.append(os.path.join(self.root, 'CelebA-HQ-img', hq_id + '.jpg'))
                 elif self.split == 'val' and split_idx == '1':
                     self.images.append(os.path.join(self.root, 'CelebA-HQ-img', hq_id + '.jpg'))
+                elif self.split == 'trainval' and (split_idx == '0' or split_idx == '1'):
+                    self.images.append(os.path.join(self.root, 'CelebA-HQ-img', hq_id + '.jpg'))
                 elif self.split == 'test' and split_idx == '2':
                     self.images.append(os.path.join(self.root, 'CelebA-HQ-img', hq_id + '.jpg'))
             self.targets = [i.replace('CelebA-HQ-img', 'preprocessed_mask').replace('.jpg', '.png')
@@ -111,14 +113,16 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
         self.targets.sort(key=lambda x: int(os.path.splitext(os.path.basename(x))[0]))
 
     def download(self):
-        dataset_file = {'id': '1PtttcVHOjC5-9xSBPWNHh0OOUrEgHWcl',
-                        'dir': os.path.dirname(self.root),
-                        'name': 'CelebAMask-HQ.zip',
-                        'md5': 'f1d85e89ae6ac8c1cee9f1278095ce09'}
+        dataset_file = {
+            'id': '1PtttcVHOjC5-9xSBPWNHh0OOUrEgHWcl',
+            'dir': os.path.dirname(self.root),
+            'name': 'CelebAMask-HQ.zip',
+            'md5': 'f1d85e89ae6ac8c1cee9f1278095ce09'
+        }
         dataset_file_path = os.path.join(dataset_file['dir'], dataset_file['name'])
 
         if torchvision.datasets.utils.check_integrity(dataset_file_path, dataset_file['md5']):
-            print('A file already downloaded and verified.')
+            print('A archive file already downloaded and verified.')
             return
 
         print('Download a dataset archive. . .')
