@@ -37,25 +37,20 @@ if __name__ == '__main__':
     groundtruth_dir = os.path.join('demo', 'groundtruth')
     os.makedirs(result_dir, exist_ok=True)
     os.makedirs(groundtruth_dir, exist_ok=True)
-    for idx, (images, targets) in enumerate(tqdm.tqdm(valloader, desc='Demo')):
+    for i, (images, targets) in enumerate(tqdm.tqdm(valloader, desc='Demo')):
         with torch.cuda.amp.autocast(enabled=amp_enabled):
             with torch.no_grad():
                 outputs = model(images)
                 outputs = torch.argmax(outputs, dim=1)
 
-        # Load input image
-        batch_size = images.shape[0]
-        images = [TF.resize(torchvision.io.read_image(image_path).unsqueeze(0), [512, 512], antialias=True)
-                  for image_path in valset.images[batch_size * idx:batch_size * (idx + 1)]]
-        images = torch.cat(images, dim=0).to(device)
-        targets = datasets.utils.draw_segmentation_masks(images, targets, valset.colors)
+        mean = torch.tensor(valset.transforms.normalize.mean)
+        std = torch.tensor(valset.transforms.normalize.std)
+        images = datasets.utils.inverse_to_tensor_normalize(datasets.utils.inverse_normalize(images, mean, std))
         outputs = datasets.utils.draw_segmentation_masks(images, outputs, valset.colors)
+        targets = datasets.utils.draw_segmentation_masks(images, targets, valset.colors)
 
         # process per 1 batch
-        for i in range(targets.shape[0]):
-            torchvision.io.write_jpeg(targets[i].cpu(),
-                                      os.path.join(groundtruth_dir, image_names[batch_size * idx + i]),
-                                      quality=100)
-            torchvision.io.write_jpeg(outputs[i].cpu(),
-                                      os.path.join(result_dir, image_names[batch_size * idx + i]),
-                                      quality=100)
+        for j, (output, target) in enumerate(zip(outputs, targets)):
+            file_name = image_names[targets.shape[0] * i + j]
+            torchvision.io.write_jpeg(output.cpu(), os.path.join(result_dir, file_name), quality=100)
+            torchvision.io.write_jpeg(target.cpu(), os.path.join(groundtruth_dir, file_name), quality=100)
