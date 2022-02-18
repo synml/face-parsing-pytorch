@@ -31,13 +31,6 @@ if __name__ == '__main__':
         image_name = image_path.replace('\\', '/').split('/')[-1]
         image_names.append(image_name)
 
-    # Select outputing groundtruth
-    gt = input('Do you also output groundtruth ([y]/n)? ')
-    if gt == 'n':
-        gt = False
-    else:
-        gt = True
-
     # Save segmentation results
     result_dir = os.path.join('demo', model_name.lower())
     groundtruth_dir = os.path.join('demo', 'groundtruth')
@@ -50,13 +43,11 @@ if __name__ == '__main__':
                 outputs = model(images)
                 outputs = torch.argmax(outputs, dim=1)
 
-        if gt:
-            targets = datasets.utils.draw_segmentation_masks(images, targets, valset.colors)
+        targets = datasets.utils.draw_segmentation_masks(images, targets, valset.colors)
         outputs = datasets.utils.draw_segmentation_masks(images, outputs, valset.colors)
 
         # process per 1 batch
         for i in range(targets.shape[0]):
-            if gt:
-                torchvision.utils.save_image(targets[i], os.path.join(groundtruth_dir, image_names[step]))
+            torchvision.utils.save_image(targets[i], os.path.join(groundtruth_dir, image_names[step]))
             torchvision.utils.save_image(outputs[i], os.path.join(result_dir, image_names[step]))
             step += 1
