@@ -13,7 +13,7 @@ def inverse_to_tensor_normalize(tensor: torch.Tensor) -> torch.Tensor:
     return tensor.mul_(255).to(torch.uint8)
 
 
-def draw_segmentation_masks(images: torch.Tensor, masks: torch.Tensor, colors: list, alpha=0.34) -> torch.Tensor:
+def draw_segmentation_masks(images: torch.Tensor, masks: torch.Tensor, colors: list, alpha=0.34, gamma=10):
     assert images.dtype == torch.uint8, f'The images dtype must be uint8, got {images.dtype}'
     assert images.dim() == 4, 'Pass batches, not individual images'
     assert images.size()[1] == 3, 'Pass RGB images. Other Image formats are not supported'
@@ -37,8 +37,9 @@ def draw_segmentation_masks(images: torch.Tensor, masks: torch.Tensor, colors: l
     if alpha == 1:
         return colored_mask
     else:
-        alpha_colored_mask = images * (1 - alpha) + colored_mask * alpha
-        return alpha_colored_mask.to(torch.uint8)
+        alpha_colored_mask = images * (1 - alpha) + colored_mask * alpha + gamma
+        alpha_colored_mask = alpha_colored_mask.clamp(0, 255).to(torch.uint8)
+        return alpha_colored_mask
 
 
 def generate_color_palette(num_classes) -> list[tuple]:
