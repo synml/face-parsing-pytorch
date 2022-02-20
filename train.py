@@ -133,7 +133,7 @@ if __name__ == '__main__':
             scheduler.step()
 
         # Evaluate
-        val_loss, _, miou, _ = eval.evaluate(model, valloader, criterion, trainset.num_classes,
+        val_loss, miou, _, _ = eval.evaluate(model, valloader, criterion, trainset.num_classes,
                                              amp_enabled, ddp_enabled, device)
         if writer is not None:
             writer.add_scalar('loss/validation', val_loss, epoch)

@@ -37,7 +37,7 @@ class Evaluator:
     def mean_intersection_over_union(self, percent=False) -> tuple[torch.Tensor, torch.Tensor]:
         iou = self.intersection_over_union(percent)
         miou = torch.nanmean(iou)
-        return iou, miou
+        return miou, iou
 
     # Same as dice coefficient
     def f1_score(self, percent=False) -> torch.Tensor:
@@ -50,4 +50,4 @@ class Evaluator:
     def mean_f1_score(self, percent=False) -> tuple[torch.Tensor, torch.Tensor]:
         f1_score = self.f1_score(percent)
         mean_f1_score = torch.nanmean(f1_score)
-        return f1_score, mean_f1_score
+        return mean_f1_score, f1_score
