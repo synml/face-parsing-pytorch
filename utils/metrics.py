@@ -38,3 +38,16 @@ class Evaluator:
         iou = self.intersection_over_union(percent)
         miou = torch.nanmean(iou)
         return iou, miou
+
+    # Same as dice coefficient
+    def f1_score(self, percent=False):
+        f1_score = torch.diag(self.confusion_matrix) * 2 / (self.confusion_matrix.sum(dim=0) +
+                                                            self.confusion_matrix.sum(dim=1))
+        if percent:
+            f1_score *= 100
+        return f1_score
+
+    def mean_f1_score(self, percent=False):
+        f1_score = self.f1_score(percent)
+        mean_f1_score = torch.nanmean(f1_score)
+        return f1_score, mean_f1_score
