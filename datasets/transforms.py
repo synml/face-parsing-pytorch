@@ -190,6 +190,12 @@ class Normalize(torchvision.transforms.Normalize):
 
 class ToTensor(torchvision.transforms.ToTensor):
     def __call__(self, data: dict):
-        data['image'] = TF.to_tensor(data['image'])
-        data['target'] = torch.as_tensor(np.array(data['target']), dtype=torch.int64)
+        if isinstance(data['image'], Image.Image) and isinstance(data['target'], Image.Image):
+            data['image'] = TF.to_tensor(data['image'])
+            data['target'] = torch.as_tensor(np.array(data['target']), dtype=torch.int64)
+        elif isinstance(data['image'], torch.Tensor) and isinstance(data['target'], torch.Tensor):
+            data['image'] = data['image'].to(torch.get_default_dtype()).div(255)
+            data['target'] = data['target'].squeeze(0).to(torch.int64)
+        else:
+            raise TypeError('Wrong type of input data.')
         return data
