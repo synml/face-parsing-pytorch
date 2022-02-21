@@ -26,10 +26,7 @@ if __name__ == '__main__':
     print(f'Activated model: {model_name}')
 
     # Collect image names
-    image_names = []
-    for image_path in valset.images:
-        image_name = image_path.replace('\\', '/').split('/')[-1]
-        image_names.append(image_name)
+    image_names = [os.path.basename(image_path) for image_path in valset.images]
 
     # Save segmentation results
     result_dir = os.path.join('demo', model_name.lower())
