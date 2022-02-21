@@ -8,6 +8,7 @@ from PIL import Image
 import torch
 import torchvision
 import torchvision.datasets.utils
+import torchvision.transforms.functional as TF
 import tqdm
 
 
@@ -151,17 +152,17 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
                 torchvision.io.write_png(mask.unsqueeze(0), os.path.join(self.preprocessed_mask_path, f'{j}.png'))
 
     def __getitem__(self, index) -> Tuple[Image.Image, Image.Image]:
-        image = Image.open(self.images[index]).convert('RGB')
-        image = image.resize((512, 512), Image.BILINEAR)
+        image = torchvision.io.read_image(self.images[index], torchvision.io.ImageReadMode.RGB)
+        image = TF.resize(image, [512, 512], TF.InterpolationMode.BILINEAR, antialias=True)
 
-        target = Image.open(self.targets[index]).convert('L')
+        target = torchvision.io.read_image(self.targets[index], torchvision.io.ImageReadMode.GRAY)
 
         if self.transforms is not None:
             image, target = self.transforms(image, target)
 
         return image, target
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.images)
 
     def extra_repr(self) -> str:
