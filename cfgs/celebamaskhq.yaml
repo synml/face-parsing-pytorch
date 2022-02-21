@@ -2,14 +2,14 @@
 dataset:
   name: CelebAMaskHQ
   root: ../../data/CelebAMask-HQ
-  num_workers: 4
+  num_workers: 128
   pin_memory: True
   normalize_mean: !!python/tuple [0.5, 0.5, 0.5]
   normalize_std: !!python/tuple [0.5, 0.5, 0.5]
 
 # Model definitions
 Proposed:
-  batch_size: 16
+  batch_size: 64
   epoch: 100
   criterion:
     name: CrossEntropyLoss
@@ -25,7 +25,7 @@ Proposed:
   augmentation:
     RandomResize:
       min_scale: 1.0
-      max_scale: 2.0
+      max_scale: 1.2
     RandomCrop:
       size: !!python/tuple [512, 512]
     ColorJitter:
@@ -37,7 +37,7 @@ Proposed:
   pretrained_weights: weights/Proposed_best_miou.pth
 
 UNet:
-  batch_size: 16
+  batch_size: 64
   epoch: 100
   criterion:
     name: CrossEntropyLoss
@@ -51,7 +51,7 @@ UNet:
   augmentation:
     RandomResize:
       min_scale: 1.0
-      max_scale: 2.0
+      max_scale: 1.2
     RandomCrop:
       size: !!python/tuple [512, 512]
     ColorJitter:
@@ -63,7 +63,7 @@ UNet:
   pretrained_weights: weights/UNet_best_miou.pth
 
 EAGRNet:
-  batch_size: 8
+  batch_size: 64
   epoch: 100
   criterion:
     name: CrossEntropyLoss
@@ -77,7 +77,7 @@ EAGRNet:
   augmentation:
     RandomResize:
       min_scale: 1.0
-      max_scale: 2.0
+      max_scale: 1.2
     RandomCrop:
       size: !!python/tuple [512, 512]
     ColorJitter:
