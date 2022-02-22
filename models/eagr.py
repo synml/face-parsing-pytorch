@@ -1,115 +1,60 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torchvision
 
 import models
 
 
-def conv3x3(in_planes, out_planes, stride=1):
-    """3x3 convolution with padding"""
-    return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride, padding=1, bias=False)
-
-
-class Bottleneck(nn.Module):
-    expansion = 4
-
-    def __init__(self, inplanes, planes, stride=1, abn=nn.BatchNorm2d, dilation=1, downsample=None, multi_grid=1):
-        super(Bottleneck, self).__init__()
-        self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=1, bias=False)
-        self.bn1 = abn(planes)
-        self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=stride,
-                               padding=dilation * multi_grid, dilation=dilation * multi_grid, bias=False)
-        self.bn2 = abn(planes)
-        self.conv3 = nn.Conv2d(planes, planes * 4, kernel_size=1, bias=False)
-        self.bn3 = abn(planes * 4)
-        self.relu = nn.ReLU(inplace=False)
-        self.relu_inplace = nn.ReLU(inplace=True)
-        self.downsample = downsample
-        self.dilation = dilation
-        self.stride = stride
-
-    def forward(self, x):
-        residual = x
-
-        out = self.conv1(x)
-        out = self.bn1(out)
-        out = self.relu(out)
-
-        out = self.conv2(out)
-        out = self.bn2(out)
-        out = self.relu(out)
-
-        out = self.conv3(out)
-        out = self.bn3(out)
-
-        if self.downsample is not None:
-            residual = self.downsample(x)
-
-        out = out + residual
-        out = self.relu_inplace(out)
-
-        return out
-
-
 class EdgeModule(nn.Module):
-    def __init__(self, abn=nn.BatchNorm2d, in_fea=[256, 512, 1024], mid_fea=256, out_fea=2):
+    def __init__(self, in_feature=[256, 512, 1024], mid_feature=256, out_feature=2):
         super(EdgeModule, self).__init__()
 
         self.conv1 = nn.Sequential(
-            nn.Conv2d(in_fea[0], mid_fea, kernel_size=1, padding=0, dilation=1, bias=False),
-            abn(mid_fea)
+            nn.Conv2d(in_feature[0], mid_feature, kernel_size=1, bias=False),
+            nn.BatchNorm2d(mid_feature)
         )
         self.conv2 = nn.Sequential(
-            nn.Conv2d(in_fea[1], mid_fea, kernel_size=1, padding=0, dilation=1, bias=False),
-            abn(mid_fea)
+            nn.Conv2d(in_feature[1], mid_feature, kernel_size=1, bias=False),
+            nn.BatchNorm2d(mid_feature)
         )
         self.conv3 = nn.Sequential(
-            nn.Conv2d(in_fea[2], mid_fea, kernel_size=1, padding=0, dilation=1, bias=False),
-            abn(mid_fea)
+            nn.Conv2d(in_feature[2], mid_feature, kernel_size=1, bias=False),
+            nn.BatchNorm2d(mid_feature)
         )
-        self.conv4 = nn.Conv2d(mid_fea, out_fea, kernel_size=3, padding=1, dilation=1, bias=True)
-        self.conv5 = nn.Conv2d(out_fea * 3, out_fea, kernel_size=1, padding=0, dilation=1, bias=True)
+        self.conv4 = nn.Conv2d(mid_feature, out_feature, kernel_size=3, padding=1)
+        self.conv5 = nn.Conv2d(out_feature * 3, out_feature, kernel_size=1)
 
     def forward(self, x1, x2, x3):
         _, _, h, w = x1.size()
 
-        edge1_fea = self.conv1(x1)
-        edge1 = self.conv4(edge1_fea)
-        edge2_fea = self.conv2(x2)
-        edge2 = self.conv4(edge2_fea)
-        edge3_fea = self.conv3(x3)
-        edge3 = self.conv4(edge3_fea)
+        edge1 = self.conv4(self.conv1(x1))
+        edge2 = self.conv4(self.conv2(x2))
+        edge3 = self.conv4(self.conv3(x3))
 
-        edge2_fea = F.interpolate(edge2_fea, size=(h, w), mode='bilinear', align_corners=True)
-        edge3_fea = F.interpolate(edge3_fea, size=(h, w), mode='bilinear', align_corners=True)
         edge2 = F.interpolate(edge2, size=(h, w), mode='bilinear', align_corners=True)
         edge3 = F.interpolate(edge3, size=(h, w), mode='bilinear', align_corners=True)
 
-        edge = torch.cat([edge1, edge2, edge3], dim=1)
-        edge_fea = torch.cat([edge1_fea, edge2_fea, edge3_fea], dim=1)
-        edge = self.conv5(edge)
-
-        return edge, edge_fea
+        edge = self.conv5(torch.cat([edge1, edge2, edge3], dim=1))
+        return edge
 
 
 class PSPModule(nn.Module):
-    def __init__(self, features, out_features=512, abn=nn.BatchNorm2d, sizes=(1, 2, 3, 6)):
+    def __init__(self, features, out_features=512, sizes=(1, 2, 3, 6)):
         super(PSPModule, self).__init__()
 
-        self.stages = []
-        self.abn = abn
         self.stages = nn.ModuleList([self._make_stage(features, out_features, size) for size in sizes])
         self.bottleneck = nn.Sequential(
-            nn.Conv2d(features + len(sizes) * out_features, out_features, kernel_size=3, padding=1, dilation=1,
-                      bias=False),
-            abn(out_features),
+            nn.Conv2d(features + len(sizes) * out_features, out_features, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(out_features),
         )
 
     def _make_stage(self, features, out_features, size):
-        prior = nn.AdaptiveAvgPool2d(output_size=(size, size))
-        conv = nn.Conv2d(features, out_features, kernel_size=1, bias=False)
-        bn = self.abn(out_features)
-        return nn.Sequential(prior, conv, bn)
+        return nn.Sequential(
+            nn.AdaptiveAvgPool2d((size, size)),
+            nn.Conv2d(features, out_features, kernel_size=1, bias=False),
+            nn.BatchNorm2d(out_features),
+        )
 
     def forward(self, feats):
         h, w = feats.size(2), feats.size(3)
@@ -120,33 +65,30 @@ class PSPModule(nn.Module):
 
 
 class Decoder(nn.Module):
-    def __init__(self, in_plane1, in_plane2, num_classes, abn=nn.BatchNorm2d):
+    def __init__(self, in_plane1, in_plane2):
         super(Decoder, self).__init__()
         self.conv1 = nn.Sequential(
-            nn.Conv2d(in_plane1, 256, kernel_size=1, padding=0, dilation=1, bias=False),
-            abn(256)
+            nn.Conv2d(in_plane1, 256, kernel_size=1, bias=False),
+            nn.BatchNorm2d(256)
         )
         self.conv2 = nn.Sequential(
-            nn.Conv2d(in_plane2, 48, kernel_size=1, stride=1, padding=0, dilation=1, bias=False),
-            abn(48)
+            nn.Conv2d(in_plane2, 48, kernel_size=1, bias=False),
+            nn.BatchNorm2d(48)
         )
         self.conv3 = nn.Sequential(
-            nn.Conv2d(304, 256, kernel_size=1, padding=0, dilation=1, bias=False),
-            abn(256),
-            nn.Conv2d(256, 256, kernel_size=1, padding=0, dilation=1, bias=False),
-            abn(256)
+            nn.Conv2d(304, 256, kernel_size=1, bias=False),
+            nn.BatchNorm2d(256),
+            nn.Conv2d(256, 256, kernel_size=1, bias=False),
+            nn.BatchNorm2d(256)
         )
-        self.conv4 = nn.Conv2d(256, num_classes, kernel_size=1, padding=0, dilation=1, bias=True)
 
     def forward(self, xt, xl):
-        _, _, h, w = xl.size()
-
-        xt = F.interpolate(self.conv1(xt), size=(h, w), mode='bilinear', align_corners=True)
+        xt = self.conv1(xt)
+        xt = F.interpolate(xt, size=(xl.size()[-2:]), mode='bilinear', align_corners=True)
         xl = self.conv2(xl)
         x = torch.cat([xt, xl], dim=1)
         x = self.conv3(x)
-        seg = self.conv4(x)
-        return seg, x
+        return x
 
 
 class GCN(nn.Module):
@@ -158,13 +100,13 @@ class GCN(nn.Module):
 
     def forward(self, x):
         h = self.conv1(x.permute(0, 2, 1)).permute(0, 2, 1)
-        h = h - x
+        h -= x
         h = self.relu(self.conv2(h))
         return h
 
 
 class EAGRModule(nn.Module):
-    def __init__(self, num_in, plane_mid, mids, abn=nn.BatchNorm2d, normalize=False):
+    def __init__(self, num_in, plane_mid, mids, normalize=False):
         super(EAGRModule, self).__init__()
 
         self.normalize = normalize
@@ -177,7 +119,7 @@ class EAGRModule(nn.Module):
         self.gcn = GCN(num_state=self.num_s, num_node=self.num_n)
         self.conv_extend = nn.Conv2d(self.num_s, num_in, kernel_size=1, bias=False)
 
-        self.blocker = abn(num_in)
+        self.blocker = nn.BatchNorm2d(num_in)
 
     def forward(self, x, edge):
         edge = F.interpolate(edge, (x.size()[-2], x.size()[-1]))
@@ -209,69 +151,41 @@ class EAGRModule(nn.Module):
 
 
 class EAGRNet(nn.Module):
-    def __init__(self, num_classes, abn=nn.BatchNorm2d):
-        self.inplanes = 128
+    def __init__(self, num_classes):
         super().__init__()
-        self.conv1 = conv3x3(3, 64, stride=2)
-        self.bn1 = abn(64)
-        self.relu1 = nn.ReLU(inplace=False)
-        self.conv2 = conv3x3(64, 64)
-        self.bn2 = abn(64)
-        self.relu2 = nn.ReLU(inplace=False)
-        self.conv3 = conv3x3(64, 128)
-        self.bn3 = abn(128)
-        self.relu3 = nn.ReLU(inplace=False)
-        self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
-        self.layers = [3, 4, 23, 3]
-        self.abn = abn
-        strides = [1, 2, 1, 1]
-        dilations = [1, 1, 1, 2]
+        resnet101 = torchvision.models.resnet101(pretrained=True, replace_stride_with_dilation=[False, True, True])
+        return_nodes = {
+            'layer1.2.relu_2': 'layer1',
+            'layer2.3.relu_2': 'layer2',
+            'layer3.22.relu_2': 'layer3',
+            'layer4.2.relu_2': 'layer4',
+        }
+        self.backbone = torchvision.models.feature_extraction.create_feature_extractor(resnet101, return_nodes)
 
-        self.layer1 = self._make_layer(Bottleneck, 64, self.layers[0], stride=strides[0], dilation=dilations[0])
-        self.layer2 = self._make_layer(Bottleneck, 128, self.layers[1], stride=strides[1], dilation=dilations[1])
-        self.layer3 = self._make_layer(Bottleneck, 256, self.layers[2], stride=strides[2], dilation=dilations[2])
-        self.layer4 = self._make_layer(Bottleneck, 512, self.layers[3], stride=strides[3], dilation=dilations[3],
-                                       multi_grid=(1, 1, 1))
-        self.layer5 = PSPModule(2048, 512, abn)
-        self.edge_layer = EdgeModule(abn)
-        self.block1 = EAGRModule(512, 128, 4, abn)
-        self.block2 = EAGRModule(256, 64, 4, abn)
-        self.layer6 = Decoder(512, 256, num_classes, abn)
-
-    def _make_layer(self, block, planes, blocks, stride=1, dilation=1, multi_grid=1):
-        downsample = None
-        if stride != 1 or self.inplanes != planes * block.expansion:
-            downsample = nn.Sequential(
-                nn.Conv2d(self.inplanes, planes * block.expansion,
-                          kernel_size=1, stride=stride, bias=False),
-                self.abn(planes * block.expansion, affine=True))
-
-        layers = []
-        generate_multi_grid = lambda index, grids: grids[index % len(grids)] if isinstance(grids, tuple) else 1
-        layers.append(block(self.inplanes, planes, stride, abn=self.abn, dilation=dilation, downsample=downsample,
-                            multi_grid=generate_multi_grid(0, multi_grid)))
-        self.inplanes = planes * block.expansion
-        for i in range(1, blocks):
-            layers.append(block(self.inplanes, planes, abn=self.abn, dilation=dilation,
-                                multi_grid=generate_multi_grid(i, multi_grid)))
-        return nn.Sequential(*layers)
+        self.ppm = PSPModule(2048, 512)
+        self.edge_module = EdgeModule()
+        self.eagr_module1 = EAGRModule(512, 128, 4)
+        self.eagr_module2 = EAGRModule(256, 64, 4)
+        self.decoder = Decoder(512, 256)
+        self.classifier = nn.Conv2d(256, num_classes, 1)
+        self.upsample = nn.Upsample(mode='bilinear', align_corners=True)
 
     def forward(self, x):
-        x = self.relu1(self.bn1(self.conv1(x)))
-        x = self.relu2(self.bn2(self.conv2(x)))
-        x = self.relu3(self.bn3(self.conv3(x)))
-        x = self.maxpool(x)
-        x2 = self.layer1(x)  # 119 x 119
-        x3 = self.layer2(x2)  # 60 x 60
-        x4 = self.layer3(x3)  # 60 x 60
-        x5 = self.layer4(x4)  # 60 x 60
-        x = self.layer5(x5)  # 60 x 60
-        edge, edge_fea = self.edge_layer(x2, x3, x4)
-        x = self.block1(x, edge.detach())
-        x2 = self.block2(x2, edge.detach())
-        seg, x = self.layer6(x, x2)
-        seg = F.interpolate(seg, scale_factor=4, mode='bilinear', align_corners=False)
-        return seg
+        self.upsample.size = x.size()[-2:]
+
+        features = self.backbone(x)
+        layer1 = features.pop('layer1')
+        layer2 = features.pop('layer2')
+        layer3 = features.pop('layer3')
+        layer4 = features.pop('layer4')
+        x = self.ppm(layer4)
+        edge = self.edge_module(layer1, layer2, layer3)
+        x = self.eagr_module1(x, edge.detach())
+        layer1 = self.eagr_module2(layer1, edge.detach())
+        x = self.decoder(x, layer1)
+        x = self.classifier(x)
+        x = self.upsample(x)
+        return x
 
 
 if __name__ == '__main__':
