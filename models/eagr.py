@@ -40,28 +40,43 @@ class EdgeModule(nn.Module):
 
 
 class PPM(nn.Module):
-    def __init__(self, features, out_features=512, sizes=(1, 2, 3, 6)):
+    def __init__(self, features, out_features):
         super(PPM, self).__init__()
-
-        self.stages = nn.ModuleList([self._make_stage(features, out_features, size) for size in sizes])
-        self.bottleneck = nn.Sequential(
-            nn.Conv2d(features + len(sizes) * out_features, out_features, kernel_size=3, padding=1, bias=False),
-            nn.BatchNorm2d(out_features),
-        )
-
-    def _make_stage(self, features, out_features, size):
-        return nn.Sequential(
-            nn.AdaptiveAvgPool2d((size, size)),
+        self.branch1 = nn.Sequential(
+            nn.AdaptiveAvgPool2d((1, 1)),
             nn.Conv2d(features, out_features, kernel_size=1, bias=False),
             nn.BatchNorm2d(out_features),
         )
+        self.branch2 = nn.Sequential(
+            nn.AdaptiveAvgPool2d((2, 2)),
+            nn.Conv2d(features, out_features, kernel_size=1, bias=False),
+            nn.BatchNorm2d(out_features),
+        )
+        self.branch3 = nn.Sequential(
+            nn.AdaptiveAvgPool2d((3, 3)),
+            nn.Conv2d(features, out_features, kernel_size=1, bias=False),
+            nn.BatchNorm2d(out_features),
+        )
+        self.branch4 = nn.Sequential(
+            nn.AdaptiveAvgPool2d((6, 6)),
+            nn.Conv2d(features, out_features, kernel_size=1, bias=False),
+            nn.BatchNorm2d(out_features),
+        )
+        self.project = nn.Sequential(
+            nn.Conv2d(features + 4 * out_features, out_features, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(out_features),
+        )
+        self.upsample = nn.Upsample(mode='bilinear', align_corners=True)
 
-    def forward(self, feats):
-        h, w = feats.size(2), feats.size(3)
-        priors = [F.interpolate(stage(feats), size=(h, w), mode='bilinear', align_corners=True) for stage in
-                  self.stages] + [feats]
-        bottle = self.bottleneck(torch.cat(priors, 1))
-        return bottle
+    def forward(self, x):
+        self.upsample.size = x.size()[-2:]
+
+        branch1 = self.upsample(self.branch1(x))
+        branch2 = self.upsample(self.branch2(x))
+        branch3 = self.upsample(self.branch3(x))
+        branch4 = self.upsample(self.branch4(x))
+        x = self.project(torch.cat([x, branch1, branch2, branch3, branch4], dim=1))
+        return x
 
 
 class Decoder(nn.Module):
@@ -167,7 +182,7 @@ class EAGRNet(nn.Module):
         self.eagr_module1 = EAGRModule(512, 128, 4)
         self.eagr_module2 = EAGRModule(256, 64, 4)
         self.decoder = Decoder(512, 256)
-        self.classifier = nn.Conv2d(256, num_classes, 1)
+        self.classifier = nn.Conv2d(256, num_classes, kernel_size=1)
         self.upsample = nn.Upsample(mode='bilinear', align_corners=True)
 
     def forward(self, x):
