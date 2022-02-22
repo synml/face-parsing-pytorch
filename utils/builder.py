@@ -35,6 +35,9 @@ class Builder:
         root = cfg_dataset['root']
         batch_size = self.cfg[self.cfg['model']['name']]['batch_size']
         num_workers = self.cfg['dataset']['num_workers']
+        if num_workers == 'auto':
+            num_workers = 4 * torch.cuda.device_count()
+
         if dataset_type == 'train':
             transforms = datasets.transforms.Transforms(self.cfg, augmentation=True)
             shuffle = True
