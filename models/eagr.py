@@ -43,31 +43,27 @@ class PPM(nn.Module):
             nn.AdaptiveAvgPool2d((1, 1)),
             nn.Conv2d(features, out_features, kernel_size=1, bias=False),
             nn.BatchNorm2d(out_features),
-            nn.ReLU(inplace=True),
         )
         self.branch2 = nn.Sequential(
             nn.AdaptiveAvgPool2d((2, 2)),
             nn.Conv2d(features, out_features, kernel_size=1, bias=False),
             nn.BatchNorm2d(out_features),
-            nn.ReLU(inplace=True),
         )
         self.branch3 = nn.Sequential(
             nn.AdaptiveAvgPool2d((3, 3)),
             nn.Conv2d(features, out_features, kernel_size=1, bias=False),
             nn.BatchNorm2d(out_features),
-            nn.ReLU(inplace=True),
         )
         self.branch4 = nn.Sequential(
             nn.AdaptiveAvgPool2d((6, 6)),
             nn.Conv2d(features, out_features, kernel_size=1, bias=False),
             nn.BatchNorm2d(out_features),
-            nn.ReLU(inplace=True),
         )
         self.bottleneck = nn.Sequential(
             nn.Conv2d(features + 4 * out_features, out_features, kernel_size=3, padding=1, bias=False),
             nn.BatchNorm2d(out_features),
-            nn.ReLU(inplace=True),
-            nn.Dropout(0.5),
+            nn.SiLU(inplace=True),
+            nn.Dropout(0.1),
         )
         self.upsample = nn.Upsample(mode='bilinear', align_corners=True)
 
