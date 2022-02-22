@@ -146,10 +146,11 @@ if __name__ == '__main__':
             with torch.no_grad():
                 outputs = model(images)
                 outputs = torch.argmax(outputs, dim=1)
+
+            mean = torch.tensor(trainset.transforms.normalize.mean)
+            std = torch.tensor(trainset.transforms.normalize.std)
+            images = datasets.utils.inverse_to_tensor_normalize(datasets.utils.inverse_normalize(images, mean, std))
             if epoch == 0:
-                mean = torch.tensor(trainset.transforms.normalize.mean)
-                std = torch.tensor(trainset.transforms.normalize.std)
-                images = datasets.utils.inverse_to_tensor_normalize(datasets.utils.inverse_normalize(images, mean, std))
                 targets = datasets.utils.draw_segmentation_masks(images, targets, trainset.colors)
                 writer.add_images('eval/1Groundtruth', targets, epoch)
             outputs = datasets.utils.draw_segmentation_masks(images, outputs, trainset.colors)
