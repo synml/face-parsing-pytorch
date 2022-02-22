@@ -271,7 +271,7 @@ class EAGRNet(nn.Module):
         x2 = self.block2(x2, edge.detach())
         seg, x = self.layer6(x, x2)
 
-        return seg, edge
+        return seg
 
 
 if __name__ == '__main__':
