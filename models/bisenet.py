@@ -7,7 +7,7 @@ import models
 
 
 class ConvBNReLU(nn.Module):
-    def __init__(self, in_chan, out_chan, ks=3, stride=1, padding=1, *args, **kwargs):
+    def __init__(self, in_chan, out_chan, ks=3, stride=1, padding=1):
         super(ConvBNReLU, self).__init__()
         self.conv = nn.Conv2d(in_chan,
                               out_chan,
@@ -31,7 +31,7 @@ class ConvBNReLU(nn.Module):
 
 
 class BiSeNetOutput(nn.Module):
-    def __init__(self, in_chan, mid_chan, n_classes, *args, **kwargs):
+    def __init__(self, in_chan, mid_chan, n_classes):
         super(BiSeNetOutput, self).__init__()
         self.conv = ConvBNReLU(in_chan, mid_chan, ks=3, stride=1, padding=1)
         self.conv_out = nn.Conv2d(mid_chan, n_classes, kernel_size=1, bias=False)
@@ -61,7 +61,7 @@ class BiSeNetOutput(nn.Module):
 
 
 class AttentionRefinementModule(nn.Module):
-    def __init__(self, in_chan, out_chan, *args, **kwargs):
+    def __init__(self, in_chan, out_chan):
         super(AttentionRefinementModule, self).__init__()
         self.conv = ConvBNReLU(in_chan, out_chan, ks=3, stride=1, padding=1)
         self.conv_atten = nn.Conv2d(out_chan, out_chan, kernel_size=1, bias=False)
@@ -86,7 +86,7 @@ class AttentionRefinementModule(nn.Module):
 
 
 class ContextPath(nn.Module):
-    def __init__(self, *args, **kwargs):
+    def __init__(self):
         super(ContextPath, self).__init__()
         resnet18 = torchvision.models.resnet18(pretrained=True)
         return_nodes = {
@@ -104,24 +104,23 @@ class ContextPath(nn.Module):
         self.init_weight()
 
     def forward(self, x):
-        H0, W0 = x.size()[2:]
         feat8, feat16, feat32 = self.resnet(x).values()
-        H8, W8 = feat8.size()[2:]
-        H16, W16 = feat16.size()[2:]
-        H32, W32 = feat32.size()[2:]
+        h8, w8 = feat8.size()[2:]
+        h16, w16 = feat16.size()[2:]
+        h32, w32 = feat32.size()[2:]
 
         avg = F.avg_pool2d(feat32, feat32.size()[2:])
         avg = self.conv_avg(avg)
-        avg_up = F.interpolate(avg, (H32, W32), mode='nearest')
+        avg_up = F.interpolate(avg, (h32, w32), mode='nearest')
 
         feat32_arm = self.arm32(feat32)
         feat32_sum = feat32_arm + avg_up
-        feat32_up = F.interpolate(feat32_sum, (H16, W16), mode='nearest')
+        feat32_up = F.interpolate(feat32_sum, (h16, w16), mode='nearest')
         feat32_up = self.conv_head32(feat32_up)
 
         feat16_arm = self.arm16(feat16)
         feat16_sum = feat16_arm + feat32_up
-        feat16_up = F.interpolate(feat16_sum, (H8, W8), mode='nearest')
+        feat16_up = F.interpolate(feat16_sum, (h8, w8), mode='nearest')
         feat16_up = self.conv_head16(feat16_up)
 
         return feat8, feat16_up, feat32_up  # x8, x8, x16
@@ -144,7 +143,7 @@ class ContextPath(nn.Module):
         return wd_params, nowd_params
 
 
-### This is not used, since I replace this with the resnet feature with the same size
+# This is not used, since I replace this with the resnet feature with the same size
 class SpatialPath(nn.Module):
     def __init__(self, *args, **kwargs):
         super(SpatialPath, self).__init__()
@@ -233,7 +232,7 @@ class BiSeNet(nn.Module):
     def __init__(self, n_classes, *args, **kwargs):
         super(BiSeNet, self).__init__()
         self.cp = ContextPath()
-        ## here self.sp is deleted
+        # here self.sp is deleted
         self.ffm = FeatureFusionModule(256, 256)
         self.conv_out = BiSeNetOutput(256, 256, n_classes)
         self.conv_out16 = BiSeNetOutput(128, 64, n_classes)
@@ -241,7 +240,7 @@ class BiSeNet(nn.Module):
         self.init_weight()
 
     def forward(self, x):
-        H, W = x.size()[2:]
+        h, w = x.size()[2:]
         feat_res8, feat_cp8, feat_cp16 = self.cp(x)  # here return res3b1 feature
         feat_sp = feat_res8  # use res3b1 feature to replace spatial path feature
         feat_fuse = self.ffm(feat_sp, feat_cp8)
@@ -250,17 +249,16 @@ class BiSeNet(nn.Module):
         feat_out16 = self.conv_out16(feat_cp8)
         feat_out32 = self.conv_out32(feat_cp16)
 
-        feat_out = F.interpolate(feat_out, (H, W), mode='bilinear', align_corners=True)
-        feat_out16 = F.interpolate(feat_out16, (H, W), mode='bilinear', align_corners=True)
-        feat_out32 = F.interpolate(feat_out32, (H, W), mode='bilinear', align_corners=True)
+        feat_out = F.interpolate(feat_out, (h, w), mode='bilinear', align_corners=True)
+        feat_out16 = F.interpolate(feat_out16, (h, w), mode='bilinear', align_corners=True)
+        feat_out32 = F.interpolate(feat_out32, (h, w), mode='bilinear', align_corners=True)
         return feat_out, feat_out16, feat_out32
 
     def init_weight(self):
         for ly in self.children():
             if isinstance(ly, nn.Conv2d):
                 nn.init.kaiming_normal_(ly.weight, a=1)
-                if not ly.bias is None:
-                    nn.init.constant_(ly.bias, 0)
+                if not ly.bias is None: nn.init.constant_(ly.bias, 0)
 
     def get_params(self):
         wd_params, nowd_params, lr_mul_wd_params, lr_mul_nowd_params = [], [], [], []
