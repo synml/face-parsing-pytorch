@@ -58,7 +58,7 @@ class PSPModule(nn.Module):
 
     def forward(self, feats):
         h, w = feats.size(2), feats.size(3)
-        priors = [F.interpolate(input=stage(feats), size=(h, w), mode='bilinear', align_corners=True) for stage in
+        priors = [F.interpolate(stage(feats), size=(h, w), mode='bilinear', align_corners=True) for stage in
                   self.stages] + [feats]
         bottle = self.bottleneck(torch.cat(priors, 1))
         return bottle
@@ -112,7 +112,7 @@ class EAGRModule(nn.Module):
         self.normalize = normalize
         self.num_s = int(plane_mid)
         self.num_n = mids * mids
-        self.priors = nn.AdaptiveAvgPool2d(output_size=(mids + 2, mids + 2))
+        self.priors = nn.AdaptiveAvgPool2d((mids + 2, mids + 2))
 
         self.conv_state = nn.Conv2d(num_in, self.num_s, kernel_size=1)
         self.conv_proj = nn.Conv2d(num_in, self.num_s, kernel_size=1)
