@@ -18,7 +18,6 @@ EAGRNet(
       (conv3): Conv2d(64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
       (downsample): Sequential(
         (0): Conv2d(128, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
         (1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
@@ -32,7 +31,6 @@ EAGRNet(
       (conv3): Conv2d(64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
     )
     (2): Bottleneck(
       (conv1): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
@@ -42,7 +40,6 @@ EAGRNet(
       (conv3): Conv2d(64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
     )
   )
   (layer2): Sequential(
@@ -54,7 +51,6 @@ EAGRNet(
       (conv3): Conv2d(128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
       (downsample): Sequential(
         (0): Conv2d(256, 512, kernel_size=(1, 1), stride=(2, 2), bias=False)
         (1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
@@ -68,7 +64,6 @@ EAGRNet(
       (conv3): Conv2d(128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
     )
     (2): Bottleneck(
       (conv1): Conv2d(512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
@@ -78,7 +73,6 @@ EAGRNet(
       (conv3): Conv2d(128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
     )
     (3): Bottleneck(
       (conv1): Conv2d(512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
@@ -88,7 +82,6 @@ EAGRNet(
       (conv3): Conv2d(128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
     )
   )
   (layer3): Sequential(
@@ -100,7 +93,6 @@ EAGRNet(
       (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
       (downsample): Sequential(
         (0): Conv2d(512, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
         (1): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
@@ -114,7 +106,6 @@ EAGRNet(
       (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
     )
     (2): Bottleneck(
       (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
@@ -124,7 +115,6 @@ EAGRNet(
       (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
     )
     (3): Bottleneck(
       (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
@@ -134,7 +124,6 @@ EAGRNet(
       (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
     )
     (4): Bottleneck(
       (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
@@ -144,7 +133,6 @@ EAGRNet(
       (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
     )
     (5): Bottleneck(
       (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
@@ -154,7 +142,6 @@ EAGRNet(
       (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
     )
     (6): Bottleneck(
       (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
@@ -164,7 +151,6 @@ EAGRNet(
       (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
     )
     (7): Bottleneck(
       (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
@@ -174,7 +160,6 @@ EAGRNet(
       (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
     )
     (8): Bottleneck(
       (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
@@ -184,7 +169,6 @@ EAGRNet(
       (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
     )
     (9): Bottleneck(
       (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
@@ -194,7 +178,6 @@ EAGRNet(
       (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
     )
     (10): Bottleneck(
       (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
@@ -204,7 +187,6 @@ EAGRNet(
       (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
     )
     (11): Bottleneck(
       (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
@@ -214,7 +196,6 @@ EAGRNet(
       (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
     )
     (12): Bottleneck(
       (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
@@ -224,7 +205,6 @@ EAGRNet(
       (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
     )
     (13): Bottleneck(
       (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
@@ -234,7 +214,6 @@ EAGRNet(
       (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
     )
     (14): Bottleneck(
       (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
@@ -244,7 +223,6 @@ EAGRNet(
       (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
     )
     (15): Bottleneck(
       (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
@@ -254,7 +232,6 @@ EAGRNet(
       (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
     )
     (16): Bottleneck(
       (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
@@ -264,7 +241,6 @@ EAGRNet(
       (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
     )
     (17): Bottleneck(
       (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
@@ -274,7 +250,6 @@ EAGRNet(
       (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
     )
     (18): Bottleneck(
       (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
@@ -284,7 +259,6 @@ EAGRNet(
       (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
     )
     (19): Bottleneck(
       (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
@@ -294,7 +268,6 @@ EAGRNet(
       (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
     )
     (20): Bottleneck(
       (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
@@ -304,7 +277,6 @@ EAGRNet(
       (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
     )
     (21): Bottleneck(
       (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
@@ -314,7 +286,6 @@ EAGRNet(
       (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
     )
     (22): Bottleneck(
       (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
@@ -324,7 +295,6 @@ EAGRNet(
       (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
     )
   )
   (layer4): Sequential(
@@ -336,7 +306,6 @@ EAGRNet(
       (conv3): Conv2d(512, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
       (downsample): Sequential(
         (0): Conv2d(1024, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False)
         (1): BatchNorm2d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
@@ -350,7 +319,6 @@ EAGRNet(
       (conv3): Conv2d(512, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
     )
     (2): Bottleneck(
       (conv1): Conv2d(2048, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
@@ -360,7 +328,6 @@ EAGRNet(
       (conv3): Conv2d(512, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False)
       (bn3): BatchNorm2d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
       (relu): ReLU()
-      (relu_inplace): ReLU(inplace=True)
     )
   )
   (layer5): PSPModule(
