@@ -1,7 +1,6 @@
 import os
 
 import torch
-import torch.distributed.optim
 import torch.nn as nn
 import torch.utils.data
 import yaml
@@ -98,7 +97,7 @@ class Builder:
             raise NotImplementedError('Wrong criterion name.')
         return criterion
 
-    def build_optimizer(self, model: nn.Module, ddp_enabled) -> torch.optim.Optimizer:
+    def build_optimizer(self, model: nn.Module) -> torch.optim.Optimizer:
         cfg_optim = self.cfg[self.cfg['model']['name']]['optimizer']
 
         if cfg_optim['name'] == 'SGD':
@@ -112,14 +111,6 @@ class Builder:
             optimizer = torch.optim.RAdam(model.parameters(), cfg_optim['lr'], weight_decay=cfg_optim['weight_decay'])
         else:
             raise NotImplementedError('Wrong optimizer name.')
-
-        if ddp_enabled:
-            optimizer = torch.distributed.optim.ZeroRedundancyOptimizer(
-                model.parameters(),
-                optimizer.__class__,
-                lr=cfg_optim['lr'],
-                weight_decay=cfg_optim['weight_decay']
-            )
         return optimizer
 
     def build_scheduler(self, optimizer: torch.optim.Optimizer, max_iter: int):
