@@ -58,12 +58,12 @@ def evaluate(model: torch.nn.Module,
 
         val_loss = val_loss_list[0] / (len(valloader) * world_size)
         evaluator.confusion_matrix = confusion_matrix_list[0]
-        miou, iou = evaluator.mean_intersection_over_union(percent=True)
+        miou, iou = evaluator.mean_f1_score(percent=True)
         inference_time = inference_time_list[0] / (len(valloader) * world_size)
         fps = 1 / inference_time
     else:
         val_loss /= len(valloader)
-        miou, iou = evaluator.mean_intersection_over_union(percent=True)
+        miou, iou = evaluator.mean_f1_score(percent=True)
         inference_time /= len(valloader)
         fps = 1 / inference_time
 
