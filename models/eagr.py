@@ -270,7 +270,7 @@ class EAGRNet(nn.Module):
         x = self.block1(x, edge.detach())
         x2 = self.block2(x2, edge.detach())
         seg, x = self.layer6(x, x2)
-
+        seg = F.interpolate(seg, scale_factor=4, mode='bilinear', align_corners=False)
         return seg
 
 
