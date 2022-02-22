@@ -112,10 +112,10 @@ class GCN(nn.Module):
         self.conv2 = nn.Conv1d(num_state, num_state, kernel_size=1, bias=bias)
 
     def forward(self, x):
-        h = self.conv1(x.permute(0, 2, 1)).permute(0, 2, 1)
-        h -= x
-        h = self.relu(self.conv2(h))
-        return h
+        out = self.conv1(x.permute(0, 2, 1)).permute(0, 2, 1)
+        out -= x
+        out = self.relu(self.conv2(out))
+        return out
 
 
 class EAGRModule(nn.Module):
