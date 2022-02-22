@@ -24,19 +24,16 @@ class EdgeModule(nn.Module):
         )
         self.conv4 = nn.Conv2d(mid_feature, out_feature, kernel_size=3, padding=1)
         self.conv5 = nn.Conv2d(out_feature * 3, out_feature, kernel_size=1)
+        self.upsample = nn.Upsample(mode='bilinear', align_corners=True)
 
     def forward(self, x1, x2, x3):
-        _, _, h, w = x1.size()
+        self.upsample.size = x1.size()[-2:]
 
         edge1 = self.conv4(self.conv1(x1))
-        edge2 = self.conv4(self.conv2(x2))
-        edge3 = self.conv4(self.conv3(x3))
-
-        edge2 = F.interpolate(edge2, size=(h, w), mode='bilinear', align_corners=True)
-        edge3 = F.interpolate(edge3, size=(h, w), mode='bilinear', align_corners=True)
-
-        edge = self.conv5(torch.cat([edge1, edge2, edge3], dim=1))
-        return edge
+        edge2 = self.upsample(self.conv4(self.conv2(x2)))
+        edge3 = self.upsample(self.conv4(self.conv3(x3)))
+        out = self.conv5(torch.cat([edge1, edge2, edge3], dim=1))
+        return out
 
 
 class PPM(nn.Module):
@@ -96,14 +93,15 @@ class Decoder(nn.Module):
             nn.Conv2d(256, 256, kernel_size=1, bias=False),
             nn.BatchNorm2d(256)
         )
+        self.upsample = nn.Upsample(mode='bilinear', align_corners=True)
 
-    def forward(self, xt, xl):
-        xt = self.conv1(xt)
-        xt = F.interpolate(xt, size=(xl.size()[-2:]), mode='bilinear', align_corners=True)
+    def forward(self, xs, xl):
+        self.upsample.size = xl.size()[-2:]
+
+        xs = self.upsample(self.conv1(xs))
         xl = self.conv2(xl)
-        x = torch.cat([xt, xl], dim=1)
-        x = self.conv3(x)
-        return x
+        out = self.conv3(torch.cat([xs, xl], dim=1))
+        return out
 
 
 class GCN(nn.Module):
@@ -137,17 +135,16 @@ class EAGRModule(nn.Module):
         self.blocker = nn.BatchNorm2d(num_in)
 
     def forward(self, x, edge):
-        edge = F.interpolate(edge, (x.size()[-2], x.size()[-1]))
-
-        n, c, h, w = x.size()
+        batch_size = x.size()[0]
+        edge = F.interpolate(edge, x.size()[-2:], mode='nearest')
         edge = F.softmax(edge, dim=1)[:, 1, :, :].unsqueeze(1)
 
         # Construct projection matrix
-        x_state_reshaped = self.conv_state(x).view(n, self.num_s, -1)
+        x_state_reshaped = self.conv_state(x).view(batch_size, self.num_s, -1)
         x_proj = self.conv_proj(x)
         x_mask = x_proj * edge
-        x_anchor = self.priors(x_mask)[:, :, 1:-1, 1:-1].reshape(n, self.num_s, -1)
-        x_proj_reshaped = torch.matmul(x_anchor.permute(0, 2, 1), x_proj.reshape(n, self.num_s, -1))
+        x_anchor = self.priors(x_mask)[:, :, 1:-1, 1:-1].reshape(batch_size, self.num_s, -1)
+        x_proj_reshaped = torch.matmul(x_anchor.permute(0, 2, 1), x_proj.reshape(batch_size, self.num_s, -1))
         x_proj_reshaped = F.softmax(x_proj_reshaped, dim=1)
         x_rproj_reshaped = x_proj_reshaped
 
@@ -159,7 +156,7 @@ class EAGRModule(nn.Module):
 
         # Reproject
         x_state_reshaped = torch.matmul(x_n_rel, x_rproj_reshaped)
-        x_state = x_state_reshaped.view(n, self.num_s, *x.size()[2:])
+        x_state = x_state_reshaped.view(batch_size, self.num_s, *x.size()[2:])
         out = x + self.blocker(self.conv_extend(x_state))
 
         return out
@@ -167,7 +164,7 @@ class EAGRModule(nn.Module):
 
 class EAGRNet(nn.Module):
     def __init__(self, num_classes):
-        super(EAGRNet).__init__()
+        super(EAGRNet, self).__init__()
         resnet101 = torchvision.models.resnet101(pretrained=True, replace_stride_with_dilation=[False, True, True])
         return_nodes = {
             'layer1.2.relu_2': 'layer1',
