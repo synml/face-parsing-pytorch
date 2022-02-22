@@ -7,7 +7,7 @@ import models
 
 
 class EdgeModule(nn.Module):
-    def __init__(self, in_feature=[256, 512, 1024], mid_feature=256, out_feature=2):
+    def __init__(self, in_feature: list[int], mid_feature=256):
         super(EdgeModule, self).__init__()
 
         self.conv1 = nn.Sequential(
@@ -22,8 +22,8 @@ class EdgeModule(nn.Module):
             nn.Conv2d(in_feature[2], mid_feature, kernel_size=1, bias=False),
             nn.BatchNorm2d(mid_feature)
         )
-        self.conv4 = nn.Conv2d(mid_feature, out_feature, kernel_size=3, padding=1)
-        self.conv5 = nn.Conv2d(out_feature * 3, out_feature, kernel_size=1)
+        self.conv4 = nn.Conv2d(mid_feature, 2, kernel_size=3, padding=1)
+        self.conv5 = nn.Conv2d(2 * 3, 2, kernel_size=1)
         self.upsample = nn.Upsample(mode='bilinear', align_corners=True)
 
     def forward(self, x1, x2, x3):
@@ -43,25 +43,31 @@ class PPM(nn.Module):
             nn.AdaptiveAvgPool2d((1, 1)),
             nn.Conv2d(features, out_features, kernel_size=1, bias=False),
             nn.BatchNorm2d(out_features),
+            nn.ReLU(inplace=True),
         )
         self.branch2 = nn.Sequential(
             nn.AdaptiveAvgPool2d((2, 2)),
             nn.Conv2d(features, out_features, kernel_size=1, bias=False),
             nn.BatchNorm2d(out_features),
+            nn.ReLU(inplace=True),
         )
         self.branch3 = nn.Sequential(
             nn.AdaptiveAvgPool2d((3, 3)),
             nn.Conv2d(features, out_features, kernel_size=1, bias=False),
             nn.BatchNorm2d(out_features),
+            nn.ReLU(inplace=True),
         )
         self.branch4 = nn.Sequential(
             nn.AdaptiveAvgPool2d((6, 6)),
             nn.Conv2d(features, out_features, kernel_size=1, bias=False),
             nn.BatchNorm2d(out_features),
+            nn.ReLU(inplace=True),
         )
-        self.project = nn.Sequential(
+        self.bottleneck = nn.Sequential(
             nn.Conv2d(features + 4 * out_features, out_features, kernel_size=3, padding=1, bias=False),
             nn.BatchNorm2d(out_features),
+            nn.ReLU(inplace=True),
+            nn.Dropout(0.5),
         )
         self.upsample = nn.Upsample(mode='bilinear', align_corners=True)
 
@@ -72,7 +78,7 @@ class PPM(nn.Module):
         branch2 = self.upsample(self.branch2(x))
         branch3 = self.upsample(self.branch3(x))
         branch4 = self.upsample(self.branch4(x))
-        x = self.project(torch.cat([x, branch1, branch2, branch3, branch4], dim=1))
+        x = self.bottleneck(torch.cat([x, branch1, branch2, branch3, branch4], dim=1))
         return x
 
 
@@ -175,7 +181,7 @@ class EAGRNet(nn.Module):
         self.backbone = torchvision.models.feature_extraction.create_feature_extractor(resnet101, return_nodes)
 
         self.ppm = PPM(2048, 512)
-        self.edge_module = EdgeModule()
+        self.edge_module = EdgeModule([256, 512, 1024])
         self.eagr_module1 = EAGRModule(512, 128, 4)
         self.eagr_module2 = EAGRModule(256, 64, 4)
         self.decoder = Decoder(512, 256)
