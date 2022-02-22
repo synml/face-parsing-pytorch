@@ -39,9 +39,9 @@ class EdgeModule(nn.Module):
         return edge
 
 
-class PSPModule(nn.Module):
+class PPM(nn.Module):
     def __init__(self, features, out_features=512, sizes=(1, 2, 3, 6)):
-        super(PSPModule, self).__init__()
+        super(PPM, self).__init__()
 
         self.stages = nn.ModuleList([self._make_stage(features, out_features, size) for size in sizes])
         self.bottleneck = nn.Sequential(
@@ -152,7 +152,7 @@ class EAGRModule(nn.Module):
 
 class EAGRNet(nn.Module):
     def __init__(self, num_classes):
-        super().__init__()
+        super(EAGRNet).__init__()
         resnet101 = torchvision.models.resnet101(pretrained=True, replace_stride_with_dilation=[False, True, True])
         return_nodes = {
             'layer1.2.relu_2': 'layer1',
@@ -162,7 +162,7 @@ class EAGRNet(nn.Module):
         }
         self.backbone = torchvision.models.feature_extraction.create_feature_extractor(resnet101, return_nodes)
 
-        self.ppm = PSPModule(2048, 512)
+        self.ppm = PPM(2048, 512)
         self.edge_module = EdgeModule()
         self.eagr_module1 = EAGRModule(512, 128, 4)
         self.eagr_module2 = EAGRModule(256, 64, 4)
@@ -173,12 +173,8 @@ class EAGRNet(nn.Module):
     def forward(self, x):
         self.upsample.size = x.size()[-2:]
 
-        features = self.backbone(x)
-        layer1 = features.pop('layer1')
-        layer2 = features.pop('layer2')
-        layer3 = features.pop('layer3')
-        layer4 = features.pop('layer4')
-        x = self.ppm(layer4)
+        layer1, layer2, layer3, x = self.backbone(x).values()
+        x = self.ppm(x)
         edge = self.edge_module(layer1, layer2, layer3)
         x = self.eagr_module1(x, edge.detach())
         layer1 = self.eagr_module2(layer1, edge.detach())
