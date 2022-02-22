@@ -48,7 +48,7 @@ if __name__ == '__main__':
 
     # 3. Loss function, optimizer, lr scheduler, scaler, aux loss function
     criterion = builder.build_criterion()
-    optimizer = builder.build_optimizer(model)
+    optimizer = builder.build_optimizer(model, ddp_enabled)
     scheduler = builder.build_scheduler(optimizer, len(trainloader) * cfg[model_name]['epoch'])
     scaler = torch.cuda.amp.GradScaler(enabled=amp_enabled)
     if cfg[model_name]['aux_criterion'] is not None:
