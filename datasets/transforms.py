@@ -138,9 +138,13 @@ class RandomRotation(torchvision.transforms.RandomRotation):
         super(RandomRotation, self).__init__(degrees)
 
     def forward(self, data: dict):
+        data['target'].unsqueeze_(dim=0)
+
         angle = self.get_params(self.degrees)
         data['image'] = TF.rotate(data['image'], angle, torchvision.transforms.InterpolationMode.BILINEAR)
         data['target'] = TF.rotate(data['target'], angle, torchvision.transforms.InterpolationMode.NEAREST)
+
+        data['target'].squeeze_(dim=0)
         return data
 
 
