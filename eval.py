@@ -16,7 +16,7 @@ def evaluate(model: torch.nn.Module,
              num_classes: int,
              amp_enabled: bool,
              ddp_enabled: bool,
-             device: torch.device) -> tuple[float, float, torch.Tensor, float]:
+             device: torch.device) -> tuple[float, float, list, float]:
     model.eval()
 
     if ddp_enabled:
@@ -67,7 +67,7 @@ def evaluate(model: torch.nn.Module,
         inference_time /= len(valloader)
         fps = 1 / inference_time
 
-    return val_loss.item(), miou.item(), iou, fps.item()
+    return val_loss.item(), miou.item(), iou.tolist(), fps.item()
 
 
 if __name__ == '__main__':
@@ -96,13 +96,12 @@ if __name__ == '__main__':
 
     # Save evaluation result as csv file
     os.makedirs('result', exist_ok=True)
-    class_names = valset.class_names
     with open(os.path.join('result', f'{model_name}.csv'), mode='w', encoding='utf-8') as f:
         writer = csv.writer(f, delimiter=',', lineterminator='\n')
         writer.writerow(['Class Number', 'Class Name', 'IoU'])
 
-        for class_num, iou_value in enumerate(iou):
-            writer.writerow([class_num, class_names[class_num], iou_value.item()])
+        for (name, id, _), iou_value in zip(valset.classes[1:], iou):
+            writer.writerow([id, name, iou_value])
         writer.writerow(['mIoU', miou, ' '])
         writer.writerow(['Validation loss', val_loss, ' '])
         writer.writerow(['FPS', fps, ' '])
