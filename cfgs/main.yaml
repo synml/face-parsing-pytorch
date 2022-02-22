@@ -3,4 +3,4 @@ model: EAGR
 amp_enabled: True
 resume_training:
 fine_tuning_batchnorm:
-ddp_enabled: False
+ddp_enabled: True
