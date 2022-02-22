@@ -118,4 +118,4 @@ BiSeNet:
       saturation: 0.5
       hue: 0
     RandomHorizontalFlip:
-  pretrained_weights: weights/EAGRNet_best_miou.pth
+  pretrained_weights: weights/BiSeNet_best_miou.pth
