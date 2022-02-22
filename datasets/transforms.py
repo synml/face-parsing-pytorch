@@ -27,6 +27,8 @@ class Transforms:
                     compose_items.append(RandomHorizontalFlip())
                 elif k == 'RandomResize':
                     compose_items.append(RandomResize(v['min_scale'], v['max_scale']))
+                elif k == 'RandomRotation':
+                    compose_items.append(RandomRotation(v['degrees']))
                 elif k == 'RandomResizedCrop':
                     compose_items.append(RandomResizedCrop(v['size'], v['scale'], v['ratio']))
                 elif k == 'Resize':
@@ -128,6 +130,17 @@ class RandomResize(nn.Module):
         data['target'] = TF.resize(data['target'], size, TF.InterpolationMode.NEAREST)
 
         data['target'].squeeze_(dim=0)
+        return data
+
+
+class RandomRotation(torchvision.transforms.RandomRotation):
+    def __init__(self, degrees: Union[tuple, int, float]):
+        super(RandomRotation, self).__init__(degrees)
+
+    def forward(self, data: dict):
+        angle = self.get_params(self.degrees)
+        data['image'] = TF.rotate(data['image'], angle, torchvision.transforms.InterpolationMode.BILINEAR)
+        data['target'] = TF.rotate(data['target'], angle, torchvision.transforms.InterpolationMode.NEAREST)
         return data
 
 
