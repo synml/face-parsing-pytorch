@@ -32,8 +32,8 @@ class Builder:
     def __init__(self, cfg: dict):
         self.cfg = cfg
 
-    def build_dataset(self, dataset_type: str, ddp_enabled=False, persistent_workers=False)\
-            -> tuple[torch.utils.data.Dataset, torch.utils.data.DataLoader]:
+    def build_dataset(self, dataset_type: str, ddp_enabled=False) -> tuple[torch.utils.data.Dataset,
+                                                                           torch.utils.data.DataLoader]:
         cfg_dataset = self.cfg['dataset']
         root = cfg_dataset['root']
         batch_size = self.cfg[self.cfg['model']['name']]['batch_size']
@@ -63,8 +63,8 @@ class Builder:
             pin_memory = False
         else:
             sampler = None
-        dataloader = torch.utils.data.DataLoader(dataset, batch_size, shuffle, sampler, num_workers=num_workers,
-                                                 pin_memory=pin_memory, persistent_workers=persistent_workers)
+        dataloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, sampler=sampler,
+                                                 num_workers=num_workers, pin_memory=pin_memory)
         return dataset, dataloader
 
     def build_model(self, num_classes: int, pretrained=False) -> nn.Module:
