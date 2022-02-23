@@ -48,8 +48,8 @@ if __name__ == '__main__':
         torch.use_deterministic_algorithms(True)
 
     # 1. Dataset
-    trainset, trainloader = builder.build_dataset('train', ddp_enabled)
-    _, valloader = builder.build_dataset('test', ddp_enabled)
+    trainset, trainloader = builder.build_dataset('train', ddp_enabled, persistent_workers=True)
+    _, valloader = builder.build_dataset('test', ddp_enabled, persistent_workers=True)
 
     # 2. Model
     model = builder.build_model(trainset.num_classes).to(device)
