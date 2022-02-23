@@ -4,7 +4,7 @@ import torch
 class Evaluator:
     def __init__(self, num_classes: int, device: torch.device):
         self.confusion_matrix = torch.zeros((num_classes, num_classes), dtype=torch.int64, device=device)
-        self.num_classes = num_classes
+        self.num_classes = num_classes - 1
 
     def _generate_matrix(self, gt_batch: torch.Tensor, pred_batch: torch.Tensor) -> torch.Tensor:
         mask = (gt_batch >= 1) & (gt_batch < self.num_classes)

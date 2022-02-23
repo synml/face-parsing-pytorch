@@ -100,7 +100,7 @@ if __name__ == '__main__':
         writer = csv.writer(f, delimiter=',', lineterminator='\n')
         writer.writerow(['Class Number', 'Class Name', 'IoU'])
 
-        for (name, id, _), iou_value in zip(valset.classes[1:], iou[1:]):
+        for (name, id, _), iou_value in zip(valset.classes, iou):
             writer.writerow([id, name, iou_value])
         writer.writerow(['mIoU', miou, ' '])
         writer.writerow(['Validation loss', val_loss, ' '])
