@@ -145,7 +145,7 @@ class ContextPath(nn.Module):
 
 # This is not used, since I replace this with the resnet feature with the same size
 class SpatialPath(nn.Module):
-    def __init__(self, *args, **kwargs):
+    def __init__(self):
         super(SpatialPath, self).__init__()
         self.conv1 = ConvBNReLU(3, 64, ks=7, stride=2, padding=3)
         self.conv2 = ConvBNReLU(64, 64, ks=3, stride=2, padding=1)
@@ -179,7 +179,7 @@ class SpatialPath(nn.Module):
 
 
 class FeatureFusionModule(nn.Module):
-    def __init__(self, in_chan, out_chan, *args, **kwargs):
+    def __init__(self, in_chan, out_chan):
         super(FeatureFusionModule, self).__init__()
         self.convblk = ConvBNReLU(in_chan, out_chan, ks=1, stride=1, padding=0)
         self.conv1 = nn.Conv2d(out_chan,
@@ -229,14 +229,12 @@ class FeatureFusionModule(nn.Module):
 
 
 class BiSeNet(nn.Module):
-    def __init__(self, n_classes, *args, **kwargs):
+    def __init__(self, n_classes):
         super(BiSeNet, self).__init__()
         self.cp = ContextPath()
         # here self.sp is deleted
         self.ffm = FeatureFusionModule(256, 256)
         self.conv_out = BiSeNetOutput(256, 256, n_classes)
-        self.conv_out16 = BiSeNetOutput(128, 64, n_classes)
-        self.conv_out32 = BiSeNetOutput(128, 64, n_classes)
         self.init_weight()
 
     def forward(self, x):
@@ -244,15 +242,8 @@ class BiSeNet(nn.Module):
         feat_res8, feat_cp8, feat_cp16 = self.cp(x)  # here return res3b1 feature
         feat_sp = feat_res8  # use res3b1 feature to replace spatial path feature
         feat_fuse = self.ffm(feat_sp, feat_cp8)
-
-        feat_out = self.conv_out(feat_fuse)
-        feat_out16 = self.conv_out16(feat_cp8)
-        feat_out32 = self.conv_out32(feat_cp16)
-
-        feat_out = F.interpolate(feat_out, (h, w), mode='bilinear', align_corners=True)
-        feat_out16 = F.interpolate(feat_out16, (h, w), mode='bilinear', align_corners=True)
-        feat_out32 = F.interpolate(feat_out32, (h, w), mode='bilinear', align_corners=True)
-        return feat_out, feat_out16, feat_out32
+        feat_out = F.interpolate(self.conv_out(feat_fuse), (h, w), mode='bilinear', align_corners=True)
+        return feat_out
 
     def init_weight(self):
         for ly in self.children():
