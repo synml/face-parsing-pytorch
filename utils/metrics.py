@@ -7,7 +7,7 @@ class Evaluator:
         self.num_classes = num_classes - 1
 
     def _generate_matrix(self, gt_batch: torch.Tensor, pred_batch: torch.Tensor) -> torch.Tensor:
-        mask = (gt_batch >= 1) & (gt_batch < self.num_classes)
+        mask = (gt_batch >= 1) & (gt_batch <= self.num_classes)
         label = self.num_classes * gt_batch[mask] + pred_batch[mask]
         count = torch.bincount(label, minlength=self.num_classes ** 2)
         confusion_matrix = count.reshape(self.num_classes, self.num_classes)
