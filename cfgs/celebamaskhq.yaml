@@ -93,7 +93,7 @@ EAGRNet:
   pretrained_weights: weights/EAGRNet_best_miou.pth
 
 BiSeNet:
-  batch_size: 64
+  batch_size: 128
   epoch: 100
   criterion:
     name: CrossEntropyLoss
