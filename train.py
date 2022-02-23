@@ -1,5 +1,8 @@
 import os
 
+import random
+import numpy as np
+import torch.backends.cudnn
 import torch.distributed
 import torch.utils.data
 import torch.utils.tensorboard
@@ -32,6 +35,17 @@ if __name__ == '__main__':
         device = torch.device('cuda', local_rank)
     else:
         device = torch.device('cpu')
+
+    # Reproducibility
+    if cfg['reproducibility']:
+        random.seed(cfg['seed'])
+        np.random.seed(cfg['seed'])
+        torch.manual_seed(cfg['seed'])
+        torch.cuda.manual_seed(cfg['seed'])
+        torch.cuda.manual_seed_all(cfg['seed'])
+        torch.backends.cudnn.benchmark = False
+        torch.backends.cudnn.deterministic = True
+        torch.use_deterministic_algorithms(True)
 
     # 1. Dataset
     trainset, trainloader = builder.build_dataset('train', ddp_enabled)
