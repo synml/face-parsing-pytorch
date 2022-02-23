@@ -45,7 +45,7 @@ if __name__ == '__main__':
         torch.cuda.manual_seed_all(cfg['seed'])
         torch.backends.cudnn.benchmark = False
         torch.backends.cudnn.deterministic = True
-        torch.use_deterministic_algorithms(True)
+        # torch.use_deterministic_algorithms(True) strict method
 
     # 1. Dataset
     trainset, trainloader = builder.build_dataset('train', ddp_enabled, persistent_workers=True)
