@@ -22,6 +22,7 @@ def load_cfg() -> dict:
     cfg['resume_training'] = main['resume_training']
     cfg['fine_tuning_batchnorm'] = main['fine_tuning_batchnorm']
     cfg['ddp_enabled'] = main['ddp_enabled']
+    cfg['ddp_find_unused_parameters'] = main['ddp_find_unused_parameters']
     return cfg
 
 

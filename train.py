@@ -40,7 +40,7 @@ if __name__ == '__main__':
     # 2. Model
     model = builder.build_model(trainset.num_classes).to(device)
     if ddp_enabled:
-        model = torch.nn.parallel.DistributedDataParallel(model, find_unused_parameters=True)
+        model = torch.nn.parallel.DistributedDataParallel(model, cfg['ddp_find_unused_parameters'])
         model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
     model_name = cfg['model']['name']
     amp_enabled = cfg['model']['amp_enabled']
