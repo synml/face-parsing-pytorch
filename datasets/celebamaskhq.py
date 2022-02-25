@@ -17,7 +17,7 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
 
     Args:
         root (string): Root directory where images are downloaded to.
-        split (string): One of {'train', 'val', 'trainval', 'test', 'all'}.
+        split (string): One of {'train', 'val', 'trainval', 'test', 'all', 'custom'}.
             Accordingly, dataset is selected.
         target_type (string or list, optional): Type of target to use, ``mask``, ``pose``, or ``attr``.
             Can also be a list to output a tuple with all specified target types.
@@ -64,7 +64,7 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
                  target_transform: Optional[Callable] = None,
                  transforms: Optional[Callable] = None):
         super(CelebAMaskHQ, self).__init__(root, transforms, transform, target_transform)
-        assert split in ('train', 'val', 'trainval', 'test', 'all')
+        assert split in ('train', 'val', 'trainval', 'test', 'all', 'custom')
         assert target_type in ('mask', 'pose', 'attr')
         self.split = split
         self.target_type = target_type
@@ -83,6 +83,8 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
         if self.split == 'all':
             self.images = glob.glob(os.path.join(self.root, 'CelebA-HQ-img', '*'))
             self.targets = glob.glob(os.path.join(self.preprocessed_mask_path, '*'))
+        elif self.split == 'custom':
+            self.images = glob.glob(os.path.join(self.root, 'custom', '*'))
         else:
             # Load mapping information
             orig_to_hq_mapping = {}
@@ -109,8 +111,12 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
             self.targets = [i.replace('CelebA-HQ-img', 'preprocessed_mask').replace('.jpg', '.png')
                             for i in self.images]
 
-        self.images.sort(key=lambda x: int(os.path.splitext(os.path.basename(x))[0]))
-        self.targets.sort(key=lambda x: int(os.path.splitext(os.path.basename(x))[0]))
+        try:
+            self.images.sort(key=lambda x: int(os.path.splitext(os.path.basename(x))[0]))
+            self.targets.sort(key=lambda x: int(os.path.splitext(os.path.basename(x))[0]))
+        except ValueError:
+            self.images.sort()
+            self.targets.sort()
 
     def download(self):
         dataset_file = {
@@ -154,7 +160,10 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
         image = torchvision.io.read_image(self.images[index], torchvision.io.ImageReadMode.RGB)
         image = TF.resize(image, [512, 512], TF.InterpolationMode.BILINEAR, antialias=True)
 
-        target = torchvision.io.read_image(self.targets[index], torchvision.io.ImageReadMode.GRAY)
+        if self.split != 'custom':
+            target = torchvision.io.read_image(self.targets[index], torchvision.io.ImageReadMode.GRAY)
+        else:
+            target = torch.zeros_like(image)
 
         if self.transforms is not None:
             image, target = self.transforms(image, target)
