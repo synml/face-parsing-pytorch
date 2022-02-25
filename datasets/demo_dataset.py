@@ -10,8 +10,9 @@ class DemoDataset(torchvision.datasets.VisionDataset):
     def __init__(self,
                  root: str,
                  transform: Optional[Callable] = None,
-                 target_transform: Optional[Callable] = None):
-        super().__init__(root, transform, target_transform)
+                 target_transform: Optional[Callable] = None,
+                 transforms: Optional[Callable] = None):
+        super().__init__(root, transforms, transform, target_transform)
         self.images = glob.glob(os.path.join(self.root, '*'))
 
         try:
@@ -21,7 +22,12 @@ class DemoDataset(torchvision.datasets.VisionDataset):
 
     def __getitem__(self, index: int) -> Tuple[torch.Tensor, None]:
         image = torchvision.io.read_image(self.images[index], torchvision.io.ImageReadMode.RGB)
-        return image, None
+        target = torch.zeros_like(image)
+
+        if self.transforms is not None:
+            image, target = self.transforms(image, target)
+
+        return image, target
 
     def __len__(self):
         return len(self.images)
