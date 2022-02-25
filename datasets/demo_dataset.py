@@ -6,7 +6,7 @@ import torch
 import torchvision
 
 
-class DemoImage(torchvision.datasets.VisionDataset):
+class DemoDataset(torchvision.datasets.VisionDataset):
     def __init__(self,
                  root: str,
                  transform: Optional[Callable] = None,
@@ -28,4 +28,4 @@ class DemoImage(torchvision.datasets.VisionDataset):
 
 
 if __name__ == '__main__':
-    dataset = DemoImage('../demo/input_image')
+    dataset = DemoDataset('../demo/input_image')
