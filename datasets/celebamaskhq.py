@@ -163,7 +163,7 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
         if self.split != 'custom':
             target = torchvision.io.read_image(self.targets[index], torchvision.io.ImageReadMode.GRAY)
         else:
-            target = torch.zeros_like(image)
+            target = torch.zeros((1, 512, 512), dtype=torch.uint8)
 
         if self.transforms is not None:
             image, target = self.transforms(image, target)
