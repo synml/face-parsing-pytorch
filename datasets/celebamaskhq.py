@@ -150,7 +150,7 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
                         mask[orig_mask == 255] = cls.id
                 torchvision.io.write_png(mask.unsqueeze(0), os.path.join(self.preprocessed_mask_path, f'{j}.png'))
 
-    def __getitem__(self, index) -> Tuple[Image.Image, Image.Image]:
+    def __getitem__(self, index: int) -> Tuple[torch.Tensor, torch.Tensor]:
         image = torchvision.io.read_image(self.images[index], torchvision.io.ImageReadMode.RGB)
         image = TF.resize(image, [512, 512], TF.InterpolationMode.BILINEAR, antialias=True)
 

@@ -1,19 +1,20 @@
 import matplotlib.pyplot as plt
 import torch
+from torch import Tensor
 import torchvision
 import torchvision.transforms.functional as TF
 
 
-def inverse_normalize(tensor: torch.Tensor, mean: torch.Tensor, std: torch.Tensor, inplace=False) -> torch.Tensor:
+def inverse_normalize(tensor: Tensor, mean: Tensor, std: Tensor, inplace=False) -> Tensor:
     tensor = TF.normalize(tensor, (-mean / std).tolist(), (1.0 / std).tolist(), inplace)
     return tensor
 
 
-def inverse_to_tensor_normalize(tensor: torch.Tensor) -> torch.Tensor:
+def inverse_to_tensor_normalize(tensor: Tensor) -> Tensor:
     return tensor.mul_(255).to(torch.uint8)
 
 
-def draw_segmentation_masks(images: torch.Tensor, masks: torch.Tensor, colors: list, alpha=0.34, gamma=10):
+def draw_segmentation_masks(images: Tensor, masks: Tensor, colors: list, alpha=0.34, gamma=10) -> Tensor:
     assert images.dtype == torch.uint8, f'The images dtype must be uint8, got {images.dtype}'
     assert images.dim() == 4, 'Pass batches, not individual images'
     assert images.size()[1] == 3, 'Pass RGB images. Other Image formats are not supported'
@@ -42,13 +43,13 @@ def draw_segmentation_masks(images: torch.Tensor, masks: torch.Tensor, colors: l
         return alpha_colored_mask
 
 
-def generate_color_palette(num_classes) -> list[tuple]:
+def generate_color_palette(num_classes: int) -> list[tuple]:
     palette = torch.tensor([2 ** 25 - 1, 2 ** 15 - 1, 2 ** 21 - 1])
     return [tuple((i * palette) % 255) for i in range(num_classes)]
 
 
 # Validate dataset loading code
-def show_dataset(images: torch.Tensor, targets: torch.Tensor):
+def show_dataset(images: Tensor, targets: Tensor):
     to_pil_image = torchvision.transforms.ToPILImage()
     plt.rcParams['figure.figsize'] = (17, 6)
     plt.rcParams['figure.autolayout'] = True
