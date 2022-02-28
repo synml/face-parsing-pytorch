@@ -73,8 +73,13 @@ if __name__ == '__main__':
         aux_criterion = None
         aux_factor = None
 
+    # Initialize training variables
+    start_epoch = 0
+    prev_miou = 0.0
+    prev_val_loss = 2 ** 32 - 1
+
     # Resume training at checkpoint
-    if cfg['resume_training'] is not None:
+    if cfg['resume_training']:
         path = cfg['resume_training']
         if ddp_enabled:
             torch.distributed.barrier()
@@ -89,10 +94,6 @@ if __name__ == '__main__':
         prev_miou = checkpoint['miou']
         prev_val_loss = checkpoint['val_loss']
         print(f'Resume training. {path} (rank{local_rank})')
-    else:
-        start_epoch = 0
-        prev_miou = 0.0
-        prev_val_loss = 2 ** 32 - 1
 
     # 4. Tensorboard
     if local_rank == 0:
