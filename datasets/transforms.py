@@ -134,7 +134,7 @@ class RandomResize(nn.Module):
 
 
 class RandomRotation(torchvision.transforms.RandomRotation):
-    def __init__(self, degrees: Union[tuple, int, float]):
+    def __init__(self, degrees: Union[Sequence, int, float]):
         super(RandomRotation, self).__init__(degrees)
 
     def forward(self, data: dict):
