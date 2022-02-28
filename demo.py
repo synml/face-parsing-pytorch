@@ -8,9 +8,11 @@ import datasets
 import utils
 
 if __name__ == '__main__':
-    # Load cfg and create components builder
-    cfg = utils.builder.load_cfg()
-    builder = utils.builder.Builder(cfg)
+    # Create components builder
+    builder = utils.builder.Builder()
+    config = builder.config
+    model_name = builder.model_name
+    amp_enabled = config['train']['amp_enabled']
 
     # Device
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -21,8 +23,6 @@ if __name__ == '__main__':
     # 2. Model
     model = builder.build_model(valset.num_classes, pretrained=True).to(device)
     model.eval()
-    model_name = cfg['model']['name']
-    amp_enabled = cfg['model']['amp_enabled']
     print(f'Activated model: {model_name}')
 
     # Collect image names
