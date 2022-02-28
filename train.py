@@ -118,6 +118,7 @@ if __name__ == '__main__':
             torch.distributed.barrier()
         model.train()
 
+        train_loss = torch.zeros(1, device=device)
         for batch_idx, (images, targets) in enumerate(tqdm.tqdm(trainloader, desc='Batch', leave=False,
                                                                 disable=False if local_rank == 0 else True)):
             iters = len(trainloader) * eph + batch_idx
@@ -137,19 +138,23 @@ if __name__ == '__main__':
             scaler.scale(loss).backward()
             scaler.step(optimizer)
             scaler.update()
+            train_loss += loss
 
-            if ddp_enabled:
-                loss_list = [torch.zeros(1, device=device) for _ in range(world_size)]
-                torch.distributed.all_gather_multigpu([loss_list], [loss])
-                if writer is not None:
-                    for i, rank_loss in enumerate(loss_list):
-                        writer.add_scalar(f'loss/training (rank{i})', rank_loss.item(), iters)
-                    writer.add_scalar('lr', optimizer.param_groups[0]['lr'], iters)
-            else:
-                writer.add_scalar(f'loss/training (rank{local_rank})', loss.item(), iters)
-                writer.add_scalar('lr', optimizer.param_groups[0]['lr'], iters)
+            # Write lr
+            if writer is not None:
+                writer.add_scalar('lr', optimizer.param_groups[0]['lr'], eph)
 
             scheduler.step()
+
+        # Write training loss
+        if ddp_enabled:
+            loss_list = [torch.zeros(1, device=device) for _ in range(world_size)]
+            torch.distributed.all_gather_multigpu([loss_list], [train_loss])
+            if writer is not None:
+                for i, rank_train_loss in enumerate(loss_list):
+                    writer.add_scalar(f'loss/training (rank{i})', rank_train_loss.item(), eph)
+        else:
+            writer.add_scalar(f'loss/training (rank{local_rank})', train_loss.item(), eph)
 
         # Evaluate
         val_loss, mean_f1, _, _ = eval.evaluate(model, valloader, criterion, trainset.num_classes,
