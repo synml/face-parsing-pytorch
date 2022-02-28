@@ -40,7 +40,7 @@ class Transforms:
         self.to_tensor = ToTensor()
         self.normalize = Normalize(cfg['dataset']['normalize_mean'], cfg['dataset']['normalize_std'])
 
-    def __call__(self, image: Image.Image, target: Image.Image) -> tuple[torch.Tensor, torch.Tensor]:
+    def __call__(self, image, target) -> tuple[torch.Tensor, torch.Tensor]:
         data = {'image': image, 'target': target}
 
         data = self.to_tensor(data)
@@ -209,7 +209,7 @@ class ToTensor(torchvision.transforms.ToTensor):
     def __call__(self, data: dict):
         if isinstance(data['image'], Image.Image) and isinstance(data['target'], Image.Image):
             data['image'] = TF.to_tensor(data['image'])
-            data['target'] = torch.as_tensor(np.array(data['target']), dtype=torch.int64)
+            data['target'] = torch.as_tensor(np.array(data['target'], dtype=np.int64))
         elif isinstance(data['image'], torch.Tensor) and isinstance(data['target'], torch.Tensor):
             data['image'] = data['image'].to(torch.get_default_dtype()).div(255)
             data['target'] = data['target'].squeeze(0).to(torch.int64)

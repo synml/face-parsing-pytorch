@@ -4,7 +4,6 @@ import os
 from typing import Callable, List, Optional, Union, Tuple
 import zipfile
 
-from PIL import Image
 import torch
 import torchvision
 import torchvision.datasets.utils
