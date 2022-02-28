@@ -45,7 +45,7 @@ if __name__ == '__main__':
         torch.cuda.manual_seed_all(cfg['seed'])
         torch.backends.cudnn.benchmark = False
         torch.backends.cudnn.deterministic = True
-        # torch.use_deterministic_algorithms(True) strict method
+        # torch.use_deterministic_algorithms(True) # strict method
 
     # 1. Dataset
     trainset, trainloader = builder.build_dataset('train', ddp_enabled)
@@ -82,12 +82,9 @@ if __name__ == '__main__':
         else:
             checkpoint = torch.load(path)
         model.load_state_dict(checkpoint['model_state_dict'])
-        if cfg['fine_tuning_batchnorm']:
-            model.freeze_bn()
-        else:
-            optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-            scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
-            scaler.load_state_dict(checkpoint['scaler_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
+        scaler.load_state_dict(checkpoint['scaler_state_dict'])
         start_epoch = checkpoint['epoch'] + 1
         prev_miou = checkpoint['miou']
         prev_val_loss = checkpoint['val_loss']

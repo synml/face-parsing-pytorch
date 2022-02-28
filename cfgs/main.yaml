@@ -2,7 +2,6 @@ cfg: cfgs/celebamaskhq.yaml
 model: BiSeNet
 amp_enabled: True
 resume_training:
-fine_tuning_batchnorm:
 ddp_enabled: True
 ddp_find_unused_parameters: False
 reproducibility: True
