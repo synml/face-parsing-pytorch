@@ -12,19 +12,18 @@ import utils
 
 class Builder:
     def __init__(self):
-        self.config = self.load_cfg()
+        self.config = {}
 
-    def load_cfg(self) -> dict:
+        # Load configs
         with open(os.path.join('configs', 'main.yaml')) as f:
             main = yaml.safe_load(f)
         with open(os.path.join('configs', main['config'])) as f:
-            config = yaml.safe_load(f)
+            dataset_with_model = yaml.safe_load(f)
         with open(os.path.join('configs', 'train.yaml')) as f:
             train = yaml.safe_load(f)
-
-        main.update(config)
-        main.update(train)
-        return main
+        self.config.update(main)
+        self.config.update(dataset_with_model)
+        self.config.update(train)
 
     def build_dataset(self, dataset_type: str, ddp_enabled=False) -> tuple[torch.utils.data.Dataset,
                                                                            torch.utils.data.DataLoader]:

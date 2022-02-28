@@ -24,7 +24,7 @@ if __name__ == '__main__':
     ddp_enabled = config['train']['ddp_enabled']
     ddp_find_unused_parameters = config['train']['ddp_find_unused_parameters']
     optimizer_zero_grad_set_to_none = config['train']['optimizer_zero_grad_set_to_none']
-    reproducibility = config['reproducibility']
+    reproducibility = config['train']['reproducibility']
     seed = config['train']['reproducibility_seed']
     resume_training = config['train']['resume_training']
     resume_training_checkpoint = config['train']['resume_training_checkpoint']
