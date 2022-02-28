@@ -13,21 +13,31 @@ import eval
 import utils
 
 if __name__ == '__main__':
-    # Load cfg and create components builder
-    cfg = utils.builder.load_cfg()
-    builder = utils.builder.Builder(cfg)
+    # Create components builder
+    builder = utils.builder.Builder()
+    config = builder.config
+
+    # Create variables that control training
+    model_name = config['model']
+    epoch = config[model_name]['epoch']
+    amp_enabled = config['train']['amp_enabled']
+    ddp_enabled = config['train']['ddp_enabled']
+    ddp_find_unused_parameters = config['train']['ddp_find_unused_parameters']
+    optimizer_zero_grad_set_to_none = config['train']['optimizer_zero_grad_set_to_none']
+    reproducibility = config['reproducibility']
+    seed = config['train']['reproducibility_seed']
+    resume_training = config['train']['resume_training']
+    resume_training_checkpoint = config['train']['resume_training_checkpoint']
 
     # Distributed Data-Parallel Training (DDP)
-    ddp_enabled = cfg['ddp_enabled']
+    local_rank = 0
+    world_size = 0
     if ddp_enabled:
         assert torch.distributed.is_nccl_available(), 'NCCL backend is not available.'
         torch.distributed.init_process_group(backend='nccl', init_method='env://')
         local_rank = torch.distributed.get_rank()
         world_size = torch.distributed.get_world_size()
         os.system('clear')
-    else:
-        local_rank = 0
-        world_size = 0
 
     # Device
     if torch.cuda.is_available():
@@ -37,12 +47,12 @@ if __name__ == '__main__':
         device = torch.device('cpu')
 
     # Reproducibility
-    if cfg['reproducibility']:
-        random.seed(cfg['seed'])
-        np.random.seed(cfg['seed'])
-        torch.manual_seed(cfg['seed'])
-        torch.cuda.manual_seed(cfg['seed'])
-        torch.cuda.manual_seed_all(cfg['seed'])
+    if reproducibility:
+        random.seed(seed)
+        np.random.seed(seed)
+        torch.manual_seed(seed)
+        torch.cuda.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
         torch.backends.cudnn.benchmark = False
         torch.backends.cudnn.deterministic = True
         # torch.use_deterministic_algorithms(True) # strict method
@@ -54,38 +64,34 @@ if __name__ == '__main__':
     # 2. Model
     model = builder.build_model(trainset.num_classes).to(device)
     if ddp_enabled:
-        model = torch.nn.parallel.DistributedDataParallel(model,
-                                                          find_unused_parameters=cfg['ddp_find_unused_parameters'])
+        model = torch.nn.parallel.DistributedDataParallel(
+            model, find_unused_parameters=ddp_find_unused_parameters
+        )
         model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
-    model_name = cfg['model']['name']
-    amp_enabled = cfg['model']['amp_enabled']
     print(f'Activated model: {model_name} (rank{local_rank})')
 
     # 3. Loss function, optimizer, lr scheduler, scaler, aux loss function
     criterion = builder.build_criterion()
     optimizer = builder.build_optimizer(model)
-    scheduler = builder.build_scheduler(optimizer, len(trainloader) * cfg[model_name]['epoch'])
+    scheduler = builder.build_scheduler(optimizer, len(trainloader) * epoch)
     scaler = torch.cuda.amp.GradScaler(enabled=amp_enabled)
-    if cfg[model_name]['aux_criterion'] is not None:
+    if config[model_name]['aux_criterion'] is not None:
         aux_criterion = builder.build_aux_criterion()
         aux_factor = builder.build_aux_factor()
     else:
         aux_criterion = None
         aux_factor = None
 
-    # Initialize training variables
+    # Resume training at checkpoint
     start_epoch = 0
     prev_miou = 0.0
     prev_val_loss = 2 ** 32 - 1
-
-    # Resume training at checkpoint
-    if cfg['resume_training']:
-        path = cfg['resume_training']
+    if resume_training:
         if ddp_enabled:
             torch.distributed.barrier()
-            checkpoint = torch.load(path, map_location={'cuda:0': f'cuda:{local_rank}'})
+            checkpoint = torch.load(resume_training_checkpoint, map_location={'cuda:0': f'cuda:{local_rank}'})
         else:
-            checkpoint = torch.load(path)
+            checkpoint = torch.load(resume_training_checkpoint)
         model.load_state_dict(checkpoint['model_state_dict'])
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
@@ -93,7 +99,7 @@ if __name__ == '__main__':
         start_epoch = checkpoint['epoch'] + 1
         prev_miou = checkpoint['miou']
         prev_val_loss = checkpoint['val_loss']
-        print(f'Resume training. {path} (rank{local_rank})')
+        print(f'Resume training. {resume_training_checkpoint} (rank{local_rank})')
 
     # 4. Tensorboard
     if local_rank == 0:
@@ -102,19 +108,19 @@ if __name__ == '__main__':
         writer = None
 
     # 5. Train and evaluate
-    for epoch in tqdm.tqdm(range(start_epoch, cfg[model_name]['epoch']),
-                           desc='Epoch', disable=False if local_rank == 0 else True):
+    for eph in tqdm.tqdm(range(start_epoch, epoch),
+                         desc='Epoch', disable=False if local_rank == 0 else True):
         if utils.train_interupter.train_interupter():
             print('Train interrupt occurs.')
             break
         if ddp_enabled:
-            trainloader.sampler.set_epoch(epoch)
+            trainloader.sampler.set_epoch(eph)
             torch.distributed.barrier()
         model.train()
 
         for batch_idx, (images, targets) in enumerate(tqdm.tqdm(trainloader, desc='Batch', leave=False,
                                                                 disable=False if local_rank == 0 else True)):
-            iters = len(trainloader) * epoch + batch_idx
+            iters = len(trainloader) * eph + batch_idx
             images, targets = images.to(device), targets.to(device)
 
             optimizer.zero_grad(set_to_none=True)
@@ -149,8 +155,8 @@ if __name__ == '__main__':
         val_loss, miou, _, _ = eval.evaluate(model, valloader, criterion, trainset.num_classes,
                                              amp_enabled, ddp_enabled, device)
         if writer is not None:
-            writer.add_scalar('loss/validation', val_loss, epoch)
-            writer.add_scalar('metrics/mIoU', miou, epoch)
+            writer.add_scalar('loss/validation', val_loss, eph)
+            writer.add_scalar('metrics/mIoU', miou, eph)
 
         # Write predicted segmentation map
         if writer is not None:
@@ -163,11 +169,11 @@ if __name__ == '__main__':
             mean = torch.tensor(trainset.transforms.normalize.mean)
             std = torch.tensor(trainset.transforms.normalize.std)
             images = datasets.utils.inverse_to_tensor_normalize(datasets.utils.inverse_normalize(images, mean, std))
-            if epoch == 0:
+            if eph == 0:
                 targets = datasets.utils.draw_segmentation_masks(images, targets, trainset.colors)
-                writer.add_images('eval/1Groundtruth', targets, epoch)
+                writer.add_images('eval/1Groundtruth', targets, eph)
             outputs = datasets.utils.draw_segmentation_masks(images, outputs, trainset.colors)
-            writer.add_images('eval/2' + model_name, outputs, epoch)
+            writer.add_images('eval/2' + model_name, outputs, eph)
 
         if local_rank == 0:
             # Save checkpoint
@@ -177,7 +183,7 @@ if __name__ == '__main__':
                 'optimizer_state_dict': optimizer.state_dict(),
                 'scheduler_state_dict': scheduler.state_dict(),
                 'scaler_state_dict': scaler.state_dict(),
-                'epoch': epoch,
+                'epoch': eph,
                 'miou': miou,
                 'val_loss': val_loss
             }, os.path.join('weights', f'{model_name}_checkpoint.pth'))
