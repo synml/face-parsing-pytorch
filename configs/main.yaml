@@ -1,0 +1,2 @@
+cfg: configs/celebamaskhq.yaml
+model: BiSeNet

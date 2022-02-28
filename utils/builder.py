@@ -10,27 +10,26 @@ import models
 import utils
 
 
-def load_cfg() -> dict:
-    with open('cfgs/main.yaml') as f:
-        main = yaml.safe_load(f)
-
-    with open(main['cfg']) as f:
-        cfg = yaml.load(f, Loader=yaml.FullLoader)
-    cfg['model'] = {}
-    cfg['model']['name'] = main['model']
-    cfg['model']['amp_enabled'] = main['amp_enabled']
-    cfg['resume_training'] = main['resume_training']
-    cfg['fine_tuning_batchnorm'] = main['fine_tuning_batchnorm']
-    cfg['ddp_enabled'] = main['ddp_enabled']
-    cfg['ddp_find_unused_parameters'] = main['ddp_find_unused_parameters']
-    cfg['reproducibility'] = main['reproducibility']
-    cfg['seed'] = main['seed']
-    return cfg
-
-
 class Builder:
-    def __init__(self, cfg: dict):
-        self.cfg = cfg
+    def __init__(self):
+        self.cfg = self.load_cfg()
+
+    def load_cfg(self) -> dict:
+        with open('configs/main.yaml') as f:
+            main = yaml.safe_load(f)
+
+        with open(main['cfg']) as f:
+            cfg = yaml.load(f, Loader=yaml.FullLoader)
+        cfg['model'] = {}
+        cfg['model']['name'] = main['model']
+        cfg['model']['amp_enabled'] = main['amp_enabled']
+        cfg['resume_training'] = main['resume_training']
+        cfg['fine_tuning_batchnorm'] = main['fine_tuning_batchnorm']
+        cfg['ddp_enabled'] = main['ddp_enabled']
+        cfg['ddp_find_unused_parameters'] = main['ddp_find_unused_parameters']
+        cfg['reproducibility'] = main['reproducibility']
+        cfg['seed'] = main['seed']
+        return cfg
 
     def build_dataset(self, dataset_type: str, ddp_enabled=False) -> tuple[torch.utils.data.Dataset,
                                                                            torch.utils.data.DataLoader]:
