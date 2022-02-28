@@ -1,2 +1,3 @@
-cfg: configs/celebamaskhq.yaml
+# Specify a config and a model to use.
+config: configs/celebamaskhq.yaml
 model: BiSeNet
