@@ -4,10 +4,10 @@ dataset:
   root: ../../data/CelebAMask-HQ
   num_workers: auto
   pin_memory: True
-  normalize_mean: !!python/tuple [0.5, 0.5, 0.5]
-  normalize_std: !!python/tuple [0.5, 0.5, 0.5]
+  normalize_mean: [0.5, 0.5, 0.5]
+  normalize_std: [0.5, 0.5, 0.5]
 
-# Model definitions
+# Model definitions (shape: [h, w])
 BiSeNet:
   batch_size: 128
   epoch: 100
@@ -25,9 +25,9 @@ BiSeNet:
       min_scale: 1.0
       max_scale: 1.2
     RandomCrop:
-      size: !!python/tuple [512, 512]
+      size: [512, 512]
     RandomRotation:
-      degrees: !!python/tuple [-18, 18]
+      degrees: [-18, 18]
     ColorJitter:
       brightness: 0.5
       contrast: 0.5
@@ -53,9 +53,9 @@ EAGRNet:
       min_scale: 1.0
       max_scale: 1.2
     RandomCrop:
-      size: !!python/tuple [512, 512]
+      size: [512, 512]
     RandomRotation:
-      degrees: !!python/tuple [-18, 18]
+      degrees: [-18, 18]
     ColorJitter:
       brightness: 0.5
       contrast: 0.5
@@ -81,9 +81,9 @@ UNet:
       min_scale: 1.0
       max_scale: 1.2
     RandomCrop:
-      size: !!python/tuple [512, 512]
+      size: [512, 512]
     RandomRotation:
-      degrees: !!python/tuple [-18, 18]
+      degrees: [-18, 18]
     ColorJitter:
       brightness: 0.5
       contrast: 0.5
