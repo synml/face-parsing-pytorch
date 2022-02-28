@@ -18,7 +18,7 @@ if __name__ == '__main__':
     config = builder.config
 
     # Create variables that control training
-    model_name = config['model']
+    model_name = config['model_name']
     epoch = config[model_name]['epoch']
     amp_enabled = config['train']['amp_enabled']
     ddp_enabled = config['train']['ddp_enabled']

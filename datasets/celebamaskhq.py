@@ -56,7 +56,7 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
 
     def __init__(self,
                  root: str,
-                 split: str = 'train',
+                 split: str,
                  target_type: Union[List[str], str] = 'mask',
                  download: bool = False,
                  transform: Optional[Callable] = None,

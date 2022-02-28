@@ -29,23 +29,23 @@ class Builder:
                                                                            torch.utils.data.DataLoader]:
         cfg_dataset = self.config['dataset']
         root = cfg_dataset['root']
-        batch_size = self.config[self.config['model']['name']]['batch_size']
-        num_workers = self.config['dataset']['num_workers']
+        num_workers = cfg_dataset['num_workers']
         if num_workers == 'auto':
             num_workers = 4 * torch.cuda.device_count()
+        batch_size = self.config[self.config['model_name']]['batch_size']
 
         if dataset_type == 'train':
             transforms = datasets.transforms.Transforms(self.config, augmentation=True)
             shuffle = True
             pin_memory = cfg_dataset['pin_memory']
         else:
-            transforms = datasets.transforms.Transforms(self.config)
+            transforms = datasets.transforms.Transforms(self.config, augmentation=False)
             shuffle = False
             pin_memory = False
 
         # Dataset
         if cfg_dataset['name'] == 'CelebAMaskHQ':
-            dataset = datasets.celebamaskhq.CelebAMaskHQ(root, dataset_type, target_type='mask', transforms=transforms)
+            dataset = datasets.celebamaskhq.CelebAMaskHQ(root, dataset_type, transforms=transforms)
         else:
             raise NotImplementedError('Wrong dataset name.')
 

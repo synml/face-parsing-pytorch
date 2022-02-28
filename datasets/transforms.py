@@ -9,10 +9,10 @@ import torchvision.transforms.functional as TF
 
 
 class Transforms:
-    def __init__(self, cfg: dict, augmentation=False):
+    def __init__(self, cfg: dict, augmentation: bool):
         self.augmentation = None
         if augmentation:
-            cfg_augmentation: dict = cfg[cfg['model']['name']]['augmentation']
+            cfg_augmentation: dict = cfg[cfg['model_name']]['augmentation']
             compose_items = []
             for k, v in cfg_augmentation.items():
                 if k == 'ColorJitter':
