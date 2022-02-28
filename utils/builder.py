@@ -70,14 +70,12 @@ class Builder:
     def build_model(self, num_classes: int, pretrained=False) -> nn.Module:
         cfg_model_name = self.cfg['model']['name']
 
-        if cfg_model_name == 'Proposed':
-            model = models.proposed.Proposed(num_classes)
-        elif cfg_model_name == 'UNet':
-            model = models.unet.UNet(num_classes)
+        if cfg_model_name == 'BiSeNet':
+            model = models.bisenet.BiSeNet(num_classes)
         elif cfg_model_name == 'EAGRNet':
             model = models.eagr.EAGRNet(num_classes)
-        elif cfg_model_name == 'BiSeNet':
-            model = models.bisenet.BiSeNet(num_classes)
+        elif cfg_model_name == 'UNet':
+            model = models.unet.UNet(num_classes)
         else:
             raise NotImplementedError('Wrong model name.')
 

@@ -8,34 +8,6 @@ dataset:
   normalize_std: !!python/tuple [0.5, 0.5, 0.5]
 
 # Model definitions
-Proposed:
-  batch_size: 64
-  epoch: 100
-  criterion:
-    name: CrossEntropyLoss
-  aux_criterion:
-    name: CrossEntropyLoss
-  aux_factor: !!python/tuple [0.2, 0.5]
-  optimizer:
-    name: RAdam
-    lr: 0.001
-    weight_decay: 0
-  scheduler:
-    name: PolyLR
-  augmentation:
-    RandomResize:
-      min_scale: 1.0
-      max_scale: 1.2
-    RandomCrop:
-      size: !!python/tuple [512, 512]
-    ColorJitter:
-      brightness: 0.5
-      contrast: 0.5
-      saturation: 0.5
-      hue: 0
-    RandomHorizontalFlip:
-  pretrained_weights: weights/Proposed_best_miou.pth
-
 UNet:
   batch_size: 64
   epoch: 100
