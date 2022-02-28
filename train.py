@@ -84,7 +84,7 @@ if __name__ == '__main__':
 
     # Resume training at checkpoint
     start_epoch = 0
-    prev_miou = 0.0
+    prev_mean_f1 = 0.0
     prev_val_loss = 2 ** 32 - 1
     if resume_training:
         if ddp_enabled:
@@ -97,7 +97,7 @@ if __name__ == '__main__':
         scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
         scaler.load_state_dict(checkpoint['scaler_state_dict'])
         start_epoch = checkpoint['epoch'] + 1
-        prev_miou = checkpoint['miou']
+        prev_mean_f1 = checkpoint['mean_f1']
         prev_val_loss = checkpoint['val_loss']
         print(f'Resume training. {resume_training_checkpoint} (rank{local_rank})')
 
@@ -152,11 +152,11 @@ if __name__ == '__main__':
             scheduler.step()
 
         # Evaluate
-        val_loss, miou, _, _ = eval.evaluate(model, valloader, criterion, trainset.num_classes,
-                                             amp_enabled, ddp_enabled, device)
+        val_loss, mean_f1, _, _ = eval.evaluate(model, valloader, criterion, trainset.num_classes,
+                                                amp_enabled, ddp_enabled, device)
         if writer is not None:
             writer.add_scalar('loss/validation', val_loss, eph)
-            writer.add_scalar('metrics/mIoU', miou, eph)
+            writer.add_scalar('metrics/mean F1', mean_f1, eph)
 
         # Write predicted segmentation map
         if writer is not None:
@@ -184,14 +184,14 @@ if __name__ == '__main__':
                 'scheduler_state_dict': scheduler.state_dict(),
                 'scaler_state_dict': scaler.state_dict(),
                 'epoch': eph,
-                'miou': miou,
+                'mean_f1': mean_f1,
                 'val_loss': val_loss
             }, os.path.join('weights', f'{model_name}_checkpoint.pth'))
 
-            # Save best mIoU model
-            if miou > prev_miou:
-                torch.save(model.state_dict(), os.path.join('weights', f'{model_name}_best_miou.pth'))
-                prev_miou = miou
+            # Save best mean_f1 model
+            if mean_f1 > prev_mean_f1:
+                torch.save(model.state_dict(), os.path.join('weights', f'{model_name}_best_mean_f1.pth'))
+                prev_mean_f1 = mean_f1
 
             # Save best val_loss model
             if val_loss < prev_val_loss:

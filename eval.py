@@ -58,16 +58,16 @@ def evaluate(model: torch.nn.Module,
 
         val_loss = val_loss_list[0] / (len(valloader) * world_size)
         evaluator.confusion_matrix = confusion_matrix_list[0]
-        miou, iou = evaluator.mean_f1_score(ignore_zero_class=True, percent=True)
+        mean_f1, f1 = evaluator.mean_f1_score(ignore_zero_class=True, percent=True)
         inference_time = inference_time_list[0] / (len(valloader) * world_size)
         fps = 1 / inference_time
     else:
         val_loss /= len(valloader)
-        miou, iou = evaluator.mean_f1_score(ignore_zero_class=True, percent=True)
+        mean_f1, f1 = evaluator.mean_f1_score(ignore_zero_class=True, percent=True)
         inference_time /= len(valloader)
         fps = 1 / inference_time
 
-    return val_loss.item(), miou.item(), iou.tolist(), fps.item()
+    return val_loss.item(), mean_f1.item(), f1.tolist(), fps.item()
 
 
 if __name__ == '__main__':
@@ -92,17 +92,17 @@ if __name__ == '__main__':
     criterion = builder.build_criterion()
 
     # Evaluate model
-    val_loss, miou, iou, fps = evaluate(model, valloader, criterion, valset.num_classes, amp_enabled, False, device)
+    val_loss, mean_f1, f1, fps = evaluate(model, valloader, criterion, valset.num_classes, amp_enabled, False, device)
 
     # Save evaluation result as csv file
     os.makedirs('result', exist_ok=True)
     with open(os.path.join('result', f'{model_name}.csv'), mode='w', encoding='utf-8') as f:
         writer = csv.writer(f, delimiter=',', lineterminator='\n')
-        writer.writerow(['Class Number', 'Class Name', 'IoU'])
+        writer.writerow(['Class Number', 'Class Name', 'F1'])
 
-        for (name, id, _), iou_value in zip(valset.classes[1:], iou):
-            writer.writerow([id, name, iou_value])
-        writer.writerow(['mIoU', miou, ' '])
+        for (name, id, _), f1_value in zip(valset.classes[1:], f1):
+            writer.writerow([id, name, f1_value])
+        writer.writerow(['mean F1', mean_f1, ' '])
         writer.writerow(['Validation loss', val_loss, ' '])
         writer.writerow(['FPS', fps, ' '])
     print('Saved evaluation result.')
