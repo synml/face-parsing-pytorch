@@ -13,6 +13,7 @@ import utils
 class Builder:
     def __init__(self):
         self.config = {}
+        self.model_name = ''
 
         # Load configs
         with open(os.path.join('configs', 'main.yaml')) as f:
@@ -24,22 +25,26 @@ class Builder:
         self.config.update(main)
         self.config.update(dataset_with_model)
         self.config.update(train)
+        self.model_name = self.config['model_name']
 
     def build_dataset(self, dataset_type: str, ddp_enabled=False) -> tuple[torch.utils.data.Dataset,
                                                                            torch.utils.data.DataLoader]:
         cfg_dataset = self.config['dataset']
+
         root = cfg_dataset['root']
         num_workers = cfg_dataset['num_workers']
         if num_workers == 'auto':
             num_workers = 4 * torch.cuda.device_count()
-        batch_size = self.config[self.config['model_name']]['batch_size']
+        batch_size = self.config[self.model_name]['batch_size']
 
         if dataset_type == 'train':
-            transforms = datasets.transforms.Transforms(self.config, augmentation=True)
+            transforms = datasets.transforms.Transforms(cfg_dataset['normalize_mean'],
+                                                        cfg_dataset['normalize_std'],
+                                                        self.config[self.model_name]['augmentation'])
             shuffle = True
             pin_memory = cfg_dataset['pin_memory']
         else:
-            transforms = datasets.transforms.Transforms(self.config, augmentation=False)
+            transforms = datasets.transforms.Transforms(cfg_dataset['normalize_mean'], cfg_dataset['normalize_std'],)
             shuffle = False
             pin_memory = False
 
@@ -61,29 +66,28 @@ class Builder:
         return dataset, dataloader
 
     def build_model(self, num_classes: int, pretrained=False) -> nn.Module:
-        cfg_model_name = self.config['model']['name']
 
-        if cfg_model_name == 'BiSeNet':
+        if self.model_name == 'BiSeNet':
             model = models.bisenet.BiSeNet(num_classes)
-        elif cfg_model_name == 'EAGRNet':
+        elif self.model_name == 'EAGRNet':
             model = models.eagr.EAGRNet(num_classes)
-        elif cfg_model_name == 'UNet':
+        elif self.model_name == 'UNet':
             model = models.unet.UNet(num_classes)
         else:
             raise NotImplementedError('Wrong model name.')
 
         if pretrained:
-            pretrained_weights_path = self.config[cfg_model_name]['pretrained_weights']
+            pretrained_weights_path = self.config[self.model_name]['pretrained_weights']
             if os.path.isfile(pretrained_weights_path):
                 state_dict = torch.load(pretrained_weights_path)
                 state_dict = utils.state_dict_converter.convert_ddp_state_dict(state_dict)
                 model.load_state_dict(state_dict)
             else:
-                print(f'FileNotFound: pretrained_weights ({cfg_model_name})')
+                print(f'FileNotFound: pretrained_weights ({self.model_name})')
         return model
 
     def build_criterion(self) -> nn.Module:
-        cfg_criterion = self.config[self.config['model']['name']]['criterion']
+        cfg_criterion = self.config[self.model_name]['criterion']
 
         if cfg_criterion['name'] == 'CrossEntropyLoss':
             criterion = nn.CrossEntropyLoss()
@@ -94,7 +98,7 @@ class Builder:
         return criterion
 
     def build_optimizer(self, model: nn.Module) -> torch.optim.Optimizer:
-        cfg_optim = self.config[self.config['model']['name']]['optimizer']
+        cfg_optim = self.config[self.model_name]['optimizer']
 
         if cfg_optim['name'] == 'SGD':
             optimizer = torch.optim.SGD(model.parameters(), lr=cfg_optim['lr'], momentum=cfg_optim['momentum'],
@@ -110,7 +114,7 @@ class Builder:
         return optimizer
 
     def build_scheduler(self, optimizer: torch.optim.Optimizer, max_iter: int):
-        cfg_scheduler = self.config[self.config['model']['name']]['scheduler']
+        cfg_scheduler = self.config[self.model_name]['scheduler']
 
         if cfg_scheduler['name'] == 'PolyLR':
             scheduler = utils.lr_scheduler.PolyLR(optimizer, max_iter)
@@ -119,7 +123,7 @@ class Builder:
         return scheduler
 
     def build_aux_criterion(self) -> nn.Module:
-        cfg_aux_criterion = self.config[self.config['model']['name']]['aux_criterion']
+        cfg_aux_criterion = self.config[self.model_name]['aux_criterion']
 
         if cfg_aux_criterion['name'] == 'CrossEntropyLoss':
             aux_criterion = nn.CrossEntropyLoss()
@@ -128,5 +132,5 @@ class Builder:
         return aux_criterion
 
     def build_aux_factor(self) -> tuple:
-        cfg_aux_factor = self.config[self.config['model']['name']]['aux_factor']
+        cfg_aux_factor = self.config[self.model_name]['aux_factor']
         return cfg_aux_factor

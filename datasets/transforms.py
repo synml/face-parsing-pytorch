@@ -9,12 +9,11 @@ import torchvision.transforms.functional as TF
 
 
 class Transforms:
-    def __init__(self, cfg: dict, augmentation: bool):
+    def __init__(self, normalize_mean: Sequence, normalize_std: Sequence, augmentation: dict = None):
         self.augmentation = None
-        if augmentation:
-            cfg_augmentation: dict = cfg[cfg['model_name']]['augmentation']
+        if augmentation is not None:
             compose_items = []
-            for k, v in cfg_augmentation.items():
+            for k, v in augmentation.items():
                 if k == 'ColorJitter':
                     compose_items.append(ColorJitter(v['brightness'], v['contrast'], v['saturation'], v['hue']))
                 elif k == 'GaussianBlur':
@@ -38,7 +37,7 @@ class Transforms:
             self.augmentation = torch.nn.Sequential(*compose_items)
 
         self.to_tensor = ToTensor()
-        self.normalize = Normalize(cfg['dataset']['normalize_mean'], cfg['dataset']['normalize_std'])
+        self.normalize = Normalize(normalize_mean, normalize_std)
 
     def __call__(self, image, target) -> tuple[torch.Tensor, torch.Tensor]:
         data = {'image': image, 'target': target}

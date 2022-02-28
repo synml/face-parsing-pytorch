@@ -16,9 +16,9 @@ if __name__ == '__main__':
     # Create components builder
     builder = utils.builder.Builder()
     config = builder.config
+    model_name = builder.model_name
 
     # Create variables that control training
-    model_name = config['model_name']
     epoch = config[model_name]['epoch']
     amp_enabled = config['train']['amp_enabled']
     ddp_enabled = config['train']['ddp_enabled']
