@@ -8,15 +8,15 @@ dataset:
   normalize_std: !!python/tuple [0.5, 0.5, 0.5]
 
 # Model definitions
-UNet:
-  batch_size: 64
+BiSeNet:
+  batch_size: 128
   epoch: 100
   criterion:
     name: CrossEntropyLoss
   aux_criterion:
   optimizer:
     name: RAdam
-    lr: 0.001
+    lr: 0.0005
     weight_decay: 0
   scheduler:
     name: PolyLR
@@ -34,7 +34,7 @@ UNet:
       saturation: 0.5
       hue: 0
     RandomHorizontalFlip:
-  pretrained_weights: weights/UNet_best_miou.pth
+  pretrained_weights: weights/BiSeNet_best_miou.pth
 
 EAGRNet:
   batch_size: 64
@@ -64,15 +64,15 @@ EAGRNet:
     RandomHorizontalFlip:
   pretrained_weights: weights/EAGRNet_best_miou.pth
 
-BiSeNet:
-  batch_size: 128
+UNet:
+  batch_size: 64
   epoch: 100
   criterion:
     name: CrossEntropyLoss
   aux_criterion:
   optimizer:
     name: RAdam
-    lr: 0.0005
+    lr: 0.001
     weight_decay: 0
   scheduler:
     name: PolyLR
@@ -90,4 +90,4 @@ BiSeNet:
       saturation: 0.5
       hue: 0
     RandomHorizontalFlip:
-  pretrained_weights: weights/BiSeNet_best_miou.pth
+  pretrained_weights: weights/UNet_best_miou.pth
