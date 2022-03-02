@@ -106,29 +106,29 @@ class FeatureFusionModule(nn.Module):
 
 
 class Classifier(nn.Sequential):
-    def __init__(self, in_chan, mid_chan, n_classes):
+    def __init__(self, in_chan, mid_chan, num_classes):
         super(Classifier, self).__init__(
             ConvBnReLU(in_chan, mid_chan, ks=3, stride=1, padding=1),
-            nn.Conv2d(mid_chan, n_classes, kernel_size=1, bias=False),
+            nn.Conv2d(mid_chan, num_classes, kernel_size=1, bias=False),
         )
 
 
 class BiSeNet(nn.Module):
-    def __init__(self, n_classes):
+    def __init__(self, num_classes):
         super(BiSeNet, self).__init__()
         self.cp = ContextPath()
         # here self.sp is deleted
         self.ffm = FeatureFusionModule(256, 256)
-        self.classifier = Classifier(256, 256, n_classes)
+        self.classifier = Classifier(256, 256, num_classes)
 
     def forward(self, x):
         h, w = x.size()[2:]
-        feat_res8, feat_cp8 = self.cp(x)  # here return res3b1 feature
-        feat_sp = feat_res8  # use res3b1 feature to replace spatial path feature
-        feat_fuse = self.ffm(feat_sp, feat_cp8)
-        out = self.classifier(feat_fuse)
-        out = F.interpolate(out, (h, w), mode='bilinear', align_corners=True)
-        return out
+
+        feat_res8, feat_cp8 = self.cp(x)  # use res3b1 feature to replace spatial path feature
+        x = self.ffm(feat_res8, feat_cp8)
+        x = self.classifier(x)
+        x = F.interpolate(x, (h, w), mode='bilinear', align_corners=True)
+        return x
 
 
 if __name__ == '__main__':
