@@ -43,11 +43,12 @@ class ContextPath(nn.Module):
             'layer4.1.relu_1': 'layer4',
         }
         self.resnet = torchvision.models.feature_extraction.create_feature_extractor(resnet18, return_nodes)
-        self.arm16 = AttentionRefinementModule(256, 128)
+        self.gap = nn.AdaptiveAvgPool2d(1)
+        self.conv_gap = ConvBnReLU(512, 128, ks=1, stride=1, padding=0)
         self.arm32 = AttentionRefinementModule(512, 128)
         self.conv_head32 = ConvBnReLU(128, 128, ks=3, stride=1, padding=1)
+        self.arm16 = AttentionRefinementModule(256, 128)
         self.conv_head16 = ConvBnReLU(128, 128, ks=3, stride=1, padding=1)
-        self.conv_avg = ConvBnReLU(512, 128, ks=1, stride=1, padding=0)
 
     def forward(self, x):
         feat8, feat16, feat32 = self.resnet(x).values()
@@ -55,8 +56,8 @@ class ContextPath(nn.Module):
         h16, w16 = feat16.size()[2:]
         h32, w32 = feat32.size()[2:]
 
-        avg = F.avg_pool2d(feat32, feat32.size()[2:])
-        avg = self.conv_avg(avg)
+        avg = self.gap(feat32)
+        avg = self.conv_gap(avg)
         avg_up = F.interpolate(avg, (h32, w32), mode='bilinear', align_corners=True)
 
         feat32_arm = self.arm32(feat32)
@@ -68,8 +69,7 @@ class ContextPath(nn.Module):
         feat16_sum = feat16_arm + feat32_up
         feat16_up = F.interpolate(feat16_sum, (h8, w8), mode='bilinear', align_corners=True)
         feat16_up = self.conv_head16(feat16_up)
-
-        return feat8, feat16_up, feat32_up  # x8, x8, x16
+        return feat8, feat16_up
 
 
 # This is not used, since I replace this with the resnet feature with the same size
@@ -123,7 +123,7 @@ class BiSeNet(nn.Module):
 
     def forward(self, x):
         h, w = x.size()[2:]
-        feat_res8, feat_cp8, feat_cp16 = self.cp(x)  # here return res3b1 feature
+        feat_res8, feat_cp8 = self.cp(x)  # here return res3b1 feature
         feat_sp = feat_res8  # use res3b1 feature to replace spatial path feature
         feat_fuse = self.ffm(feat_sp, feat_cp8)
         out = self.classifier(feat_fuse)
