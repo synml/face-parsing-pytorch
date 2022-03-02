@@ -80,7 +80,7 @@ if __name__ == '__main__':
         aux_factor = builder.build_aux_factor()
 
     # Resume training at checkpoint
-    start_epoch = 1
+    start_epoch = 0
     prev_mean_f1 = 0.0
     prev_val_loss = 2 ** 32 - 1
     if resume_training:
@@ -107,7 +107,7 @@ if __name__ == '__main__':
         tqdm_disabled = True
 
     # 5. Train and evaluate
-    for eph in tqdm.tqdm(range(start_epoch, epoch + 1), desc='Train epoch', disable=tqdm_disabled):
+    for eph in tqdm.tqdm(range(start_epoch, epoch), desc='Train epoch', disable=tqdm_disabled):
         if utils.train_early_stopper.train_early_stopper():
             print('Train interrupt occurs.')
             break
@@ -148,16 +148,16 @@ if __name__ == '__main__':
             torch.distributed.all_gather_multigpu([loss_list], [train_loss])
             if writer is not None:
                 for i, rank_train_loss in enumerate(loss_list):
-                    writer.add_scalar(f'loss/training (rank{i})', rank_train_loss.item(), eph)
+                    writer.add_scalar(f'loss/training (rank{i})', rank_train_loss.item(), eph + 1)
         else:
-            writer.add_scalar(f'loss/training (rank{local_rank})', train_loss.item(), eph)
+            writer.add_scalar(f'loss/training (rank{local_rank})', train_loss.item(), eph + 1)
 
         # Evaluate
         val_loss, mean_f1, _, _ = eval.evaluate(model, valloader, criterion, trainset.num_classes,
                                                 amp_enabled, ddp_enabled, device)
         if writer is not None:
-            writer.add_scalar('loss/validation', val_loss, eph)
-            writer.add_scalar('metrics/mean F1', mean_f1, eph)
+            writer.add_scalar('loss/validation', val_loss, eph + 1)
+            writer.add_scalar('metrics/mean F1', mean_f1, eph + 1)
 
         # Write predicted segmentation map
         if writer is not None:
@@ -170,11 +170,11 @@ if __name__ == '__main__':
             mean = torch.tensor(trainset.transforms.normalize.mean)
             std = torch.tensor(trainset.transforms.normalize.std)
             images = datasets.utils.inverse_to_tensor_normalize(datasets.utils.inverse_normalize(images, mean, std))
-            if eph == 1:
+            if eph == 0:
                 targets = datasets.utils.draw_segmentation_masks(images, targets, trainset.colors)
-                writer.add_images('eval/1Groundtruth', targets, eph)
+                writer.add_images('eval/1Groundtruth', targets, eph + 1)
             outputs = datasets.utils.draw_segmentation_masks(images, outputs, trainset.colors)
-            writer.add_images('eval/2' + model_name, outputs, eph)
+            writer.add_images('eval/2' + model_name, outputs, eph + 1)
 
         if local_rank == 0:
             # Save checkpoint
