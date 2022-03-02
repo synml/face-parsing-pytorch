@@ -166,7 +166,7 @@ if __name__ == '__main__':
             mean = torch.tensor(trainset.transforms.normalize.mean)
             std = torch.tensor(trainset.transforms.normalize.std)
             images = datasets.utils.inverse_to_tensor_normalize(datasets.utils.inverse_normalize(images, mean, std))
-            if eph == 0:
+            if eph == 1:
                 targets = datasets.utils.draw_segmentation_masks(images, targets, trainset.colors)
                 writer.add_images('eval/1Groundtruth', targets, eph)
             outputs = datasets.utils.draw_segmentation_masks(images, outputs, trainset.colors)
