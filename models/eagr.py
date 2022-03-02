@@ -193,7 +193,7 @@ class EAGRNet(nn.Module):
         x = self.decoder(x, layer1)
         x = self.classifier(x)
         x = self.upsample(x)
-        return x
+        return x,
 
 
 if __name__ == '__main__':

@@ -48,7 +48,8 @@ if __name__ == '__main__':
         targets = datasets.utils.draw_segmentation_masks(images, targets, valset.colors)
 
         # process per 1 batch
-        for j, (output, target) in enumerate(zip(outputs, targets, strict=True)):
+        assert len(outputs) == len(targets)
+        for j, (output, target) in enumerate(zip(outputs, targets)):
             file_name = image_names[targets.shape[0] * i + j]
             torchvision.io.write_jpeg(output.cpu(), os.path.join(result_dir, file_name), quality=100)
             torchvision.io.write_jpeg(target.cpu(), os.path.join(groundtruth_dir, file_name), quality=100)

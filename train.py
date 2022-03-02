@@ -125,7 +125,8 @@ if __name__ == '__main__':
             with torch.cuda.amp.autocast(amp_enabled):
                 outputs = model(images)
                 loss = torch.zeros(1, device=device)
-                for factor, outputs in zip(outputs, aux_factor, strict=True):
+                assert len(outputs) == len(aux_factor)
+                for factor, outputs in zip(outputs, aux_factor):
                     loss += criterion(outputs, targets) * factor
             scaler.scale(loss).backward()
             scaler.step(optimizer)

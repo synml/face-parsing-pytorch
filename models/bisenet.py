@@ -129,7 +129,7 @@ class BiSeNet(nn.Module):
         x = self.ffm(feat_res8, feat_cp8)
         x = self.classifier(x)
         x = self.upsample(x)
-        return x
+        return x,
 
 
 if __name__ == '__main__':
