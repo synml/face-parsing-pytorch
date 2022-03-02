@@ -187,12 +187,14 @@ if __name__ == '__main__':
 
             # Save best mean_f1 model
             if mean_f1 > prev_mean_f1:
-                torch.save(model.state_dict(), os.path.join('weights', f'{model_name}_best_mean_f1.pth'))
+                state_dict = utils.state_dict_converter.convert_ddp_state_dict(model.state_dict())
+                torch.save(state_dict, os.path.join('weights', f'{model_name}_best_mean_f1.pth'))
                 prev_mean_f1 = mean_f1
 
             # Save best val_loss model
             if val_loss < prev_val_loss:
-                torch.save(model.state_dict(), os.path.join('weights', f'{model_name}_best_val_loss.pth'))
+                state_dict = utils.state_dict_converter.convert_ddp_state_dict(model.state_dict())
+                torch.save(state_dict, os.path.join('weights', f'{model_name}_best_val_loss.pth'))
                 prev_val_loss = val_loss
     if writer is not None:
         writer.close()
