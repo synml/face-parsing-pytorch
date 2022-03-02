@@ -9,12 +9,7 @@ import models
 class ConvBNReLU(nn.Module):
     def __init__(self, in_chan, out_chan, ks=3, stride=1, padding=1):
         super(ConvBNReLU, self).__init__()
-        self.conv = nn.Conv2d(in_chan,
-                              out_chan,
-                              kernel_size=ks,
-                              stride=stride,
-                              padding=padding,
-                              bias=False)
+        self.conv = nn.Conv2d(in_chan, out_chan, ks, stride, padding, bias=False)
         self.bn = nn.BatchNorm2d(out_chan)
         self.init_weight()
 
@@ -100,7 +95,6 @@ class ContextPath(nn.Module):
         self.conv_head32 = ConvBNReLU(128, 128, ks=3, stride=1, padding=1)
         self.conv_head16 = ConvBNReLU(128, 128, ks=3, stride=1, padding=1)
         self.conv_avg = ConvBNReLU(512, 128, ks=1, stride=1, padding=0)
-
         self.init_weight()
 
     def forward(self, x):
@@ -111,16 +105,16 @@ class ContextPath(nn.Module):
 
         avg = F.avg_pool2d(feat32, feat32.size()[2:])
         avg = self.conv_avg(avg)
-        avg_up = F.interpolate(avg, (h32, w32), mode='nearest')
+        avg_up = F.interpolate(avg, (h32, w32), mode='bilinear', align_corners=True)
 
         feat32_arm = self.arm32(feat32)
         feat32_sum = feat32_arm + avg_up
-        feat32_up = F.interpolate(feat32_sum, (h16, w16), mode='nearest')
+        feat32_up = F.interpolate(feat32_sum, (h16, w16), mode='bilinear', align_corners=True)
         feat32_up = self.conv_head32(feat32_up)
 
         feat16_arm = self.arm16(feat16)
         feat16_sum = feat16_arm + feat32_up
-        feat16_up = F.interpolate(feat16_sum, (h8, w8), mode='nearest')
+        feat16_up = F.interpolate(feat16_sum, (h8, w8), mode='bilinear', align_corners=True)
         feat16_up = self.conv_head16(feat16_up)
 
         return feat8, feat16_up, feat32_up  # x8, x8, x16
@@ -182,18 +176,8 @@ class FeatureFusionModule(nn.Module):
     def __init__(self, in_chan, out_chan):
         super(FeatureFusionModule, self).__init__()
         self.convblk = ConvBNReLU(in_chan, out_chan, ks=1, stride=1, padding=0)
-        self.conv1 = nn.Conv2d(out_chan,
-                               out_chan // 4,
-                               kernel_size=1,
-                               stride=1,
-                               padding=0,
-                               bias=False)
-        self.conv2 = nn.Conv2d(out_chan // 4,
-                               out_chan,
-                               kernel_size=1,
-                               stride=1,
-                               padding=0,
-                               bias=False)
+        self.conv1 = nn.Conv2d(out_chan, out_chan // 4, kernel_size=1, bias=False)
+        self.conv2 = nn.Conv2d(out_chan // 4, out_chan, kernel_size=1, bias=False)
         self.relu = nn.ReLU(inplace=True)
         self.sigmoid = nn.Sigmoid()
         self.init_weight()
@@ -242,8 +226,9 @@ class BiSeNet(nn.Module):
         feat_res8, feat_cp8, feat_cp16 = self.cp(x)  # here return res3b1 feature
         feat_sp = feat_res8  # use res3b1 feature to replace spatial path feature
         feat_fuse = self.ffm(feat_sp, feat_cp8)
-        feat_out = F.interpolate(self.conv_out(feat_fuse), (h, w), mode='bilinear', align_corners=True)
-        return feat_out
+        out = self.conv_out(feat_fuse)
+        out = F.interpolate(out, (h, w), mode='bilinear', align_corners=True)
+        return out
 
     def init_weight(self):
         for ly in self.children():
