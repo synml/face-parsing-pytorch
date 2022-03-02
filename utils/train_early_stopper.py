@@ -1,4 +1,4 @@
-def train_interupter():
+def train_early_stopper():
     with open('train_interupter.ini', 'r', encoding='utf-8') as f:
         flag = f.read().strip()
 
