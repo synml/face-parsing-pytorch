@@ -128,17 +128,6 @@ class Builder:
             raise ValueError('Wrong scheduler name.')
         return scheduler
 
-    def build_aux_criterion(self) -> nn.Module:
-        cfg_aux_criterion = self.config[self.model_name]['aux_criterion']
-
-        if cfg_aux_criterion['name'] == 'CrossEntropyLoss':
-            aux_criterion = nn.CrossEntropyLoss()
-        elif cfg_aux_criterion['name'] == 'FocalLoss':
-            aux_criterion = utils.loss.FocalLoss(alpha=cfg_aux_criterion['alpha'], gamma=cfg_aux_criterion['gamma'])
-        else:
-            raise ValueError('Wrong aux_criterion name.')
-        return aux_criterion
-
-    def build_aux_factor(self) -> tuple:
+    def build_aux_factor(self) -> list:
         cfg_aux_factor = self.config[self.model_name]['aux_factor']
         return cfg_aux_factor

@@ -70,17 +70,14 @@ if __name__ == '__main__':
         model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
     print(f'Activated model: {model_name} (rank{local_rank})')
 
-    # 3. Loss function, optimizer, lr scheduler, scaler, aux loss function
+    # 3. Loss function, optimizer, lr scheduler, scaler, aux factor
     criterion = builder.build_criterion()
     optimizer = builder.build_optimizer(model)
     scheduler = builder.build_scheduler(optimizer, len(trainloader) * epoch)
     scaler = torch.cuda.amp.GradScaler(enabled=amp_enabled)
-    if config[model_name]['aux_criterion'] is not None:
-        aux_criterion = builder.build_aux_criterion()
+    aux_factor = [1]
+    if config[model_name]['aux_factor'] is not None:
         aux_factor = builder.build_aux_factor()
-    else:
-        aux_criterion = None
-        aux_factor = None
 
     # Resume training at checkpoint
     start_epoch = 0
@@ -126,15 +123,10 @@ if __name__ == '__main__':
 
             optimizer.zero_grad(set_to_none=True)
             with torch.cuda.amp.autocast(enabled=amp_enabled):
-                if aux_criterion is not None:
-                    outputs, aux_outputs = model(images)
-                    aux_loss = 0
-                    for i, aux_output in enumerate(aux_outputs):
-                        aux_loss += aux_criterion(aux_output, targets) * aux_factor[i]
-                    loss = criterion(outputs, targets) + aux_loss
-                else:
-                    outputs = model(images)
-                    loss = criterion(outputs, targets)
+                outputs = model(images)
+                loss = torch.zeros(1, device=device)
+                for factor, outputs in zip(outputs, aux_factor, strict=True):
+                    loss += criterion(outputs, targets) * factor
             scaler.scale(loss).backward()
             scaler.step(optimizer)
             scaler.update()

@@ -13,7 +13,7 @@ BiSeNet:
   epoch: 100
   criterion:
     name: CrossEntropyLoss
-  aux_criterion:
+  aux_factor:
   optimizer:
     name: RAdam
     lr: 0.0005
@@ -41,7 +41,7 @@ EAGRNet:
   epoch: 100
   criterion:
     name: CrossEntropyLoss
-  aux_criterion:
+  aux_factor:
   optimizer:
     name: RAdam
     lr: 0.001
@@ -69,7 +69,7 @@ UNet:
   epoch: 100
   criterion:
     name: CrossEntropyLoss
-  aux_criterion:
+  aux_factor:
   optimizer:
     name: RAdam
     lr: 0.001
