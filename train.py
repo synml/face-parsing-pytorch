@@ -107,7 +107,7 @@ if __name__ == '__main__':
         tqdm_disabled = True
 
     # 5. Train and evaluate
-    for eph in tqdm.tqdm(range(start_epoch, epoch), desc='Train epoch', disable=tqdm_disabled):
+    for eph in tqdm.tqdm(range(start_epoch, epoch + 1), desc='Train epoch', disable=tqdm_disabled):
         if utils.train_early_stopper.train_early_stopper():
             print('Train interrupt occurs.')
             break
