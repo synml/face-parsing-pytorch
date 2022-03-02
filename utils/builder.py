@@ -52,7 +52,7 @@ class Builder:
         if cfg_dataset['name'] == 'CelebAMaskHQ':
             dataset = datasets.celebamaskhq.CelebAMaskHQ(root, dataset_type, transforms=transforms)
         else:
-            raise NotImplementedError('Wrong dataset name.')
+            raise ValueError('Wrong dataset name.')
 
         # Dataloader
         if ddp_enabled:
@@ -74,7 +74,7 @@ class Builder:
         elif self.model_name == 'UNet':
             model = models.unet.UNet(num_classes)
         else:
-            raise NotImplementedError('Wrong model name.')
+            raise ValueError('Wrong model name.')
 
         if pretrained:
             pretrained_weights_path = self.config[self.model_name]['pretrained_weights']
@@ -94,23 +94,29 @@ class Builder:
         elif cfg_criterion['name'] == 'FocalLoss':
             criterion = utils.loss.FocalLoss(alpha=cfg_criterion['alpha'], gamma=cfg_criterion['gamma'])
         else:
-            raise NotImplementedError('Wrong criterion name.')
+            raise ValueError('Wrong criterion name.')
         return criterion
 
     def build_optimizer(self, model: nn.Module) -> torch.optim.Optimizer:
-        cfg_optim = self.config[self.model_name]['optimizer']
+        cfg_optimizer = self.config[self.model_name]['optimizer']
 
-        if cfg_optim['name'] == 'SGD':
-            optimizer = torch.optim.SGD(model.parameters(), lr=cfg_optim['lr'], momentum=cfg_optim['momentum'],
-                                        weight_decay=cfg_optim['weight_decay'], nesterov=cfg_optim['nesterov'])
-        elif cfg_optim['name'] == 'Adam':
-            optimizer = torch.optim.Adam(model.parameters(), cfg_optim['lr'], weight_decay=cfg_optim['weight_decay'])
-        elif cfg_optim['name'] == 'AdamW':
-            optimizer = torch.optim.AdamW(model.parameters(), cfg_optim['lr'], weight_decay=cfg_optim['weight_decay'])
-        elif cfg_optim['name'] == 'RAdam':
-            optimizer = torch.optim.RAdam(model.parameters(), cfg_optim['lr'], weight_decay=cfg_optim['weight_decay'])
+        if cfg_optimizer['name'] == 'SGD':
+            optimizer = torch.optim.SGD(model.parameters(), lr=cfg_optimizer['lr'], momentum=cfg_optimizer['momentum'],
+                                        weight_decay=cfg_optimizer['weight_decay'], nesterov=cfg_optimizer['nesterov'])
+        elif cfg_optimizer['name'] == 'Adam':
+            optimizer = torch.optim.Adam(model.parameters(),
+                                         cfg_optimizer['lr'],
+                                         weight_decay=cfg_optimizer['weight_decay'])
+        elif cfg_optimizer['name'] == 'AdamW':
+            optimizer = torch.optim.AdamW(model.parameters(),
+                                          cfg_optimizer['lr'],
+                                          weight_decay=cfg_optimizer['weight_decay'])
+        elif cfg_optimizer['name'] == 'RAdam':
+            optimizer = torch.optim.RAdam(model.parameters(),
+                                          cfg_optimizer['lr'],
+                                          weight_decay=cfg_optimizer['weight_decay'])
         else:
-            raise NotImplementedError('Wrong optimizer name.')
+            raise ValueError('Wrong optimizer name.')
         return optimizer
 
     def build_scheduler(self, optimizer: torch.optim.Optimizer, max_iter: int):
@@ -119,7 +125,7 @@ class Builder:
         if cfg_scheduler['name'] == 'PolyLR':
             scheduler = utils.lr_scheduler.PolyLR(optimizer, max_iter)
         else:
-            raise NotImplementedError('Wrong scheduler name.')
+            raise ValueError('Wrong scheduler name.')
         return scheduler
 
     def build_aux_criterion(self) -> nn.Module:
@@ -127,8 +133,10 @@ class Builder:
 
         if cfg_aux_criterion['name'] == 'CrossEntropyLoss':
             aux_criterion = nn.CrossEntropyLoss()
+        elif cfg_aux_criterion['name'] == 'FocalLoss':
+            aux_criterion = utils.loss.FocalLoss(alpha=cfg_aux_criterion['alpha'], gamma=cfg_aux_criterion['gamma'])
         else:
-            raise NotImplementedError('Wrong aux_criterion name.')
+            raise ValueError('Wrong aux_criterion name.')
         return aux_criterion
 
     def build_aux_factor(self) -> tuple:

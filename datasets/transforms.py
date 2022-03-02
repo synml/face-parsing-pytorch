@@ -33,7 +33,7 @@ class Transforms:
                 elif k == 'Resize':
                     compose_items.append(Resize(v['size']))
                 else:
-                    raise NotImplementedError('Wrong augmentation.')
+                    raise ValueError('Wrong augmentation.')
             self.augmentation = torch.nn.Sequential(*compose_items)
 
         self.to_tensor = ToTensor()
