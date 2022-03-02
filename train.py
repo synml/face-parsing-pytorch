@@ -119,7 +119,7 @@ if __name__ == '__main__':
         train_loss = torch.zeros(1, device=device)
         for batch_idx, (images, targets) in enumerate(tqdm.tqdm(trainloader, desc='Train batch',
                                                                 leave=False, disable=tqdm_disabled)):
-            iters = len(trainloader) * epoch + batch_idx
+            iters = len(trainloader) * eph + batch_idx
             images, targets = images.to(device), targets.to(device)
 
             optimizer.zero_grad(set_to_none=True)
