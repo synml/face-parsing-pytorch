@@ -126,8 +126,8 @@ if __name__ == '__main__':
                 outputs = model(images)
                 loss = torch.zeros(1, device=device)
                 assert len(outputs) == len(aux_factor)
-                for factor, outputs in zip(outputs, aux_factor):
-                    loss += criterion(outputs, targets) * factor
+                for output, factor in zip(outputs, aux_factor):
+                    loss += criterion(output, targets) * factor
             scaler.scale(loss).backward()
             scaler.step(optimizer)
             scaler.update()
