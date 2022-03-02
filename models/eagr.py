@@ -24,14 +24,13 @@ class EdgeModule(nn.Module):
         )
         self.conv4 = nn.Conv2d(mid_feature, 2, kernel_size=3, padding=1)
         self.conv5 = nn.Conv2d(2 * 3, 2, kernel_size=1)
-        self.upsample = nn.Upsample(mode='bilinear', align_corners=True)
 
     def forward(self, x1, x2, x3):
-        self.upsample.size = x1.size()[-2:]
+        h, w = x1.size()[-2:]
 
         edge1 = self.conv4(self.conv1(x1))
-        edge2 = self.upsample(self.conv4(self.conv2(x2)))
-        edge3 = self.upsample(self.conv4(self.conv3(x3)))
+        edge2 = F.interpolate(self.conv4(self.conv2(x2)), (h, w), mode='bilinear', align_corners=True)
+        edge3 = F.interpolate(self.conv4(self.conv3(x3)), (h, w), mode='bilinear', align_corners=True)
         out = self.conv5(torch.cat([edge1, edge2, edge3], dim=1))
         return out
 
@@ -65,15 +64,14 @@ class PPM(nn.Module):
             nn.SiLU(inplace=True),
             nn.Dropout(0.1),
         )
-        self.upsample = nn.Upsample(mode='bilinear', align_corners=True)
 
     def forward(self, x):
-        self.upsample.size = x.size()[-2:]
+        h, w = x.size()[-2:]
 
-        branch1 = self.upsample(self.branch1(x))
-        branch2 = self.upsample(self.branch2(x))
-        branch3 = self.upsample(self.branch3(x))
-        branch4 = self.upsample(self.branch4(x))
+        branch1 = F.interpolate(self.branch1(x), (h, w), mode='bilinear', align_corners=True)
+        branch2 = F.interpolate(self.branch2(x), (h, w), mode='bilinear', align_corners=True)
+        branch3 = F.interpolate(self.branch3(x), (h, w), mode='bilinear', align_corners=True)
+        branch4 = F.interpolate(self.branch4(x), (h, w), mode='bilinear', align_corners=True)
         x = self.bottleneck(torch.cat([x, branch1, branch2, branch3, branch4], dim=1))
         return x
 
