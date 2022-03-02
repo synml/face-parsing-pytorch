@@ -75,7 +75,7 @@ if __name__ == '__main__':
     optimizer = builder.build_optimizer(model)
     scheduler = builder.build_scheduler(optimizer, len(trainloader) * epoch)
     scaler = torch.cuda.amp.GradScaler(enabled=amp_enabled)
-    aux_factor = [1]
+    aux_factor = None
     if config[model_name]['aux_factor'] is not None:
         aux_factor = builder.build_aux_factor()
 
@@ -124,10 +124,13 @@ if __name__ == '__main__':
             optimizer.zero_grad(set_to_none=True)
             with torch.cuda.amp.autocast(amp_enabled):
                 outputs = model(images)
-                loss = torch.zeros(1, device=device)
-                assert len(outputs) == len(aux_factor)
-                for output, factor in zip(outputs, aux_factor):
-                    loss += criterion(output, targets) * factor
+                if aux_factor is None:
+                    loss = criterion(outputs, targets)
+                else:
+                    loss = torch.zeros(1, device=device)
+                    assert len(outputs) == len(aux_factor)
+                    for output, factor in zip(outputs, aux_factor):
+                        loss += criterion(output, targets) * factor
             scaler.scale(loss).backward()
             scaler.step(optimizer)
             scaler.update()

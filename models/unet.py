@@ -47,7 +47,7 @@ class UNet(nn.Module):
 
         # Classifier
         x = self.classifier(x)
-        return x,
+        return x
 
     def make_double_conv(self, in_channels: int, out_channels: int):
         return nn.Sequential(
