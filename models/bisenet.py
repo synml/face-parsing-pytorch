@@ -52,24 +52,24 @@ class ContextPath(nn.Module):
 
     def forward(self, x):
         feat8, feat16, feat32 = self.resnet(x).values()
-        h8, w8 = feat8.size()[2:]
-        h16, w16 = feat16.size()[2:]
-        h32, w32 = feat32.size()[2:]
+        feat8_shape = feat8.size()[2:]
+        feat16_shape = feat16.size()[2:]
+        feat32_shape = feat32.size()[2:]
 
-        avg = self.gap(feat32)
-        avg = self.conv_gap(avg)
-        avg_up = F.interpolate(avg, (h32, w32), mode='bilinear', align_corners=True)
+        image_pooling = self.gap(feat32)
+        image_pooling = self.conv_gap(image_pooling)
+        image_pooling = F.interpolate(image_pooling, feat32_shape, mode='bilinear', align_corners=True)
 
-        feat32_arm = self.arm32(feat32)
-        feat32_sum = feat32_arm + avg_up
-        feat32_up = F.interpolate(feat32_sum, (h16, w16), mode='bilinear', align_corners=True)
-        feat32_up = self.conv_head32(feat32_up)
+        feat32 = self.arm32(feat32)
+        feat32 += image_pooling
+        feat32 = F.interpolate(feat32, feat16_shape, mode='bilinear', align_corners=True)
+        feat32 = self.conv_head32(feat32)
 
-        feat16_arm = self.arm16(feat16)
-        feat16_sum = feat16_arm + feat32_up
-        feat16_up = F.interpolate(feat16_sum, (h8, w8), mode='bilinear', align_corners=True)
-        feat16_up = self.conv_head16(feat16_up)
-        return feat8, feat16_up
+        feat16 = self.arm16(feat16)
+        feat16 += feat32
+        feat16 = F.interpolate(feat16, feat8_shape, mode='bilinear', align_corners=True)
+        feat16 = self.conv_head16(feat16)
+        return feat8, feat16
 
 
 # This is not used, since I replace this with the resnet feature with the same size
@@ -120,14 +120,15 @@ class BiSeNet(nn.Module):
         # here self.sp is deleted
         self.ffm = FeatureFusionModule(256, 256)
         self.classifier = Classifier(256, 256, num_classes)
+        self.upsample = nn.Upsample(mode='bilinear', align_corners=True)
 
     def forward(self, x):
-        h, w = x.size()[2:]
+        self.upsample.size = x.size()[-2:]
 
         feat_res8, feat_cp8 = self.cp(x)  # use res3b1 feature to replace spatial path feature
         x = self.ffm(feat_res8, feat_cp8)
         x = self.classifier(x)
-        x = F.interpolate(x, (h, w), mode='bilinear', align_corners=True)
+        x = self.upsample(x)
         return x
 
 
