@@ -86,23 +86,23 @@ class SpatialPath(nn.Sequential):
 class FeatureFusionModule(nn.Module):
     def __init__(self, in_chan, out_chan):
         super(FeatureFusionModule, self).__init__()
-        self.convblk = ConvBnReLU(in_chan, out_chan, ks=1, stride=1, padding=0)
+        self.conv_bn_relu = ConvBnReLU(in_chan, out_chan, ks=1, stride=1, padding=0)
+        self.gap = nn.AdaptiveAvgPool2d(1)
         self.conv1 = nn.Conv2d(out_chan, out_chan // 4, kernel_size=1, bias=False)
         self.conv2 = nn.Conv2d(out_chan // 4, out_chan, kernel_size=1, bias=False)
         self.relu = nn.ReLU(inplace=True)
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, fsp, fcp):
-        fcat = torch.cat([fsp, fcp], dim=1)
-        feat = self.convblk(fcat)
-        atten = F.avg_pool2d(feat, feat.size()[2:])
-        atten = self.conv1(atten)
-        atten = self.relu(atten)
-        atten = self.conv2(atten)
-        atten = self.sigmoid(atten)
-        feat_atten = torch.mul(feat, atten)
-        feat_out = feat_atten + feat
-        return feat_out
+        out = self.conv_bn_relu(torch.cat([fsp, fcp], dim=1))
+        ca = self.gap(out)
+        ca = self.conv1(ca)
+        ca = self.relu(ca)
+        ca = self.conv2(ca)
+        ca = self.sigmoid(ca)
+        residual = out * ca
+        out += residual
+        return out
 
 
 class Classifier(nn.Sequential):
