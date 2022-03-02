@@ -32,7 +32,7 @@ def evaluate(model: torch.nn.Module,
     for images, targets in tqdm.tqdm(valloader, desc='Eval', leave=False, disable=False if local_rank == 0 else True):
         images, targets = images.to(device), targets.to(device)
 
-        with torch.cuda.amp.autocast(enabled=amp_enabled):
+        with torch.cuda.amp.autocast(amp_enabled):
             torch.cuda.synchronize()
             start_time = time.time()
             with torch.no_grad():

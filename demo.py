@@ -36,7 +36,7 @@ if __name__ == '__main__':
     for i, (images, targets) in enumerate(tqdm.tqdm(valloader, desc='Demo')):
         images, targets = images.to(device), targets.to(device)
 
-        with torch.cuda.amp.autocast(enabled=amp_enabled):
+        with torch.cuda.amp.autocast(amp_enabled):
             with torch.no_grad():
                 outputs = model(images)
                 outputs = torch.argmax(outputs, dim=1)

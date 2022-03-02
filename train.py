@@ -80,7 +80,7 @@ if __name__ == '__main__':
         aux_factor = builder.build_aux_factor()
 
     # Resume training at checkpoint
-    start_epoch = 0
+    start_epoch = 1
     prev_mean_f1 = 0.0
     prev_val_loss = 2 ** 32 - 1
     if resume_training:
@@ -98,15 +98,16 @@ if __name__ == '__main__':
         prev_val_loss = checkpoint['val_loss']
         print(f'Resume training. {resume_training_checkpoint} (rank{local_rank})')
 
-    # 4. Tensorboard
+    # 4. Initialize tensorboard and tqdm
     if local_rank == 0:
         writer = torch.utils.tensorboard.SummaryWriter(os.path.join('runs', model_name))
+        tqdm_disabled = False
     else:
         writer = None
+        tqdm_disabled = True
 
     # 5. Train and evaluate
-    for eph in tqdm.tqdm(range(start_epoch, epoch),
-                         desc='Epoch', disable=False if local_rank == 0 else True):
+    for eph in tqdm.tqdm(range(start_epoch, epoch), desc='Train epoch', disable=tqdm_disabled):
         if utils.train_interupter.train_interupter():
             print('Train interrupt occurs.')
             break
@@ -116,13 +117,12 @@ if __name__ == '__main__':
         model.train()
 
         train_loss = torch.zeros(1, device=device)
-        for batch_idx, (images, targets) in enumerate(tqdm.tqdm(trainloader, desc='Batch', leave=False,
-                                                                disable=False if local_rank == 0 else True)):
-            iters = len(trainloader) * eph + batch_idx
+        for batch_idx, (images, targets) in enumerate(tqdm.tqdm(trainloader, desc='Train batch',
+                                                                leave=False, disable=tqdm_disabled)):
             images, targets = images.to(device), targets.to(device)
 
             optimizer.zero_grad(set_to_none=True)
-            with torch.cuda.amp.autocast(enabled=amp_enabled):
+            with torch.cuda.amp.autocast(amp_enabled):
                 outputs = model(images)
                 loss = torch.zeros(1, device=device)
                 for factor, outputs in zip(outputs, aux_factor, strict=True):
@@ -134,7 +134,7 @@ if __name__ == '__main__':
 
             # Write lr
             if writer is not None:
-                writer.add_scalar('lr', optimizer.param_groups[0]['lr'], eph)
+                writer.add_scalar('lr', optimizer.param_groups[0]['lr'], batch_idx)
 
             scheduler.step()
 
