@@ -19,18 +19,18 @@ class AttentionRefinementModule(nn.Module):
     def __init__(self, in_chan, out_chan):
         super(AttentionRefinementModule, self).__init__()
         self.conv = ConvBnReLU(in_chan, out_chan, ks=3, stride=1, padding=1)
+        self.gap = nn.AdaptiveAvgPool2d(1)
         self.conv_atten = nn.Conv2d(out_chan, out_chan, kernel_size=1, bias=False)
         self.bn_atten = nn.BatchNorm2d(out_chan)
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
-        feat = self.conv(x)
-        atten = F.avg_pool2d(feat, feat.size()[2:])
-        atten = self.conv_atten(atten)
-        atten = self.bn_atten(atten)
-        atten = self.sigmoid(atten)
-        out = torch.mul(feat, atten)
-        return out
+        x = self.conv(x)
+        ca = self.gap(x)
+        ca = self.conv_atten(ca)
+        ca = self.bn_atten(ca)
+        ca = self.sigmoid(ca)
+        return x * ca
 
 
 class ContextPath(nn.Module):
@@ -73,20 +73,14 @@ class ContextPath(nn.Module):
 
 
 # This is not used, since I replace this with the resnet feature with the same size
-class SpatialPath(nn.Module):
+class SpatialPath(nn.Sequential):
     def __init__(self):
-        super(SpatialPath, self).__init__()
-        self.conv1 = ConvBnReLU(3, 64, ks=7, stride=2, padding=3)
-        self.conv2 = ConvBnReLU(64, 64, ks=3, stride=2, padding=1)
-        self.conv3 = ConvBnReLU(64, 64, ks=3, stride=2, padding=1)
-        self.conv_out = ConvBnReLU(64, 128, ks=1, stride=1, padding=0)
-
-    def forward(self, x):
-        feat = self.conv1(x)
-        feat = self.conv2(feat)
-        feat = self.conv3(feat)
-        feat = self.conv_out(feat)
-        return feat
+        super(SpatialPath, self).__init__(
+            ConvBnReLU(3, 64, ks=7, stride=2, padding=3),
+            ConvBnReLU(64, 64, ks=3, stride=2, padding=1),
+            ConvBnReLU(64, 64, ks=3, stride=2, padding=1),
+            ConvBnReLU(64, 128, ks=1, stride=1, padding=0),
+        )
 
 
 class FeatureFusionModule(nn.Module):
