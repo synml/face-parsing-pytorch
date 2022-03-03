@@ -141,6 +141,7 @@ if __name__ == '__main__':
             if writer is not None:
                 writer.add_scalar('lr', optimizer.param_groups[0]['lr'], iters)
             scheduler.step()
+        train_loss /= len(trainloader)
 
         # Write training loss
         if ddp_enabled:
