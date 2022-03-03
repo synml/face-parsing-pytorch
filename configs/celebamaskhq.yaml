@@ -20,6 +20,7 @@ BiSeNet:
     weight_decay: 0
   scheduler:
     name: PolyLR
+    power: 0.9
   augmentation:
     RandomResize:
       min_scale: 1.0
@@ -48,6 +49,7 @@ EAGRNet:
     weight_decay: 0
   scheduler:
     name: PolyLR
+    power: 0.9
   augmentation:
     RandomResize:
       min_scale: 1.0
@@ -76,6 +78,7 @@ UNet:
     weight_decay: 0
   scheduler:
     name: PolyLR
+    power: 0.9
   augmentation:
     RandomResize:
       min_scale: 1.0
