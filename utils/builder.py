@@ -122,7 +122,9 @@ class Builder:
         cfg_scheduler = self.config[self.model_name]['scheduler']
 
         if cfg_scheduler['name'] == 'PolyLR':
-            scheduler = utils.lr_scheduler.PolyLR(optimizer, self.config[self.model_name]['epoch'])
+            scheduler = utils.lr_scheduler.PolyLR(optimizer,
+                                                  self.config[self.model_name]['epoch'],
+                                                  cfg_scheduler['power'])
         else:
             raise ValueError('Wrong scheduler name.')
         return scheduler
