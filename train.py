@@ -155,6 +155,8 @@ if __name__ == '__main__':
         # Evaluate
         val_loss, mean_f1, _, _ = eval.evaluate(model, valloader, criterion, trainset.num_classes,
                                                 amp_enabled, ddp_enabled, device)
+
+        # Write evaluation result
         if writer is not None:
             writer.add_scalar('loss/validation', val_loss, eph)
             writer.add_scalar('metrics/mean F1', mean_f1, eph)
