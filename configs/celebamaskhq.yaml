@@ -10,7 +10,7 @@ dataset:
 # Model definitions (shape: [h, w])
 BiSeNet:
   batch_size: 128
-  epoch: 100
+  epoch: 90
   criterion:
     name: CrossEntropyLoss
   aux_factor:
