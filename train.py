@@ -117,7 +117,7 @@ if __name__ == '__main__':
         model.train()
 
         train_loss = torch.zeros(1, device=device)
-        for batch_idx, (images, targets) in enumerate(tqdm.tqdm(trainloader, desc='Train batch',
+        for batch_idx, (images, targets) in enumerate(tqdm.tqdm(trainloader, desc='Batch',
                                                                 leave=False, disable=tqdm_disabled)):
             images, targets = images.to(device), targets.to(device)
 
