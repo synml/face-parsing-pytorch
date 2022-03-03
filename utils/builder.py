@@ -118,11 +118,11 @@ class Builder:
             raise ValueError('Wrong optimizer name.')
         return optimizer
 
-    def build_scheduler(self, optimizer: torch.optim.Optimizer, max_iter: int):
+    def build_scheduler(self, optimizer: torch.optim.Optimizer):
         cfg_scheduler = self.config[self.model_name]['scheduler']
 
         if cfg_scheduler['name'] == 'PolyLR':
-            scheduler = utils.lr_scheduler.PolyLR(optimizer, max_iter)
+            scheduler = utils.lr_scheduler.PolyLR(optimizer, self.config[self.model_name]['epoch'])
         else:
             raise ValueError('Wrong scheduler name.')
         return scheduler

@@ -73,7 +73,7 @@ if __name__ == '__main__':
     # 3. Loss function, optimizer, lr scheduler, scaler, aux factor
     criterion = builder.build_criterion()
     optimizer = builder.build_optimizer(model)
-    scheduler = builder.build_scheduler(optimizer, len(trainloader) * epoch)
+    scheduler = builder.build_scheduler(optimizer)
     scaler = torch.cuda.amp.GradScaler(enabled=amp_enabled)
     aux_factor = None
     if config[model_name]['aux_factor'] is not None:
@@ -119,7 +119,6 @@ if __name__ == '__main__':
         train_loss = torch.zeros(1, device=device)
         for batch_idx, (images, targets) in enumerate(tqdm.tqdm(trainloader, desc='Train batch',
                                                                 leave=False, disable=tqdm_disabled)):
-            iters = len(trainloader) * eph + batch_idx
             images, targets = images.to(device), targets.to(device)
 
             optimizer.zero_grad(set_to_none=True)
@@ -136,12 +135,12 @@ if __name__ == '__main__':
             scaler.step(optimizer)
             scaler.update()
             train_loss += loss
-
-            # Write lr and step lr scheduler
-            if writer is not None:
-                writer.add_scalar('lr', optimizer.param_groups[0]['lr'], iters)
-            scheduler.step()
         train_loss /= len(trainloader)
+
+        # Write lr and step lr scheduler
+        if writer is not None:
+            writer.add_scalar('lr', optimizer.param_groups[0]['lr'], eph + 1)
+        scheduler.step()
 
         # Write training loss
         if ddp_enabled:
