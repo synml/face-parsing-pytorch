@@ -139,7 +139,7 @@ if __name__ == '__main__':
 
         # Write lr and step lr scheduler
         if writer is not None:
-            writer.add_scalar('lr', optimizer.param_groups[0]['lr'], eph + 1)
+            writer.add_scalar('lr', optimizer.param_groups[0]['lr'], eph)
         scheduler.step()
 
         # Write training loss
@@ -148,16 +148,16 @@ if __name__ == '__main__':
             torch.distributed.all_gather_multigpu([loss_list], [train_loss])
             if writer is not None:
                 for i, rank_train_loss in enumerate(loss_list):
-                    writer.add_scalar(f'loss/training (rank{i})', rank_train_loss.item(), eph + 1)
+                    writer.add_scalar(f'loss/training (rank{i})', rank_train_loss.item(), eph)
         else:
-            writer.add_scalar(f'loss/training (rank{local_rank})', train_loss.item(), eph + 1)
+            writer.add_scalar(f'loss/training (rank{local_rank})', train_loss.item(), eph)
 
         # Evaluate
         val_loss, mean_f1, _, _ = eval.evaluate(model, valloader, criterion, trainset.num_classes,
                                                 amp_enabled, ddp_enabled, device)
         if writer is not None:
-            writer.add_scalar('loss/validation', val_loss, eph + 1)
-            writer.add_scalar('metrics/mean F1', mean_f1, eph + 1)
+            writer.add_scalar('loss/validation', val_loss, eph)
+            writer.add_scalar('metrics/mean F1', mean_f1, eph)
 
         # Write predicted segmentation map
         if writer is not None:
@@ -172,9 +172,9 @@ if __name__ == '__main__':
             images = datasets.utils.inverse_to_tensor_normalize(datasets.utils.inverse_normalize(images, mean, std))
             if eph == 0:
                 targets = datasets.utils.draw_segmentation_masks(images, targets, trainset.colors)
-                writer.add_images('eval/1Groundtruth', targets, eph + 1)
+                writer.add_images('eval/1Groundtruth', targets, eph)
             outputs = datasets.utils.draw_segmentation_masks(images, outputs, trainset.colors)
-            writer.add_images('eval/2' + model_name, outputs, eph + 1)
+            writer.add_images('eval/2' + model_name, outputs, eph)
 
         if local_rank == 0:
             # Save checkpoint
