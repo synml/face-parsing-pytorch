@@ -44,6 +44,7 @@ EAGRNet:
   epoch: 100
   criterion:
     name: CrossEntropyLoss
+    label_smoothing: 0.1
   aux_factor:
   optimizer:
     name: RAdam
@@ -73,6 +74,7 @@ UNet:
   epoch: 100
   criterion:
     name: CrossEntropyLoss
+    label_smoothing: 0.1
   aux_factor:
   optimizer:
     name: RAdam
