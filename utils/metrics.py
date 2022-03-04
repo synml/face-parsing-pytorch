@@ -5,6 +5,8 @@ class Evaluator:
     def __init__(self, num_classes: int, device: torch.device):
         self.confusion_matrix = torch.zeros((num_classes, num_classes), dtype=torch.int64, device=device)
         self.num_classes = num_classes
+        # self.confusion_matrix.sum(dim=0): TP + FP
+        # self.confusion_matrix.sum(dim=1): TP + FN
 
     def _generate_matrix(self, gt_batch: torch.Tensor, pred_batch: torch.Tensor) -> torch.Tensor:
         label = self.num_classes * gt_batch + pred_batch
