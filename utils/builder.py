@@ -130,7 +130,7 @@ class Builder:
         if cfg_scheduler['name'] == 'ConstantLR':
             scheduler = torch.optim.lr_scheduler.ConstantLR(optimizer, 1, total_iters)
         elif cfg_scheduler['name'] == 'CosineLR':
-            scheduler = utils.lr_scheduler.CosineLR(optimizer)
+            scheduler = utils.lr_scheduler.CosineLR(optimizer, total_iters)
         elif cfg_scheduler['name'] == 'LinearLR':
             scheduler = torch.optim.lr_scheduler.LinearLR(optimizer, 1, 0, total_iters)
         elif cfg_scheduler['name'] == 'PolyLR':
