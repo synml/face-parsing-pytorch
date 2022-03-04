@@ -1,4 +1,14 @@
 import torch
+import math
+
+
+class CosineLR(torch.optim.lr_scheduler._LRScheduler):
+    def __init__(self, optimizer: torch.optim.Optimizer, last_epoch=-1):
+        super(CosineLR, self).__init__(optimizer, last_epoch)
+
+    def get_lr(self):
+        lr = [base_lr * (1 + math.cos(self.last_epoch * math.pi / self.total_iters)) / 2 for base_lr in self.base_lrs]
+        return lr
 
 
 class PolyLR(torch.optim.lr_scheduler._LRScheduler):
