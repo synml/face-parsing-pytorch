@@ -121,7 +121,9 @@ class Builder:
     def build_scheduler(self, optimizer: torch.optim.Optimizer):
         cfg_scheduler = self.config[self.model_name]['scheduler']
 
-        if cfg_scheduler['name'] == 'PolyLR':
+        if cfg_scheduler['name'] == 'ConstantLR':
+            scheduler = torch.optim.lr_scheduler.ConstantLR(optimizer, 1, self.config[self.model_name]['epoch'])
+        elif cfg_scheduler['name'] == 'PolyLR':
             scheduler = utils.lr_scheduler.PolyLR(optimizer,
                                                   self.config[self.model_name]['epoch'],
                                                   cfg_scheduler['power'])
