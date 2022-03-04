@@ -166,6 +166,17 @@ class EAGRNet(nn.Module):
     def __init__(self, num_classes):
         super(EAGRNet, self).__init__()
         resnet101 = torchvision.models.resnet101(pretrained=True, replace_stride_with_dilation=[False, True, True])
+        resnet101.conv1 = nn.Sequential(
+            nn.Conv2d(3, 32, 3, stride=2, padding=1, bias=False),
+            nn.BatchNorm2d(32),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(32, 32, 3, padding=1, bias=False),
+            nn.BatchNorm2d(32),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(32, 64, 3, padding=1, bias=False),
+            nn.BatchNorm2d(64),
+            nn.ReLU(inplace=True),
+        )
         return_nodes = {
             'layer1.2.relu_2': 'layer1',
             'layer2.3.relu_2': 'layer2',
@@ -173,7 +184,6 @@ class EAGRNet(nn.Module):
             'layer4.2.relu_2': 'layer4',
         }
         self.backbone = torchvision.models.feature_extraction.create_feature_extractor(resnet101, return_nodes)
-
         self.ppm = PPM(2048, 512)
         self.edge_module = EdgeModule([256, 512, 1024])
         self.eagr_module1 = EAGRModule(512, 128, 4)
