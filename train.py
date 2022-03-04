@@ -71,7 +71,7 @@ if __name__ == '__main__':
     print(f'Activated model: {model_name} (rank{local_rank})')
 
     # 3. Loss function, optimizer, lr scheduler, scaler, aux factor
-    criterion = builder.build_criterion()
+    criterion = builder.build_criterion(device)
     optimizer = builder.build_optimizer(model)
     scheduler = builder.build_scheduler(optimizer)
     scaler = torch.cuda.amp.GradScaler(enabled=amp_enabled)

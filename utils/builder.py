@@ -85,11 +85,15 @@ class Builder:
                 print(f'FileNotFound: pretrained_weights ({self.model_name})')
         return model
 
-    def build_criterion(self) -> nn.Module:
+    def build_criterion(self, device: torch.device) -> nn.Module:
         cfg_criterion = self.config[self.model_name]['criterion']
 
+        class_weight = None
+        if self.config['dataset']['class_weight'] is not None:
+            class_weight = torch.tensor(self.config['dataset']['class_weight'], device=device)
+
         if cfg_criterion['name'] == 'CrossEntropyLoss':
-            criterion = nn.CrossEntropyLoss()
+            criterion = nn.CrossEntropyLoss(class_weight, label_smoothing=cfg_criterion['label_smoothing'])
         elif cfg_criterion['name'] == 'FocalLoss':
             criterion = utils.loss.FocalLoss(alpha=cfg_criterion['alpha'], gamma=cfg_criterion['gamma'])
         else:

@@ -89,7 +89,7 @@ if __name__ == '__main__':
     print(f'Activated model: {model_name}')
 
     # 3. Loss function
-    criterion = builder.build_criterion()
+    criterion = builder.build_criterion(device)
 
     # Evaluate model
     val_loss, mean_f1, f1, fps = evaluate(model, valloader, criterion, valset.num_classes, amp_enabled, False, device)
