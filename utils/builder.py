@@ -125,12 +125,14 @@ class Builder:
     def build_scheduler(self, optimizer: torch.optim.Optimizer):
         cfg_scheduler = self.config[self.model_name]['scheduler']
 
+        total_iters = self.config[self.model_name]['epoch']
+
         if cfg_scheduler['name'] == 'ConstantLR':
-            scheduler = torch.optim.lr_scheduler.ConstantLR(optimizer, 1, self.config[self.model_name]['epoch'])
+            scheduler = torch.optim.lr_scheduler.ConstantLR(optimizer, 1, total_iters)
+        elif cfg_scheduler['name'] == 'LinearLR':
+            scheduler = torch.optim.lr_scheduler.LinearLR(optimizer, 1, 0, total_iters)
         elif cfg_scheduler['name'] == 'PolyLR':
-            scheduler = utils.lr_scheduler.PolyLR(optimizer,
-                                                  self.config[self.model_name]['epoch'],
-                                                  cfg_scheduler['power'])
+            scheduler = utils.lr_scheduler.PolyLR(optimizer, total_iters, cfg_scheduler['power'])
         else:
             raise ValueError('Wrong scheduler name.')
         return scheduler
