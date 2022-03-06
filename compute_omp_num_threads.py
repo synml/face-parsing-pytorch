@@ -13,6 +13,12 @@ if __name__ == '__main__':
                           stmt="torch.mm(x, y)", number=100)
         runtimes.append(r)
 
-    plt.plot(threads, runtimes)
+    min_runtime = min(runtimes)
+    thread_with_min_runtime = threads[runtimes.index(min_runtime)]
+
+    plt.plot(threads, runtimes, label=f'min=({thread_with_min_runtime}: {min_runtime:.2f})')
+    plt.xlabel('Threads')
+    plt.ylabel('Runtimes')
+    plt.legend(loc='upper center')
     plt.grid(True)
-    plt.savefig('omp_num_threads.png', dpi=300)
+    plt.savefig('omp_num_threads.png', dpi=400)
