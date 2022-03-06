@@ -6,6 +6,7 @@ result/
 runs/
 weights/
 debug.py
+omp_num_threads.png
 TODO.txt
 
 # Byte-compiled / optimized / DLL files
