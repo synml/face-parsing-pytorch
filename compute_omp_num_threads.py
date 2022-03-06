@@ -14,6 +14,5 @@ if __name__ == '__main__':
         runtimes.append(r)
 
     plt.plot(threads, runtimes)
-    plt.xticks(threads)
     plt.grid(True)
-    plt.savefig('omp_num_threads.png')
+    plt.savefig('omp_num_threads.png', dpi=300)
