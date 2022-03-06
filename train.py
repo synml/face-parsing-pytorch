@@ -37,7 +37,6 @@ if __name__ == '__main__':
         torch.distributed.init_process_group(backend='nccl', init_method='env://')
         local_rank = torch.distributed.get_rank()
         world_size = torch.distributed.get_world_size()
-        os.system('clear')
 
     # Device
     if torch.cuda.is_available():
