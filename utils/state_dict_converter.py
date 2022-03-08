@@ -1,11 +1,20 @@
+from collections import OrderedDict
+
+
 def convert_ddp_state_dict(state_dict: dict):
-    new_state_dict = {}
+    """
+    Converts a state dict of dataParallel model to normal model state_dict inplace.
+
+    Args:
+        state_dict: DataParallel model's state_dict.
+    """
+    if not next(iter(state_dict)).startswith("module."):
+        return state_dict
+
+    new_state_dict = OrderedDict()
     for key, value in state_dict.items():
-        if key.startswith('module.'):
-            new_key = key.removeprefix('module.')
-            new_state_dict[new_key] = value
-        else:
-            new_state_dict[key] = value
+        new_key = key.removeprefix('module.')
+        new_state_dict[new_key] = value
     return new_state_dict
 
 
