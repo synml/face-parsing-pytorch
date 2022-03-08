@@ -21,4 +21,5 @@ if __name__ == '__main__':
     plt.ylabel('Runtimes')
     plt.legend(loc='upper center')
     plt.grid(True)
+    plt.tight_layout()
     plt.savefig('omp_num_threads.png', dpi=400)
