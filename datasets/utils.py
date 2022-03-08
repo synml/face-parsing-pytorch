@@ -51,7 +51,6 @@ def generate_color_palette(num_classes: int) -> list[tuple]:
 # Validate dataset loading code
 def show_dataset(images: Tensor, targets: Tensor):
     to_pil_image = torchvision.transforms.ToPILImage()
-    plt.rcParams['figure.figsize'] = (17, 6)
     plt.rcParams['figure.autolayout'] = True
     plt.rcParams['xtick.bottom'] = False
     plt.rcParams['xtick.labelbottom'] = False
