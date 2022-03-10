@@ -4,7 +4,7 @@
 
 This repository aims to implement semantic segmentation models with PyTorch.
 
-## Build Status
+
 
 ![Python version](https://img.shields.io/badge/Python-3.8-orange) ![PyTorch version](https://img.shields.io/badge/PyTorch-1.8-brightgreen) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/synml/pytorch-semantic-segmentation) ![GitHub last commit](https://img.shields.io/github/last-commit/synml/pytorch-semantic-segmentation) [![GitHub license](https://img.shields.io/github/license/synml/pytorch-semantic-segmentation)](https://github.com/synml/pytorch-semantic-segmentation/blob/main/LICENSE)
 
