@@ -68,6 +68,8 @@ if __name__ == '__main__':
         )
         model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)
     print(f'Activated model: {model_name} (rank{local_rank})')
+    if ddp_enabled:
+        torch.distributed.barrier()
 
     # 3. Loss function, optimizer, lr scheduler, scaler, aux factor
     criterion = builder.build_criterion(device)
@@ -84,7 +86,6 @@ if __name__ == '__main__':
     prev_val_loss = 2 ** 32 - 1
     if resume_training:
         if ddp_enabled:
-            torch.distributed.barrier()
             checkpoint = torch.load(resume_training_checkpoint, map_location={'cuda:0': f'cuda:{local_rank}'})
         else:
             checkpoint = torch.load(resume_training_checkpoint)
@@ -95,7 +96,8 @@ if __name__ == '__main__':
         start_epoch = checkpoint['epoch'] + 1
         prev_mean_f1 = checkpoint['mean_f1']
         prev_val_loss = checkpoint['val_loss']
-        print(f'Resume training. {resume_training_checkpoint} (rank{local_rank})')
+        if local_rank == 0:
+            print(f'Resume training. {resume_training_checkpoint}')
 
     # 4. Initialize tensorboard and tqdm
     if local_rank == 0:
@@ -108,7 +110,7 @@ if __name__ == '__main__':
     # 5. Train and evaluate
     for eph in tqdm.tqdm(range(start_epoch, epoch), desc='Train epoch', disable=tqdm_disabled):
         if utils.train_early_stopper.train_early_stopper():
-            print('Train interrupt occurs.')
+            print('Early stop training.')
             break
         if ddp_enabled:
             trainloader.sampler.set_epoch(eph)
