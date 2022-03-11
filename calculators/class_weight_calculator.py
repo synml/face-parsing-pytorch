@@ -2,7 +2,7 @@ import torch
 from tqdm import tqdm
 
 
-def calculate_class_weight(dataset, dataloader, num_classes):
+def calculate_class_weight(dataloader, num_classes):
     z = torch.zeros(num_classes)
     for sample in tqdm(dataloader, desc='Calculate class weight'):
         y = sample['label']
