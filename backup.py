@@ -24,7 +24,6 @@ backup_dir = os.path.join('backup', 'RENAME')
 os.makedirs(backup_dir)
 
 # Backup
-move_directory('cam', backup_dir)
 move_directory('demo', backup_dir)
 move_directory('runs', backup_dir)
 move_files('result', backup_dir)
