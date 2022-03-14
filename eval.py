@@ -26,7 +26,7 @@ def evaluate(model: torch.nn.Module,
         local_rank = 0
         world_size = 0
 
-    evaluator = utils.metrics.Evaluator(num_classes, device)
+    evaluator = utils.metric.Evaluator(num_classes, device)
     inference_time = torch.zeros(1, device=device)
     val_loss = torch.zeros(1, device=device)
     for images, targets in tqdm.tqdm(valloader, desc='Eval', leave=False, disable=False if local_rank == 0 else True):
