@@ -27,34 +27,38 @@ class Evaluator:
         acc_cls = torch.nanmean(acc_cls)
         return acc_cls
 
-    def intersection_over_union(self, ignore_zero_class: bool, percent=False) -> torch.Tensor:
+    def intersection_over_union(self, ignore_zero_class: bool) -> torch.Tensor:
         if ignore_zero_class:
             self.confusion_matrix = self.confusion_matrix[1:, 1:]
 
         iou = torch.diag(self.confusion_matrix) / (self.confusion_matrix.sum(dim=0) +
                                                    self.confusion_matrix.sum(dim=1) -
                                                    torch.diag(self.confusion_matrix))
-        if percent:
-            iou *= 100
         return iou
 
     def mean_intersection_over_union(self, ignore_zero_class: bool, percent=False) -> tuple[torch.Tensor, torch.Tensor]:
-        iou = self.intersection_over_union(ignore_zero_class, percent)
+        iou = self.intersection_over_union(ignore_zero_class)
+
+        if percent:
+            iou *= 100
+
         miou = torch.nanmean(iou)
         return miou, iou
 
     # Same as dice coefficient
-    def f1_score(self, ignore_zero_class: bool, percent=False) -> torch.Tensor:
+    def f1_score(self, ignore_zero_class: bool) -> torch.Tensor:
         if ignore_zero_class:
             self.confusion_matrix = self.confusion_matrix[1:, 1:]
 
         f1_score = torch.diag(self.confusion_matrix) * 2 / (self.confusion_matrix.sum(dim=0) +
                                                             self.confusion_matrix.sum(dim=1))
-        if percent:
-            f1_score *= 100
         return f1_score
 
     def mean_f1_score(self, ignore_zero_class: bool, percent=False) -> tuple[torch.Tensor, torch.Tensor]:
-        f1_score = self.f1_score(ignore_zero_class, percent)
+        f1_score = self.f1_score(ignore_zero_class)
+
+        if percent:
+            f1_score *= 100
+
         mean_f1_score = torch.nanmean(f1_score)
         return mean_f1_score, f1_score
