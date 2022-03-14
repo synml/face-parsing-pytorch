@@ -1,12 +1,12 @@
 from collections import OrderedDict
 
 
-def convert_ddp_state_dict(state_dict: dict):
+def convert_ddp_state_dict(state_dict: OrderedDict) -> OrderedDict:
     """
-    Converts a state dict of dataParallel model to normal model state_dict inplace.
+    Convert a DDP model's state dict to normal model's state_dict.
 
     Args:
-        state_dict: DataParallel model's state_dict.
+        state_dict: DDP model's state_dict.
     """
     if not next(iter(state_dict)).startswith("module."):
         return state_dict
@@ -18,7 +18,7 @@ def convert_ddp_state_dict(state_dict: dict):
     return new_state_dict
 
 
-def remove_items_in_state_dict(state_dict: dict, keys_to_remove: list):
+def remove_items_in_state_dict(state_dict: OrderedDict, keys_to_remove: list) -> OrderedDict:
     for key in keys_to_remove:
         state_dict.pop(key)
     return state_dict
