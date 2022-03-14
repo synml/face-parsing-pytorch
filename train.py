@@ -8,7 +8,6 @@ import torch.utils.data
 import torch.utils.tensorboard
 import tqdm
 
-import datasets
 import eval
 import utils
 
@@ -172,11 +171,11 @@ if __name__ == '__main__':
 
             mean = torch.tensor(trainset.transforms.normalize.mean)
             std = torch.tensor(trainset.transforms.normalize.std)
-            images = datasets.utils.inverse_to_tensor_normalize(datasets.utils.inverse_normalize(images, mean, std))
+            images = utils.utils.inverse_to_tensor_normalize(utils.utils.inverse_normalize(images, mean, std))
             if eph == 0:
-                targets = datasets.utils.draw_segmentation_masks(images, targets, trainset.colors)
+                targets = utils.utils.draw_segmentation_masks(images, targets, trainset.colors)
                 writer.add_images('eval/1Groundtruth', targets, eph)
-            outputs = datasets.utils.draw_segmentation_masks(images, outputs, trainset.colors)
+            outputs = utils.utils.draw_segmentation_masks(images, outputs, trainset.colors)
             writer.add_images('eval/2' + model_name, outputs, eph)
 
         if local_rank == 0:
@@ -194,13 +193,13 @@ if __name__ == '__main__':
 
             # Save best mean_f1 model
             if mean_f1 > prev_mean_f1:
-                state_dict = utils.state_dict_converter.convert_ddp_state_dict(model.state_dict())
+                state_dict = utils.state_dict.convert_ddp_state_dict(model.state_dict())
                 torch.save(state_dict, os.path.join('weights', f'{model_name}_best_mean_f1.pth'))
                 prev_mean_f1 = mean_f1
 
             # Save best val_loss model
             if val_loss < prev_val_loss:
-                state_dict = utils.state_dict_converter.convert_ddp_state_dict(model.state_dict())
+                state_dict = utils.state_dict.convert_ddp_state_dict(model.state_dict())
                 torch.save(state_dict, os.path.join('weights', f'{model_name}_best_val_loss.pth'))
                 prev_val_loss = val_loss
     if writer is not None:

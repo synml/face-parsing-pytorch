@@ -4,7 +4,6 @@ import torch
 import torchvision
 import tqdm
 
-import datasets
 import utils
 
 if __name__ == '__main__':
@@ -43,9 +42,9 @@ if __name__ == '__main__':
 
         mean = torch.tensor(valset.transforms.normalize.mean)
         std = torch.tensor(valset.transforms.normalize.std)
-        images = datasets.utils.inverse_to_tensor_normalize(datasets.utils.inverse_normalize(images, mean, std))
-        outputs = datasets.utils.draw_segmentation_masks(images, outputs, valset.colors)
-        targets = datasets.utils.draw_segmentation_masks(images, targets, valset.colors)
+        images = utils.utils.inverse_to_tensor_normalize(utils.utils.inverse_normalize(images, mean, std))
+        outputs = utils.utils.draw_segmentation_masks(images, outputs, valset.colors)
+        targets = utils.utils.draw_segmentation_masks(images, targets, valset.colors)
 
         # process per 1 batch
         assert len(outputs) == len(targets)
