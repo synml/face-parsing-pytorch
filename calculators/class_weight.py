@@ -7,7 +7,7 @@ def calculate_class_weight(dataloader: torch.utils.data.DataLoader, num_classes:
     frequencies = torch.zeros(num_classes)
     for _, target in tqdm(dataloader, desc='Calculate class weight'):
         target = target.to(torch.uint8)
-        count_l = torch.bincount(target, minlength=num_classes)
+        count_l = torch.bincount(target.flatten(), minlength=num_classes)
         frequencies += count_l
 
     class_weights = []
