@@ -124,7 +124,6 @@ class Builder:
 
     def build_scheduler(self, optimizer: torch.optim.Optimizer):
         cfg_scheduler = self.config[self.model_name]['scheduler']
-
         total_iters = self.config[self.model_name]['epoch']
 
         if cfg_scheduler['name'] == 'ConstantLR':
