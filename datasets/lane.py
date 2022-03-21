@@ -62,8 +62,8 @@ class Lane(torchvision.datasets.VisionDataset):
         image_paths.sort(key=lambda x: int(os.path.splitext(os.path.basename(x))[0]))
         gt_paths.sort(key=lambda x: int(os.path.splitext(os.path.basename(x))[0]))
 
-        for (image_path, gt_path) in tqdm.tqdm(zip(image_paths, gt_paths, strict=True), 'Preprocess dataset',
-                                               total=len(gt_paths)):
+        assert len(image_paths) == len(gt_paths)
+        for (image_path, gt_path) in tqdm.tqdm(zip(image_paths, gt_paths), 'Preprocess dataset', total=len(gt_paths)):
             with open(gt_path) as f:
                 gt = json.load(f)
             image = cv2.imread(image_path)
