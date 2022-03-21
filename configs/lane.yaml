@@ -1,0 +1,38 @@
+# Dataset settings
+dataset:
+  name: Lane
+  root: ../../data/lane_dataset
+  num_workers: auto
+  pin_memory: True
+  normalize_mean: [0.5, 0.5, 0.5]
+  normalize_std: [0.5, 0.5, 0.5]
+  class_weight:
+
+# Model definitions (shape: [h, w])
+BiSeNet:
+  batch_size: 16
+  epoch: 100
+  criterion:
+    name: CrossEntropyLoss
+    label_smoothing: 0.1
+  aux_factor:
+  optimizer:
+    name: RAdam
+    lr: 0.0005
+    weight_decay: 0
+  scheduler:
+    name: PolyLR
+    power: 0.9
+  augmentation:
+    RandomResize:
+      min_scale: 1.0
+      max_scale: 1.2
+    RandomCrop:
+      size: [1280, 720]
+    ColorJitter:
+      brightness: 0.5
+      contrast: 0.5
+      saturation: 0.5
+      hue: 0
+    RandomHorizontalFlip:
+  pretrained_weights: weights/BiSeNet_best_mean_f1.pth

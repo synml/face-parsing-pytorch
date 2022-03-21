@@ -1,3 +1,3 @@
 # Specify a config and a model to use.
 config: celebamaskhq.yaml
-model_name: EAGRNet
+model_name: BiSeNet
