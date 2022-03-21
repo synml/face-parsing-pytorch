@@ -1,7 +1,7 @@
 # Dataset settings
 dataset:
   name: Lane
-  root: ../../data/lane_dataset
+  root: ../../data/Lane
   num_workers: auto
   pin_memory: True
   normalize_mean: [0.5, 0.5, 0.5]
