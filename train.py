@@ -57,7 +57,7 @@ if __name__ == '__main__':
 
     # 1. Dataset
     trainset, trainloader = builder.build_dataset('train', ddp_enabled)
-    _, valloader = builder.build_dataset('test', ddp_enabled)
+    _, valloader = builder.build_dataset('val', ddp_enabled)
 
     # 2. Model
     model = builder.build_model(trainset.num_classes).to(device)
