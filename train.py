@@ -108,7 +108,7 @@ if __name__ == '__main__':
 
     # 5. Train and evaluate
     for eph in tqdm.tqdm(range(start_epoch, epoch), desc='Train epoch', disable=tqdm_disabled):
-        if utils.utils.train_early_stopper():
+        if utils.util.train_early_stopper():
             print('Early stop training.')
             break
         if ddp_enabled:
