@@ -17,7 +17,9 @@ class Lane(torchvision.datasets.VisionDataset):
     LaneClass = namedtuple('LaneClass', ['name', 'id', 'color'])
     classes = [
         LaneClass('background', 0, (0, 0, 0)),
-        LaneClass('lane', 1, (255, 255, 255)),
+        LaneClass('white_lane', 1, (255, 255, 255)),
+        LaneClass('yellow_lane', 2, (255, 128, 0)),
+        LaneClass('stop_line', 3, (255, 255, 255)),
     ]
 
     def __init__(self,
@@ -78,7 +80,12 @@ class Lane(torchvision.datasets.VisionDataset):
                 if i['class'] == 'traffic_lane':
                     if i['attributes'][1]['value'] == 'dotted':
                         continue
-                    mask = cv2.polylines(mask, [points], False, (255, 255, 255), 3)
+                    if i['attributes'][0]['value'] == 'white':
+                        mask = cv2.polylines(mask, [points], False, (1, 1, 1), 3)
+                    elif i['attributes'][0]['value'] == 'yellow':
+                        mask = cv2.polylines(mask, [points], False, (2, 2, 2), 3)
+                elif i['class'] == "stop_line":
+                    mask = cv2.polylines(mask, [points], False, (3, 3, 3), 3)
 
             os.makedirs(os.path.dirname(image_path).replace('image', 'preprocessed_mask'), exist_ok=True)
             cv2.imwrite(image_path.replace('image', 'preprocessed_mask').replace('.jpg', '.png'), mask)
