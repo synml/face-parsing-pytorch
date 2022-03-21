@@ -51,6 +51,8 @@ class Builder:
         # Dataset
         if cfg_dataset['name'] == 'CelebAMaskHQ':
             dataset = datasets.celebamaskhq.CelebAMaskHQ(root, dataset_type, transforms=transforms)
+        elif cfg_dataset['name'] == 'Lane':
+            dataset = datasets.lane.Lane(root, dataset_type, transforms=transforms)
         else:
             raise ValueError('Wrong dataset name.')
 
@@ -66,7 +68,6 @@ class Builder:
         return dataset, dataloader
 
     def build_model(self, num_classes: int, pretrained=False) -> nn.Module:
-
         if self.model_name == 'BiSeNet':
             model = models.bisenet.BiSeNet(num_classes)
         elif self.model_name == 'EAGRNet':
