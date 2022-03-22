@@ -34,7 +34,7 @@ class Builder:
         root = cfg_dataset['root']
         num_workers = cfg_dataset['num_workers']
         if num_workers == 'auto':
-            num_workers = 4 * torch.cuda.device_count()
+            num_workers = 4
         batch_size = self.config[self.model_name]['batch_size']
 
         if dataset_type == 'train':
@@ -44,7 +44,7 @@ class Builder:
             shuffle = True
             pin_memory = cfg_dataset['pin_memory']
         else:
-            transforms = datasets.transforms.Transforms(cfg_dataset['normalize_mean'], cfg_dataset['normalize_std'],)
+            transforms = datasets.transforms.Transforms(cfg_dataset['normalize_mean'], cfg_dataset['normalize_std'])
             shuffle = False
             pin_memory = False
 
