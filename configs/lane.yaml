@@ -14,8 +14,8 @@ BiSeNet:
   epoch: 100
   criterion:
     name: FocalLoss
-    alpha: 1
-    gamma: 1
+    alpha: 0.25
+    gamma: 2
     label_smoothing: 0.1
   aux_factor:
   optimizer:
@@ -28,7 +28,7 @@ BiSeNet:
   augmentation:
     RandomResize:
       min_scale: 1.0
-      max_scale: 1.2
+      max_scale: 1.4
     RandomCrop:
       size: [720, 1280]
     ColorJitter:
