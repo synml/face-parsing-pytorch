@@ -26,11 +26,8 @@ BiSeNet:
     name: PolyLR
     power: 0.9
   augmentation:
-    RandomResize:
-      min_scale: 1.0
-      max_scale: 1.4
     RandomCrop:
-      size: [720, 1280]
+      size: [576, 1024]
     ColorJitter:
       brightness: 0.5
       contrast: 0.5
