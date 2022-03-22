@@ -191,15 +191,17 @@ if __name__ == '__main__':
                 'val_loss': val_loss
             }, os.path.join('weights', f'{model_name}_checkpoint.pth'))
 
+            # Save latest model
+            state_dict = utils.state_dict.convert_ddp_state_dict(model.state_dict())
+            torch.save(state_dict, os.path.join('weights', f'{model_name}_latest.pth'))
+
             # Save best mean_f1 model
             if mean_f1 > prev_mean_f1:
-                state_dict = utils.state_dict.convert_ddp_state_dict(model.state_dict())
                 torch.save(state_dict, os.path.join('weights', f'{model_name}_best_mean_f1.pth'))
                 prev_mean_f1 = mean_f1
 
             # Save best val_loss model
             if val_loss < prev_val_loss:
-                state_dict = utils.state_dict.convert_ddp_state_dict(model.state_dict())
                 torch.save(state_dict, os.path.join('weights', f'{model_name}_best_val_loss.pth'))
                 prev_val_loss = val_loss
     if writer is not None:
