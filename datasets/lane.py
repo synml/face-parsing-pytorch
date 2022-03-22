@@ -18,8 +18,8 @@ class Lane(torchvision.datasets.VisionDataset):
     classes = [
         LaneClass('background', 0, (0, 0, 0)),
         LaneClass('white_lane', 1, (255, 255, 255)),
-        LaneClass('yellow_lane', 2, (255, 128, 0)),
-        LaneClass('stop_line', 3, (14, 209, 69)),
+        LaneClass('yellow_lane', 2, (255, 200, 0)),
+        LaneClass('stop_line', 3, (255, 50, 0)),
     ]
 
     def __init__(self,
