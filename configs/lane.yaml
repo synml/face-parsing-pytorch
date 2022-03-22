@@ -13,12 +13,14 @@ BiSeNet:
   batch_size: 16
   epoch: 100
   criterion:
-    name: CrossEntropyLoss
+    name: FocalLoss
+    alpha: 1
+    gamma: 1
     label_smoothing: 0.1
   aux_factor:
   optimizer:
     name: RAdam
-    lr: 0.0005
+    lr: 0.001
     weight_decay: 0
   scheduler:
     name: PolyLR
@@ -29,8 +31,6 @@ BiSeNet:
       max_scale: 1.2
     RandomCrop:
       size: [720, 1280]
-    RandomRotation:
-      degrees: [-18, 18]
     ColorJitter:
       brightness: 0.5
       contrast: 0.5

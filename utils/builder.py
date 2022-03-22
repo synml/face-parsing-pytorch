@@ -96,7 +96,8 @@ class Builder:
         if cfg_criterion['name'] == 'CrossEntropyLoss':
             criterion = nn.CrossEntropyLoss(class_weight, label_smoothing=cfg_criterion['label_smoothing'])
         elif cfg_criterion['name'] == 'FocalLoss':
-            criterion = utils.loss.FocalLoss(alpha=cfg_criterion['alpha'], gamma=cfg_criterion['gamma'])
+            criterion = utils.loss.FocalLoss(alpha=cfg_criterion['alpha'], gamma=cfg_criterion['gamma'],
+                                             label_smoothing=cfg_criterion['label_smoothing'])
         else:
             raise ValueError('Wrong criterion name.')
         return criterion
