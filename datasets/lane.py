@@ -96,7 +96,7 @@ class Lane(torchvision.datasets.VisionDataset):
 
         if self.split == 'val':
             image = TF.resize(image, [720, 1280], TF.InterpolationMode.BILINEAR, antialias=True)
-            target = TF.resize(target, [720, 1280], TF.InterpolationMode.BILINEAR, antialias=True)
+            target = TF.resize(target, [720, 1280], TF.InterpolationMode.NEAREST)
 
         if self.transforms is not None:
             image, target = self.transforms(image, target)
