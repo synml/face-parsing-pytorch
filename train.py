@@ -171,11 +171,11 @@ if __name__ == '__main__':
 
             mean = torch.tensor(trainset.transforms.normalize.mean)
             std = torch.tensor(trainset.transforms.normalize.std)
-            images = utils.utils.inverse_to_tensor_normalize(utils.utils.inverse_normalize(images, mean, std))
+            images = utils.util.inverse_to_tensor_normalize(utils.util.inverse_normalize(images, mean, std))
             if eph == 0:
-                targets = utils.utils.draw_segmentation_masks(images, targets, trainset.colors)
+                targets = utils.util.draw_segmentation_masks(images, targets, trainset.colors)
                 writer.add_images('eval/1Groundtruth', targets, eph)
-            outputs = utils.utils.draw_segmentation_masks(images, outputs, trainset.colors)
+            outputs = utils.util.draw_segmentation_masks(images, outputs, trainset.colors)
             writer.add_images('eval/2' + model_name, outputs, eph)
 
         if local_rank == 0:
