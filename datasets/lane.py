@@ -19,7 +19,8 @@ class Lane(torchvision.datasets.VisionDataset):
         LaneClass('background', 0, (0, 0, 0)),
         LaneClass('white_lane', 1, (255, 255, 255)),
         LaneClass('yellow_lane', 2, (255, 200, 0)),
-        LaneClass('stop_line', 3, (255, 50, 0)),
+        LaneClass('blue_lane', 3, (0, 0, 255)),
+        LaneClass('stop_line', 4, (255, 50, 0)),
     ]
 
     def __init__(self,
@@ -64,28 +65,31 @@ class Lane(torchvision.datasets.VisionDataset):
 
         assert len(image_paths) == len(gt_paths)
         for (image_path, gt_path) in tqdm.tqdm(zip(image_paths, gt_paths), 'Preprocess dataset', total=len(gt_paths)):
-            with open(gt_path) as f:
-                gt = json.load(f)
             image = cv2.imread(image_path)
             mask = np.zeros_like(image)
+            with open(gt_path) as f:
+                gt = json.load(f)
 
-            for i in gt['annotations']:
-                # get point
-                points = []
-                for j in i['data']:
-                    points.append([j['x'], j['y']])
-                points = np.array(points)
+            for annotation in gt['annotations']:
+                points = np.array([[point['x'], point['y']] for point in annotation['data']])
 
-                # check class [blue,green,red]
-                if i['class'] == 'traffic_lane':
-                    if i['attributes'][1]['value'] == 'dotted':
-                        continue
-                    if i['attributes'][0]['value'] == 'white':
+                # Check class (BGR color type)
+                if annotation['class'] == 'traffic_lane':
+                    # lane_color
+                    if annotation['attributes'][0]['value'] == 'white':
                         mask = cv2.polylines(mask, [points], False, (1, 1, 1), 3)
-                    elif i['attributes'][0]['value'] == 'yellow':
+                    elif annotation['attributes'][0]['value'] == 'yellow':
                         mask = cv2.polylines(mask, [points], False, (2, 2, 2), 3)
-                elif i['class'] == "stop_line":
-                    mask = cv2.polylines(mask, [points], False, (3, 3, 3), 3)
+                    elif annotation['attributes'][0]['value'] == 'blue':
+                        mask = cv2.polylines(mask, [points], False, (3, 3, 3), 3)
+                    else:
+                        raise ValueError('Wrong lane color.')
+                elif annotation['class'] == 'stop_line':
+                    mask = cv2.polylines(mask, [points], False, (4, 4, 4), 3)
+                elif annotation['class'] == 'crosswalk':
+                    pass
+                else:
+                    raise ValueError('Wrong annotation class.')
 
             os.makedirs(os.path.dirname(image_path).replace('image', 'preprocessed_mask'), exist_ok=True)
             cv2.imwrite(image_path.replace('image', 'preprocessed_mask').replace('.jpg', '.png'), mask)
