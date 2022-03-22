@@ -28,7 +28,7 @@ BiSeNet:
       min_scale: 1.0
       max_scale: 1.2
     RandomCrop:
-      size: [1280, 720]
+      size: [720, 1280]
     ColorJitter:
       brightness: 0.5
       contrast: 0.5
