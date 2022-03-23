@@ -8,7 +8,7 @@ class CosineLR(torch.optim.lr_scheduler._LRScheduler):
         self.total_iters = total_iters  # Same as total_epoch
         super(CosineLR, self).__init__(optimizer, last_epoch)
 
-    def get_lr(self):
+    def get_lr(self) -> list[float]:
         lr = [base_lr * (1 + math.cos(self.last_epoch * math.pi / self.total_iters)) / 2 for base_lr in self.base_lrs]
         return lr
 
@@ -20,6 +20,6 @@ class PolyLR(torch.optim.lr_scheduler._LRScheduler):
         self.power = power
         super(PolyLR, self).__init__(optimizer, last_epoch)
 
-    def get_lr(self):
+    def get_lr(self) -> list[float]:
         lr = [base_lr * (1 - self.last_epoch / self.total_iters) ** self.power for base_lr in self.base_lrs]
         return lr

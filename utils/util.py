@@ -67,7 +67,7 @@ def show_dataset(images: Tensor, targets: Tensor):
         plt.show()
 
 
-def train_early_stopper():
+def train_early_stopper() -> bool:
     with open('train_early_stopper.ini', 'r', encoding='utf-8') as f:
         flag = f.read().strip()
 

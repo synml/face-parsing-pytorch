@@ -54,7 +54,7 @@ class ColorJitter(torchvision.transforms.ColorJitter):
     def __init__(self, brightness: float, contrast: float, saturation: float, hue: float):
         super().__init__(brightness, contrast, saturation, hue)
 
-    def forward(self, data: dict):
+    def forward(self, data: dict) -> dict:
         fn_idx, brightness_factor, contrast_factor, saturation_factor, hue_factor = \
             self.get_params(self.brightness, self.contrast, self.saturation, self.hue)
 
@@ -74,7 +74,7 @@ class GaussianBlur(torchvision.transforms.GaussianBlur):
     def __init__(self, kernel_size: int, sigma=tuple[float, float]):
         super().__init__(kernel_size, sigma)
 
-    def forward(self, data: dict):
+    def forward(self, data: dict) -> dict:
         sigma = self.get_params(self.sigma[0], self.sigma[1])
         data['image'] = TF.gaussian_blur(data['image'], self.kernel_size, [sigma, sigma])
         return data
@@ -84,7 +84,7 @@ class RandomAdjustSharpness(torchvision.transforms.RandomAdjustSharpness):
     def __init__(self, sharpness_factor: float):
         super(RandomAdjustSharpness, self).__init__(sharpness_factor)
 
-    def forward(self, data: dict):
+    def forward(self, data: dict) -> dict:
         if torch.rand(1).item() < self.p:
             data['image'] = TF.adjust_sharpness(data['image'], self.sharpness_factor)
         return data
@@ -94,7 +94,7 @@ class RandomCrop(torchvision.transforms.RandomCrop):
     def __init__(self, size: tuple[int, int]):
         super().__init__(size)
 
-    def forward(self, data: dict):
+    def forward(self, data: dict) -> dict:
         i, j, h, w = self.get_params(data['image'], self.size)
         data['image'] = TF.crop(data['image'], i, j, h, w)
         data['target'] = TF.crop(data['target'], i, j, h, w)
@@ -105,7 +105,7 @@ class RandomHorizontalFlip(torchvision.transforms.RandomHorizontalFlip):
     def __init__(self):
         super().__init__()
 
-    def forward(self, data: dict):
+    def forward(self, data: dict) -> dict:
         if torch.rand(1) < self.p:
             data['image'] = TF.hflip(data['image'])
             data['target'] = TF.hflip(data['target'])
@@ -119,7 +119,7 @@ class RandomResize(nn.Module):
         self.min_scale = min_scale
         self.max_scale = max_scale
 
-    def forward(self, data: dict):
+    def forward(self, data: dict) -> dict:
         scale = torch.empty(1).uniform_(self.min_scale, self.max_scale)
         size = torch.round(torch.as_tensor(data['image'].shape[-2:]) * scale).to(dtype=torch.int).tolist()
 
@@ -136,7 +136,7 @@ class RandomRotation(torchvision.transforms.RandomRotation):
     def __init__(self, degrees: Union[Sequence, int, float]):
         super(RandomRotation, self).__init__(degrees)
 
-    def forward(self, data: dict):
+    def forward(self, data: dict) -> dict:
         data['target'].unsqueeze_(dim=0)
 
         angle = self.get_params(self.degrees)
@@ -168,7 +168,7 @@ class RandomResizedCrop(torchvision.transforms.RandomResizedCrop):
 
         super().__init__(size, scale, ratio)
 
-    def forward(self, data: dict):
+    def forward(self, data: dict) -> dict:
         if self.scale == 'auto':
             self.scale = ((self.size[0] * self.size[1]) / (data['target'].size()[-2] * data['target'].size()[-1]), 1.0)
 
@@ -186,7 +186,7 @@ class Resize(torchvision.transforms.Resize):
     def __init__(self, size: tuple[int, int]):
         super().__init__(size)
 
-    def forward(self, data: dict):
+    def forward(self, data: dict) -> dict:
         data['target'].unsqueeze_(dim=0)
 
         data['image'] = TF.resize(data['image'], self.size, TF.InterpolationMode.BILINEAR, antialias=True)
@@ -200,13 +200,13 @@ class Normalize(torchvision.transforms.Normalize):
     def __init__(self, mean: Sequence, std: Sequence):
         super().__init__(mean, std)
 
-    def forward(self, data: dict):
+    def forward(self, data: dict) -> dict:
         data['image'] = TF.normalize(data['image'], self.mean, self.std)
         return data
 
 
 class ToTensor(torchvision.transforms.ToTensor):
-    def __call__(self, data: dict):
+    def __call__(self, data: dict) -> dict:
         if isinstance(data['image'], Image.Image) and isinstance(data['target'], Image.Image):
             data['image'] = TF.to_tensor(data['image'])
             data['target'] = torch.as_tensor(np.array(data['target'], dtype=np.int64))
