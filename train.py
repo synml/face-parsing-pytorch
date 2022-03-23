@@ -11,6 +11,7 @@ import tqdm
 import eval
 import utils
 
+
 if __name__ == '__main__':
     # Create components builder
     builder = utils.builder.Builder()
