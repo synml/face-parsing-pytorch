@@ -4,7 +4,7 @@ import torch.nn.functional as F
 
 
 class FocalLoss(nn.Module):
-    def __init__(self, alpha=1, gamma=1, ignore_index=-100, reduction='mean', label_smoothing=0.0):
+    def __init__(self, alpha=0.25, gamma=2.0, ignore_index=-100, reduction='mean', label_smoothing=0.0):
         super(FocalLoss, self).__init__()
         self.alpha = alpha  # positive/negative 샘플의 중요도에 대한 균형
         self.gamma = gamma  # easy 샘플의 loss 감소 정도를 조절
