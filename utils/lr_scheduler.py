@@ -1,5 +1,6 @@
-import torch
 import math
+
+import torch
 
 
 class CosineLR(torch.optim.lr_scheduler._LRScheduler):

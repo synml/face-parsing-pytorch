@@ -1,7 +1,7 @@
-from collections import namedtuple
 import glob
 import json
 import os
+from collections import namedtuple
 from typing import Callable, Optional, Tuple
 
 import cv2

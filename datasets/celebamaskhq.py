@@ -1,8 +1,8 @@
-from collections import namedtuple
 import glob
 import os
-from typing import Callable, List, Optional, Union, Tuple
 import zipfile
+from collections import namedtuple
+from typing import Callable, List, Optional, Union, Tuple
 
 import torch
 import torchvision
