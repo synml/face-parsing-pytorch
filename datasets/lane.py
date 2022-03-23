@@ -109,10 +109,6 @@ class Lane(torchvision.datasets.VisionDataset):
     def __len__(self) -> int:
         return len(self.images)
 
-    def extra_repr(self) -> str:
-        lines = ['Split: {split}', 'Type: {target_type}']
-        return '\n'.join(lines).format(**self.__dict__)
-
 
 if __name__ == '__main__':
     dataset = Lane('../../../data/Lane', 'train')
