@@ -4,7 +4,8 @@ import timeit
 import torch
 import tqdm
 
-if __name__ == '__main__':
+
+def calculate_omp_num_threads():
     threads = [1] + [t for t in range(2, os.cpu_count() * 2, 2)]
     runtimes = []
     for t in tqdm.tqdm(threads):
@@ -23,3 +24,7 @@ if __name__ == '__main__':
     plt.grid(True)
     plt.tight_layout()
     plt.savefig('omp_num_threads.png', dpi=400)
+
+
+if __name__ == '__main__':
+    calculate_omp_num_threads()
