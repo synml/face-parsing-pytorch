@@ -179,3 +179,4 @@ class CelebAMaskHQ(torchvision.datasets.VisionDataset):
 
 if __name__ == '__main__':
     dataset = CelebAMaskHQ('../../../data/CelebAMask-HQ', 'train')
+    exit()
