@@ -34,4 +34,4 @@ BiSeNet:
       saturation: 0.5
       hue: 0
     RandomHorizontalFlip:
-  pretrained_weights: weights/BiSeNet_best_mean_f1.pth
+  pretrained_weights: weights/BiSeNet_latest.pth
