@@ -34,7 +34,7 @@ class Builder:
         root = cfg_dataset['root']
         num_workers = cfg_dataset['num_workers']
         if num_workers == 'auto':
-            num_workers = 4 * torch.cuda.device_count()
+            num_workers = 4
         batch_size = self.config[self.model_name]['batch_size']
 
         if dataset_type == 'train':
@@ -44,13 +44,15 @@ class Builder:
             shuffle = True
             pin_memory = cfg_dataset['pin_memory']
         else:
-            transforms = datasets.transforms.Transforms(cfg_dataset['normalize_mean'], cfg_dataset['normalize_std'],)
+            transforms = datasets.transforms.Transforms(cfg_dataset['normalize_mean'], cfg_dataset['normalize_std'])
             shuffle = False
             pin_memory = False
 
         # Dataset
         if cfg_dataset['name'] == 'CelebAMaskHQ':
             dataset = datasets.celebamaskhq.CelebAMaskHQ(root, dataset_type, transforms=transforms)
+        elif cfg_dataset['name'] == 'Lane':
+            dataset = datasets.lane.Lane(root, dataset_type, transforms=transforms)
         else:
             raise ValueError('Wrong dataset name.')
 
@@ -66,7 +68,6 @@ class Builder:
         return dataset, dataloader
 
     def build_model(self, num_classes: int, pretrained=False) -> nn.Module:
-
         if self.model_name == 'BiSeNet':
             model = models.bisenet.BiSeNet(num_classes)
         elif self.model_name == 'EAGRNet':
@@ -95,7 +96,8 @@ class Builder:
         if cfg_criterion['name'] == 'CrossEntropyLoss':
             criterion = nn.CrossEntropyLoss(class_weight, label_smoothing=cfg_criterion['label_smoothing'])
         elif cfg_criterion['name'] == 'FocalLoss':
-            criterion = utils.loss.FocalLoss(alpha=cfg_criterion['alpha'], gamma=cfg_criterion['gamma'])
+            criterion = utils.loss.FocalLoss(alpha=cfg_criterion['alpha'], gamma=cfg_criterion['gamma'],
+                                             label_smoothing=cfg_criterion['label_smoothing'])
         else:
             raise ValueError('Wrong criterion name.')
         return criterion

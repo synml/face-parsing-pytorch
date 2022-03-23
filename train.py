@@ -57,7 +57,7 @@ if __name__ == '__main__':
 
     # 1. Dataset
     trainset, trainloader = builder.build_dataset('train', ddp_enabled)
-    _, valloader = builder.build_dataset('test', ddp_enabled)
+    _, valloader = builder.build_dataset('val', ddp_enabled)
 
     # 2. Model
     model = builder.build_model(trainset.num_classes).to(device)
@@ -108,7 +108,7 @@ if __name__ == '__main__':
 
     # 5. Train and evaluate
     for eph in tqdm.tqdm(range(start_epoch, epoch), desc='Train epoch', disable=tqdm_disabled):
-        if utils.utils.train_early_stopper():
+        if utils.util.train_early_stopper():
             print('Early stop training.')
             break
         if ddp_enabled:
@@ -164,18 +164,18 @@ if __name__ == '__main__':
         # Write predicted segmentation map
         if writer is not None:
             images, targets = valloader.__iter__().__next__()
-            images, targets = images[10:13].to(device), targets[10:13].to(device)
+            images, targets = images[:2].to(device), targets[:2].to(device)
             with torch.no_grad():
                 outputs = model(images)
                 outputs = torch.argmax(outputs, dim=1)
 
             mean = torch.tensor(trainset.transforms.normalize.mean)
             std = torch.tensor(trainset.transforms.normalize.std)
-            images = utils.utils.inverse_to_tensor_normalize(utils.utils.inverse_normalize(images, mean, std))
+            images = utils.util.inverse_to_tensor_normalize(utils.util.inverse_normalize(images, mean, std))
             if eph == 0:
-                targets = utils.utils.draw_segmentation_masks(images, targets, trainset.colors)
+                targets = utils.util.draw_segmentation_masks(images, targets, trainset.colors)
                 writer.add_images('eval/1Groundtruth', targets, eph)
-            outputs = utils.utils.draw_segmentation_masks(images, outputs, trainset.colors)
+            outputs = utils.util.draw_segmentation_masks(images, outputs, trainset.colors)
             writer.add_images('eval/2' + model_name, outputs, eph)
 
         if local_rank == 0:
@@ -191,15 +191,17 @@ if __name__ == '__main__':
                 'val_loss': val_loss
             }, os.path.join('weights', f'{model_name}_checkpoint.pth'))
 
+            # Save latest model
+            state_dict = utils.state_dict.convert_ddp_state_dict(model.state_dict())
+            torch.save(state_dict, os.path.join('weights', f'{model_name}_latest.pth'))
+
             # Save best mean_f1 model
             if mean_f1 > prev_mean_f1:
-                state_dict = utils.state_dict.convert_ddp_state_dict(model.state_dict())
                 torch.save(state_dict, os.path.join('weights', f'{model_name}_best_mean_f1.pth'))
                 prev_mean_f1 = mean_f1
 
             # Save best val_loss model
             if val_loss < prev_val_loss:
-                state_dict = utils.state_dict.convert_ddp_state_dict(model.state_dict())
                 torch.save(state_dict, os.path.join('weights', f'{model_name}_best_val_loss.pth'))
                 prev_val_loss = val_loss
     if writer is not None:

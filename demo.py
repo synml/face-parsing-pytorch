@@ -17,7 +17,7 @@ if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # 1. Dataset
-    valset, valloader = builder.build_dataset('test')
+    valset, valloader = builder.build_dataset('val')
 
     # 2. Model
     model = builder.build_model(valset.num_classes, pretrained=True).to(device)
@@ -42,9 +42,9 @@ if __name__ == '__main__':
 
         mean = torch.tensor(valset.transforms.normalize.mean)
         std = torch.tensor(valset.transforms.normalize.std)
-        images = utils.utils.inverse_to_tensor_normalize(utils.utils.inverse_normalize(images, mean, std))
-        outputs = utils.utils.draw_segmentation_masks(images, outputs, valset.colors)
-        targets = utils.utils.draw_segmentation_masks(images, targets, valset.colors)
+        images = utils.util.inverse_to_tensor_normalize(utils.util.inverse_normalize(images, mean, std))
+        outputs = utils.util.draw_segmentation_masks(images, outputs, valset.colors)
+        targets = utils.util.draw_segmentation_masks(images, targets, valset.colors)
 
         # process per 1 batch
         assert len(outputs) == len(targets)
