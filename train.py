@@ -1,6 +1,6 @@
 import os
-
 import random
+
 import numpy as np
 import torch.backends.cudnn
 import torch.distributed
@@ -33,8 +33,11 @@ if __name__ == '__main__':
     local_rank = 0
     world_size = 0
     if ddp_enabled:
+        assert torch.distributed.is_available(), '"torch.distributed" package is not available.'
+        assert torch.distributed.is_torchelastic_launched(), 'Run the python process with "torch.distributed.run".'
         assert torch.distributed.is_nccl_available(), 'NCCL backend is not available.'
         torch.distributed.init_process_group(backend='nccl', init_method='env://')
+        assert torch.distributed.is_initialized()
         local_rank = torch.distributed.get_rank()
         world_size = torch.distributed.get_world_size()
 
