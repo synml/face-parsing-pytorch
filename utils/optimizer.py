@@ -50,7 +50,7 @@ class NovoGrad(torch.optim.Optimizer):
                 grads_ema = state['grads_ema']
                 beta1, beta2 = group['betas']
                 state['step'] += 1
-                grads_ema.mul_(beta2).add_(1 - beta2, g_2)
+                grads_ema.mul_(beta2).add_(g_2, alpha=1 - beta2)
 
                 denom = grads_ema.sqrt().add_(group['eps'])
                 grad.div_(denom)
