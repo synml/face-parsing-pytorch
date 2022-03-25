@@ -13,5 +13,5 @@ def calculate_class_weight(dataloader: torch.utils.data.DataLoader, num_classes:
     weight = torch.median(counts) / counts
 
     with open('class_weight.txt', 'w', encoding='utf-8') as f:
-        f.write(weight.tolist())
+        f.write(str(weight.tolist()))
     return weight
