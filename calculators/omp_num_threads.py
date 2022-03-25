@@ -8,7 +8,7 @@ import tqdm
 def calculate_omp_num_threads():
     threads = [1] + [t for t in range(2, os.cpu_count() * 2, 2)]
     runtimes = []
-    for t in tqdm.tqdm(threads):
+    for t in tqdm.tqdm(threads, 'Calculate OMP_NUM_THREADS'):
         torch.set_num_threads(t)
         r = timeit.timeit(setup='import torch; x = torch.randn(1024, 1024); y = torch.randn(1024, 1024)',
                           stmt='torch.mm(x, y)', number=100)
