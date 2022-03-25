@@ -75,6 +75,8 @@ class Builder:
             model = models.bisenet.BiSeNet(num_classes)
         elif self.model_name == 'EAGRNet':
             model = models.eagr.EAGRNet(num_classes)
+        elif self.model_name == 'RegSeg':
+            model = models.regseg.RegSeg(num_classes)
         elif self.model_name == 'UNet':
             model = models.unet.UNet(num_classes)
         else:
@@ -123,6 +125,10 @@ class Builder:
             optimizer = torch.optim.RAdam(model.parameters(),
                                           cfg_optimizer['lr'],
                                           weight_decay=cfg_optimizer['weight_decay'])
+        elif cfg_optimizer['name'] == 'NovoGrad':
+            optimizer = utils.optimizer.NovoGrad(model.parameters(),
+                                                 cfg_optimizer['lr'],
+                                                 weight_decay=cfg_optimizer['weight_decay'])
         else:
             raise ValueError('Wrong optimizer name.')
         return optimizer

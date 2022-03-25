@@ -35,3 +35,28 @@ BiSeNet:
       hue: 0
     RandomHorizontalFlip:
   pretrained_weights: weights/BiSeNet_latest.pth
+
+RegSeg:
+  batch_size: 64
+  epoch: 100
+  criterion:
+    name: CrossEntropy
+    label_smoothing: 0.1
+  aux_factor:
+  optimizer:
+    name: NovoGrad
+    lr: 0.05
+    weight_decay: 0.0001
+  scheduler:
+    name: PolyLR
+    power: 0.9
+  augmentation:
+    RandomCrop:
+      size: [576, 1024]
+    ColorJitter:
+      brightness: 0.5
+      contrast: 0.5
+      saturation: 0.5
+      hue: 0
+    RandomHorizontalFlip:
+  pretrained_weights: weights/RegSeg_latest.pth
