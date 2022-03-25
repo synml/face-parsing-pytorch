@@ -83,15 +83,15 @@ class Lane(torchvision.datasets.VisionDataset):
                 if annotation['class'] == 'traffic_lane':
                     # lane_color
                     if annotation['attributes'][0]['value'] == 'white':
-                        mask = cv2.polylines(mask, [points], False, (1, 1, 1), 3)
+                        mask = cv2.polylines(mask, [points], False, (1, 1, 1), 4)
                     elif annotation['attributes'][0]['value'] == 'yellow':
-                        mask = cv2.polylines(mask, [points], False, (2, 2, 2), 3)
+                        mask = cv2.polylines(mask, [points], False, (2, 2, 2), 4)
                     elif annotation['attributes'][0]['value'] == 'blue':
                         pass
                     else:
                         raise ValueError('Wrong lane color.')
                 elif annotation['class'] == 'stop_line':
-                    mask = cv2.polylines(mask, [points], False, (3, 3, 3), 3)
+                    mask = cv2.polylines(mask, [points], False, (3, 3, 3), 4)
                 elif annotation['class'] == 'crosswalk':
                     pass
                 else:
