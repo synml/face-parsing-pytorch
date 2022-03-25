@@ -29,7 +29,7 @@ class Lane(torchvision.datasets.VisionDataset):
                  target_transform: Optional[Callable] = None,
                  transforms: Optional[Callable] = None):
         super(Lane, self).__init__(root, transforms, transform, target_transform)
-        assert split in ('train', 'val')
+        assert split in ('train', 'val', 'sample')
         self.split = split
         self.colors = [cls.color for cls in self.classes]
         self.num_classes = len(self.classes)
@@ -43,9 +43,14 @@ class Lane(torchvision.datasets.VisionDataset):
         if self.split == 'train':
             self.images = glob.glob(os.path.join(self.root, 'Training', 'image', '*'))
             self.targets = glob.glob(os.path.join(self.root, 'Training', 'preprocessed_mask', '*'))
-        else:
+        elif self.split == 'val':
             self.images = glob.glob(os.path.join(self.root, 'Validation', 'image', '*'))
             self.targets = glob.glob(os.path.join(self.root, 'Validation', 'preprocessed_mask', '*'))
+        elif self.split == 'sample':
+            self.images = glob.glob(os.path.join(self.root, 'Sample', 'image', '*'))
+            self.targets = glob.glob(os.path.join(self.root, 'Sample', 'preprocessed_mask', '*'))
+        else:
+            raise ValueError('Wrong split.')
 
         try:
             self.images.sort(key=lambda x: int(os.path.splitext(os.path.basename(x))[0]))
@@ -56,9 +61,11 @@ class Lane(torchvision.datasets.VisionDataset):
 
     def preprocess(self):
         image_paths = glob.glob(os.path.join(self.root, 'Training', 'image', '*')) + \
-                      glob.glob(os.path.join(self.root, 'Validation', 'image', '*'))
+                      glob.glob(os.path.join(self.root, 'Validation', 'image', '*')) + \
+                      glob.glob(os.path.join(self.root, 'Sample', 'image', '*'))
         gt_paths = glob.glob(os.path.join(self.root, 'Training', 'gt', '*')) + \
-                   glob.glob(os.path.join(self.root, 'Validation', 'gt', '*'))
+                   glob.glob(os.path.join(self.root, 'Validation', 'gt', '*')) + \
+                   glob.glob(os.path.join(self.root, 'Sample', 'gt', '*'))
         image_paths.sort(key=lambda x: int(os.path.splitext(os.path.basename(x))[0]))
         gt_paths.sort(key=lambda x: int(os.path.splitext(os.path.basename(x))[0]))
 
@@ -97,7 +104,7 @@ class Lane(torchvision.datasets.VisionDataset):
         image = torchvision.io.read_image(self.images[index], torchvision.io.ImageReadMode.RGB)
         target = torchvision.io.read_image(self.targets[index], torchvision.io.ImageReadMode.GRAY)
 
-        if self.split == 'val':
+        if self.split == 'sample':
             image = TF.resize(image, [720, 1280], TF.InterpolationMode.BILINEAR, antialias=True)
             target = TF.resize(target, [720, 1280], TF.InterpolationMode.NEAREST)
 
