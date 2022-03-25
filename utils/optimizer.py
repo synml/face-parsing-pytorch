@@ -4,18 +4,18 @@ import torch
 
 
 class NovoGrad(torch.optim.Optimizer):
-    """Implements NovoGrad algorithm.
+    """
+    Implements NovoGrad algorithm. Reference: https://github.com/lonePatient/NovoGrad-pytorch
+
     Arguments:
-        params (iterable): iterable of parameters to optimize or dicts defining
-            parameter groups
+        params (iterable): iterable of parameters to optimize or dicts defining parameter groups
         lr (float, optional): learning rate (default: 1e-2)
         betas (Tuple[float, float], optional): coefficients used for computing
             running averages of gradient and its square (default: (0.95, 0.98))
-        eps (float, optional): term added to the denominator to improve
-            numerical stability (default: 1e-8)
+        eps (float, optional): term added to the denominator to improve numerical stability (default: 1e-8)
         weight_decay (float, optional): weight decay (L2 penalty) (default: 0)
     Example:
-        model = ResNet()
+        model = ResNet() \n
         optimizer = NovoGrad(model.parameters(), lr=1e-2, weight_decay=1e-5)
     """
 
