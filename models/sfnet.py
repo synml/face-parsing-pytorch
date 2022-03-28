@@ -190,14 +190,19 @@ def DeepR18_SF_deeply(num_classes, criterion=None):
     return AlignNetResNet(num_classes, trunk='resnet-18-deep', criterion=criterion, variant='D', skip='m1')
 
 
-def DeepR18_SF_deeply_dsn(num_classes, criterion=None):
-    """
-    ResNet-18 Based Network wtih DSN supervision
-    """
-    return AlignNetResNet(num_classes, trunk='resnet-18-deep', criterion=criterion, variant='D', skip='m1', fpn_dsn=True)
+def sfnet_impl(backbone: str, num_classes: int):
+    if backbone == 'ResNet18':
+        model = DeepR18_SF_deeply(num_classes)
+    elif backbone == 'ResNet50':
+        model = DeepR50_SF_deeply(num_classes)
+    elif backbone == 'ResNet101':
+        model = DeepR101_SF_deeply(num_classes)
+    else:
+        raise NotImplementedError('Wrong backbone.')
+    return model
 
 
 if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model = DeepR18_SF_deeply(num_classes=4).to(device)
+    model = sfnet_impl(backbone='ResNet50', num_classes=4).to(device)
     models.test.test_model(model, (1, 3, 720, 1280))
