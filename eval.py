@@ -59,13 +59,11 @@ def evaluate(model: torch.nn.Module,
         val_loss = val_loss_list[0] / (len(valloader) * world_size)
         evaluator.confusion_matrix = confusion_matrix_list[0]
         mean_f1, f1 = evaluator.mean_f1_score(ignore_zero_class=True, percent=True)
-        inference_time = inference_time_list[0] / (len(valloader) * world_size)
-        fps = 1 / inference_time
+        fps = len(valloader.dataset) / inference_time_list[0]
     else:
         val_loss /= len(valloader)
         mean_f1, f1 = evaluator.mean_f1_score(ignore_zero_class=True, percent=True)
-        inference_time /= len(valloader)
-        fps = 1 / inference_time
+        fps = len(valloader.dataset) / inference_time
 
     return val_loss.item(), mean_f1.item(), f1.tolist(), fps.item()
 
