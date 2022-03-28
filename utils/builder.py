@@ -71,8 +71,12 @@ class Builder:
         return dataset, dataloader
 
     def build_model(self, num_classes: int, pretrained=False) -> nn.Module:
+        cfg_model = self.config[self.model_name]
+
         if self.model_name == 'BiSeNet':
             model = models.bisenet.BiSeNet(num_classes)
+        elif self.model_name == 'DeepLabV3':
+            model = models.deeplabv3.DeepLabV3(cfg_model['backbone'], num_classes)
         elif self.model_name == 'EAGRNet':
             model = models.eagr.EAGRNet(num_classes)
         elif self.model_name == 'RegSeg':
@@ -83,12 +87,12 @@ class Builder:
             raise ValueError('Wrong model name.')
 
         if pretrained:
-            pretrained_weights_path = self.config[self.model_name]['pretrained_weights']
-            if os.path.isfile(pretrained_weights_path):
-                state_dict = torch.load(pretrained_weights_path)
+            pretrained_weight_path = cfg_model['pretrained_weight']
+            if os.path.isfile(pretrained_weight_path):
+                state_dict = torch.load(pretrained_weight_path)
                 model.load_state_dict(state_dict)
             else:
-                print(f'FileNotFound: pretrained_weights ({self.model_name})')
+                print(f'FileNotFound: pretrained_weight ({self.model_name})')
         return model
 
     def build_criterion(self, device: torch.device) -> nn.Module:
