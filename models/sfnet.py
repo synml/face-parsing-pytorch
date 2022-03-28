@@ -1,23 +1,23 @@
 import torch.nn as nn
 import torch
 import torch.nn.functional as F
-from sfnet_module.module import AlignedModule, PSPModule
-import sfnet_module.resnet_d
 
+import models.sfnet_module.module
+import models.sfnet_module.resnet_d
 import models
 
 
 def conv3x3(in_planes, out_planes, stride=1):
-    "3x3 convolution with padding"
+    """3x3 convolution with padding"""
     return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
                      padding=1, bias=False)
 
 
 def conv3x3_bn_relu(in_planes, out_planes, stride=1, normal_layer=nn.BatchNorm2d):
     return nn.Sequential(
-            conv3x3(in_planes, out_planes, stride),
-            normal_layer(out_planes),
-            nn.ReLU(inplace=True),
+        conv3x3(in_planes, out_planes, stride),
+        normal_layer(out_planes),
+        nn.ReLU(inplace=True),
     )
 
 
@@ -27,7 +27,7 @@ class UperNetAlignHead(nn.Module):
                  conv3x3_type="conv", fpn_dsn=False):
         super(UperNetAlignHead, self).__init__()
 
-        self.ppm = PSPModule(inplane, norm_layer=norm_layer, out_features=fpn_dim)
+        self.ppm = models.sfnet_module.module.PSPModule(inplane, norm_layer=norm_layer, out_features=fpn_dim)
         self.fpn_dsn = fpn_dsn
         self.fpn_in = []
         for fpn_inplane in fpn_inplanes[:-1]:
@@ -41,7 +41,7 @@ class UperNetAlignHead(nn.Module):
         self.fpn_in = nn.ModuleList(self.fpn_in)
 
         self.fpn_out = []
-        self.fpn_out_align =[]
+        self.fpn_out_align = []
         self.dsn = []
         for i in range(len(fpn_inplanes) - 1):
             self.fpn_out.append(nn.Sequential(
@@ -50,7 +50,7 @@ class UperNetAlignHead(nn.Module):
 
             if conv3x3_type == 'conv':
                 self.fpn_out_align.append(
-                AlignedModule(inplane=fpn_dim, outplane=fpn_dim//2)
+                    models.sfnet_module.module.AlignedModule(inplane=fpn_dim, outplane=fpn_dim // 2)
                 )
 
             if self.fpn_dsn:
@@ -117,11 +117,11 @@ class AlignNetResNet(nn.Module):
         self.fpn_dsn = fpn_dsn
 
         if trunk == trunk == 'resnet-50-deep':
-            resnet = sfnet_module.resnet_d.resnet50()
+            resnet = models.sfnet_module.resnet_d.resnet50()
         elif trunk == 'resnet-101-deep':
-            resnet = sfnet_module.resnet_d.resnet101()
+            resnet = models.sfnet_module.resnet_d.resnet101()
         elif trunk == 'resnet-18-deep':
-            resnet = sfnet_module.resnet_d.resnet18()
+            resnet = models.sfnet_module.resnet_d.resnet18()
         else:
             raise ValueError("Not a valid network arch")
 
@@ -151,7 +151,8 @@ class AlignNetResNet(nn.Module):
                                          fpn_inplanes=[64, 128, 256, 512], fpn_dim=128, fpn_dsn=fpn_dsn)
         else:
             inplane_head = 2048
-            self.head = UperNetAlignHead(inplane_head, num_class=num_classes, norm_layer=nn.BatchNorm2d, fpn_dsn=fpn_dsn)
+            self.head = UperNetAlignHead(inplane_head, num_class=num_classes, norm_layer=nn.BatchNorm2d,
+                                         fpn_dsn=fpn_dsn)
 
     def forward(self, x, gts=None):
         x_size = x.size()  # 800
