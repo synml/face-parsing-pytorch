@@ -35,15 +35,14 @@ def evaluate(model: torch.nn.Module,
         with torch.cuda.amp.autocast(amp_enabled):
             torch.cuda.synchronize()
             start_time = time.time()
+
             with torch.no_grad():
                 outputs = model(images)
+            val_loss += criterion(outputs, targets)
+            outputs = torch.argmax(outputs, dim=1)
+
             torch.cuda.synchronize()
             inference_time += time.time() - start_time
-
-            val_loss += criterion(outputs, targets)
-
-            # Make segmentation map
-            outputs = torch.argmax(outputs, dim=1)
 
         # Update confusion matrix
         evaluator.update_matrix(targets, outputs)
