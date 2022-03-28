@@ -10,11 +10,12 @@ class PSPModule(nn.Module):
         self.stages = []
         self.stages = nn.ModuleList([self._make_stage(features, out_features, size, norm_layer) for size in sizes])
         self.bottleneck = nn.Sequential(
-            nn.Conv2d(features+len(sizes)*out_features, out_features, kernel_size=1, padding=0, dilation=1, bias=False),
+            nn.Conv2d(features + len(sizes) * out_features, out_features, kernel_size=1, padding=0, dilation=1,
+                      bias=False),
             norm_layer(out_features),
             nn.ReLU(),
             nn.Dropout2d(0.1)
-            )
+        )
 
     def _make_stage(self, features, out_features, size, norm_layer):
         prior = nn.AdaptiveAvgPool2d(output_size=(size, size))
@@ -24,7 +25,8 @@ class PSPModule(nn.Module):
 
     def forward(self, feats):
         h, w = feats.size(2), feats.size(3)
-        priors = [F.interpolate(stage(feats), size=(h, w), mode='bilinear', align_corners=True) for stage in self.stages] + [feats]
+        priors = [F.interpolate(stage(feats), size=(h, w), mode='bilinear', align_corners=True) for stage in
+                  self.stages] + [feats]
         bottle = self.bottleneck(torch.cat(priors, 1))
         return bottle
 
@@ -34,7 +36,7 @@ class AlignedModule(nn.Module):
         super(AlignedModule, self).__init__()
         self.down_h = nn.Conv2d(inplane, outplane, 1, bias=False)
         self.down_l = nn.Conv2d(inplane, outplane, 1, bias=False)
-        self.flow_make = nn.Conv2d(outplane*2, 2, kernel_size=kernel_size, padding=1, bias=False)
+        self.flow_make = nn.Conv2d(outplane * 2, 2, kernel_size=kernel_size, padding=1, bias=False)
 
     def forward(self, x):
         low_feature, h_feature = x
@@ -42,8 +44,8 @@ class AlignedModule(nn.Module):
         h, w = low_feature.size()[2:]
         size = (h, w)
         low_feature = self.down_l(low_feature)
-        h_feature= self.down_h(h_feature)
-        h_feature = F.upsample(h_feature, size=size, mode="bilinear", align_corners=True)
+        h_feature = self.down_h(h_feature)
+        h_feature = F.interpolate(h_feature, size=size, mode="bilinear", align_corners=True)
         flow = self.flow_make(torch.cat([h_feature, low_feature], 1))
         h_feature = self.flow_warp(h_feature_orign, flow, size=size)
 

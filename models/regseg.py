@@ -173,10 +173,10 @@ class Exp2Decoder26(nn.Module):
         x16 = self.head16(x16)
         x8 = self.head8(x8)
         x4 = self.head4(x4)
-        x16 = F.interpolate(x16, size=x8.shape[-2:], mode='bilinear', align_corners=False)
+        x16 = F.interpolate(x16, size=x8.shape[-2:], mode='bilinear', align_corners=True)
         x8 = x8 + x16
         x8 = self.conv8(x8)
-        x8 = F.interpolate(x8, size=x4.shape[-2:], mode='bilinear', align_corners=False)
+        x8 = F.interpolate(x8, size=x4.shape[-2:], mode='bilinear', align_corners=True)
         x4 = torch.cat((x8, x4), dim=1)
         x4 = self.conv4(x4)
         x4 = self.classifier(x4)

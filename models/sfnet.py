@@ -1,10 +1,10 @@
-import torch.nn as nn
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
 
+import models
 import models.sfnet_module.module
 import models.sfnet_module.resnet_d
-import models
 
 
 def conv3x3(in_planes, out_planes, stride=1):
@@ -95,10 +95,7 @@ class UperNetAlignHead(nn.Module):
         fusion_list = [fpn_feature_list[0]]
 
         for i in range(1, len(fpn_feature_list)):
-            fusion_list.append(nn.functional.interpolate(
-                fpn_feature_list[i],
-                output_size,
-                mode='bilinear', align_corners=True))
+            fusion_list.append(F.interpolate(fpn_feature_list[i], output_size, mode='bilinear', align_corners=True))
 
         fusion_out = torch.cat(fusion_list, 1)
         x = self.conv_last(fusion_out)
