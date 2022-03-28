@@ -154,20 +154,16 @@ class AlignNetResNet(nn.Module):
             self.head = UperNetAlignHead(inplane_head, num_class=num_classes, norm_layer=nn.BatchNorm2d,
                                          fpn_dsn=fpn_dsn)
 
-    def forward(self, x, gts=None):
+    def forward(self, x):
         x_size = x.size()  # 800
         x0 = self.layer0(x)  # 400
         x1 = self.layer1(x0)  # 400
         x2 = self.layer2(x1)  # 100
         x3 = self.layer3(x2)  # 100
         x4 = self.layer4(x3)  # 100
-        x = self.head([x1, x2, x3, x4])
-        main_out = F.interpolate(x[0], size=x_size[2:], mode='bilinear', align_corners=True)
-        if self.training:
-            if not self.fpn_dsn:
-                return self.criterion(main_out, gts)
-            return self.criterion(x, gts)
-        return main_out
+        x, _ = self.head([x1, x2, x3, x4])
+        x = F.interpolate(x, size=x_size[2:], mode='bilinear', align_corners=True)
+        return x
 
 
 def DeepR101_SF_deeply(num_classes, criterion=None):
@@ -205,5 +201,5 @@ def sfnet_impl(backbone: str, num_classes: int):
 
 if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model = sfnet_impl(backbone='ResNet50', num_classes=4).to(device)
+    model = sfnet_impl(backbone='ResNet18', num_classes=4).to(device)
     models.test.test_model(model, (1, 3, 720, 1280))
