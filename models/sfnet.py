@@ -1,8 +1,8 @@
 import torch.nn as nn
 import torch
 import torch.nn.functional as F
-from sfnet.module import AlignedModule, PSPModule
-import sfnet.resnet_d
+from sfnet_module.module import AlignedModule, PSPModule
+import sfnet_module.resnet_d
 
 import models
 
@@ -117,11 +117,11 @@ class AlignNetResNet(nn.Module):
         self.fpn_dsn = fpn_dsn
 
         if trunk == trunk == 'resnet-50-deep':
-            resnet = sfnet.resnet_d.resnet50()
+            resnet = sfnet_module.resnet_d.resnet50()
         elif trunk == 'resnet-101-deep':
-            resnet = sfnet.resnet_d.resnet101()
+            resnet = sfnet_module.resnet_d.resnet101()
         elif trunk == 'resnet-18-deep':
-            resnet = sfnet.resnet_d.resnet18()
+            resnet = sfnet_module.resnet_d.resnet18()
         else:
             raise ValueError("Not a valid network arch")
 

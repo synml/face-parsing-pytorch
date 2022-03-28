@@ -81,6 +81,8 @@ class Builder:
             model = models.eagr.EAGRNet(num_classes)
         elif self.model_name == 'RegSeg':
             model = models.regseg.RegSeg(num_classes)
+        elif self.model_name == 'SFNet':
+            model = models.sfnet.sfnet_impl(cfg_model['backbone'], num_classes)
         elif self.model_name == 'UNet':
             model = models.unet.UNet(num_classes)
         else:
