@@ -37,7 +37,7 @@ BiSeNet:
   pretrained_weight: weights/BiSeNet_latest.pth
 
 DeepLabV3:
-  backbone: ResNeSt101
+  backbone: ResNeSt50
   batch_size: 16
   epoch: 100
   criterion:
