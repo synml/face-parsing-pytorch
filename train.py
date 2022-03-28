@@ -199,6 +199,10 @@ if __name__ == '__main__':
             state_dict = utils.state_dict.convert_ddp_state_dict(model.state_dict())
             torch.save(state_dict, os.path.join('weights', f'{model_name}_latest.pth'))
 
+            # Save model per 5 epoch
+            if eph % 5 == 0:
+                torch.save(state_dict, os.path.join('weights', f'{model_name}_{eph}epoch.pth'))
+
             # Save best mean_f1 model
             if mean_f1 > prev_mean_f1:
                 torch.save(state_dict, os.path.join('weights', f'{model_name}_best_mean_f1.pth'))
