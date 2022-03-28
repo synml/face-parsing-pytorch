@@ -18,6 +18,9 @@ class DeepLabV3(nn.Module):
             backbone = torchvision.models.resnet101(pretrained=True)
             return_nodes = {'layer4.2.relu_2': 'layer4'}
         elif backbone == 'ResNeSt50':
+            backbone = timm.create_model('resnest50d', pretrained=True)
+            return_nodes = {'layer4.2.act3': 'layer4'}
+        elif backbone == 'ResNeSt101':
             backbone = timm.create_model('resnest101e', pretrained=True)
             return_nodes = {'layer4.2.act3': 'layer4'}
         else:
