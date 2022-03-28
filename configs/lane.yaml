@@ -36,6 +36,32 @@ BiSeNet:
     RandomHorizontalFlip:
   pretrained_weight: weights/BiSeNet_latest.pth
 
+DeepLabV3:
+  backbone: ResNeSt101
+  batch_size: 16
+  epoch: 100
+  criterion:
+    name: CrossEntropyLoss
+    label_smoothing: 0.1
+  aux_factor:
+  optimizer:
+    name: RAdam
+    lr: 0.001
+    weight_decay: 0
+  scheduler:
+    name: PolyLR
+    power: 0.9
+  augmentation:
+    RandomCrop:
+      size: [576, 1024]
+    ColorJitter:
+      brightness: 0.5
+      contrast: 0.5
+      saturation: 0.5
+      hue: 0
+    RandomHorizontalFlip:
+  pretrained_weight: weights/DeepLabV3_latest.pth
+
 RegSeg:
   batch_size: 32
   epoch: 100
