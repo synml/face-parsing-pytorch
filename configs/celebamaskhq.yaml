@@ -37,7 +37,7 @@ BiSeNet:
       saturation: 0.5
       hue: 0
     RandomHorizontalFlip:
-  pretrained_weights: weights/BiSeNet_best_mean_f1.pth
+  pretrained_weight: weights/BiSeNet_best_mean_f1.pth
 
 EAGRNet:
   batch_size: 64
@@ -67,7 +67,7 @@ EAGRNet:
       saturation: 0.5
       hue: 0
     RandomHorizontalFlip:
-  pretrained_weights: weights/EAGRNet_best_mean_f1.pth
+  pretrained_weight: weights/EAGRNet_best_mean_f1.pth
 
 UNet:
   batch_size: 64
@@ -97,4 +97,4 @@ UNet:
       saturation: 0.5
       hue: 0
     RandomHorizontalFlip:
-  pretrained_weights: weights/UNet_best_mean_f1.pth
+  pretrained_weight: weights/UNet_best_mean_f1.pth

@@ -34,7 +34,7 @@ BiSeNet:
       saturation: 0.5
       hue: 0
     RandomHorizontalFlip:
-  pretrained_weights: weights/BiSeNet_latest.pth
+  pretrained_weight: weights/BiSeNet_latest.pth
 
 RegSeg:
   batch_size: 32
@@ -59,4 +59,4 @@ RegSeg:
       saturation: 0.5
       hue: 0
     RandomHorizontalFlip:
-  pretrained_weights: weights/RegSeg_latest.pth
+  pretrained_weight: weights/RegSeg_latest.pth
