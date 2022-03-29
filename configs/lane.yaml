@@ -91,7 +91,7 @@ RegSeg:
 
 SFNet:
   backbone: ResNet18
-  batch_size: 16
+  batch_size: 32
   epoch: 100
   criterion:
     name: FocalLoss
@@ -101,8 +101,8 @@ SFNet:
   aux_factor:
   optimizer:
     name: RAdam
-    lr: 0.001
-    weight_decay: 0
+    lr: 0.005
+    weight_decay: 0.0001
   scheduler:
     name: PolyLR
     power: 0.9
