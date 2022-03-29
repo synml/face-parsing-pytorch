@@ -7,4 +7,4 @@ chmod u+x train_ddp.sh
 export OMP_NUM_THREADS=10
 
 # Set the variable according to the number of GPUs in the node.
-python -m torch.distributed.run --nproc_per_node=8 train.py
+python -m torch.distributed.run --nproc_per_node=7 train.py
