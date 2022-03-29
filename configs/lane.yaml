@@ -101,7 +101,7 @@ SFNet:
   aux_factor:
   optimizer:
     name: RAdam
-    lr: 0.005
+    lr: 0.001
     weight_decay: 0.0001
   scheduler:
     name: PolyLR
