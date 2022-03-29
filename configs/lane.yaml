@@ -101,7 +101,7 @@ SFNet:
   aux_factor:
   optimizer:
     name: RAdam
-    lr: 0.005
+    lr: 0.001
     weight_decay: 0
   scheduler:
     name: PolyLR
@@ -115,4 +115,4 @@ SFNet:
       saturation: 0.5
       hue: 0
     RandomHorizontalFlip:
-  pretrained_weight: weights/DeepLabV3_latest.pth
+  pretrained_weight: weights/SFNet_latest.pth
