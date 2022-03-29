@@ -3,6 +3,12 @@ import torch.nn as nn
 
 __all__ = ['ResNet', 'resnet18', 'resnet50', 'resnet101']
 
+state_dict_urls = {
+    'resnet18': 'https://github.com/synml/face-parsing-pytorch/releases/download/v1.0-weight/resnet18-deep.pth',
+    'resnet50': 'https://github.com/synml/face-parsing-pytorch/releases/download/v1.0-weight/resnet50-deep.pth',
+    'resnet101': 'https://github.com/synml/face-parsing-pytorch/releases/download/v1.0-weight/resnet101-deep.pth',
+}
+
 
 def conv3x3(in_planes, out_planes, stride=1):
     """3x3 convolution with padding"""
@@ -157,7 +163,8 @@ def resnet18(pretrained=True, **kwargs):
     """
     model = ResNet(BasicBlock, [2, 2, 2, 2], **kwargs)
     if pretrained:
-        model.load_state_dict(torch.load("weights/resnet18-deep-inplane128.pth", map_location="cpu"))
+        state_dict = torch.hub.load_state_dict_from_url(state_dict_urls['resnet18'])
+        model.load_state_dict(state_dict)
     return model
 
 
@@ -168,7 +175,8 @@ def resnet50(pretrained=True, **kwargs):
     """
     model = ResNet(Bottleneck, [3, 4, 6, 3], **kwargs)
     if pretrained:
-        model.load_state_dict(torch.load("weights/resnet50-deep.pth", map_location='cpu'))
+        state_dict = torch.hub.load_state_dict_from_url(state_dict_urls['resnet50'])
+        model.load_state_dict(state_dict)
     return model
 
 
@@ -179,5 +187,6 @@ def resnet101(pretrained=True, **kwargs):
     """
     model = ResNet(Bottleneck, [3, 4, 23, 3], **kwargs)
     if pretrained:
-        model.load_state_dict(torch.load("weights/resnet101-deep.pth", map_location='cpu'))
+        state_dict = torch.hub.load_state_dict_from_url(state_dict_urls['resnet101'])
+        model.load_state_dict(state_dict)
     return model
