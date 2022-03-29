@@ -92,7 +92,7 @@ RegSeg:
 SFNet:
   backbone: ResNet18
   batch_size: 32
-  epoch: 100
+  epoch: 50
   criterion:
     name: FocalLoss
     alpha: 0.25
