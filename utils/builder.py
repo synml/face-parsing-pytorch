@@ -34,10 +34,7 @@ class Builder:
         root = cfg_dataset['root']
         num_workers = cfg_dataset['num_workers']
         if num_workers == 'auto':
-            if torch.cuda.device_count() == 1:
-                num_workers = os.cpu_count() // 2
-            else:
-                num_workers = os.cpu_count() // torch.cuda.device_count()
+            num_workers = min(os.cpu_count() // torch.cuda.device_count(), 4)
         batch_size = self.config[self.model_name]['batch_size']
 
         if dataset_type == 'train':
