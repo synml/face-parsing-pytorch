@@ -104,8 +104,7 @@ SFNet:
     lr: 0.001
     weight_decay: 0.0001
   scheduler:
-    name: PolyLR
-    power: 0.9
+    name: CosineLR
   augmentation:
     RandomCrop:
       size: [576, 1024]
