@@ -21,7 +21,7 @@ def test_model(model: nn.Module, input_size: tuple[int, int, int, int] = None,
 
     if graph_dir is not None:
         writer = torch.utils.tensorboard.SummaryWriter(graph_dir)
-        if input_data is None:
+        if input_size is not None:
             device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
             writer.add_graph(model, torch.rand(input_size, device=device))
         else:
