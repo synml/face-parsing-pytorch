@@ -18,7 +18,7 @@ def convert_ddp_state_dict(state_dict: OrderedDict) -> OrderedDict:
     return new_state_dict
 
 
-def remove_items_in_state_dict(state_dict: OrderedDict, keys_to_remove: list) -> OrderedDict:
+def remove_items_in_state_dict(state_dict: OrderedDict, keys_to_remove: list[str]) -> OrderedDict:
     for key in keys_to_remove:
         state_dict.pop(key)
     return state_dict
