@@ -8,7 +8,7 @@ def convert_ddp_state_dict(state_dict: OrderedDict) -> OrderedDict:
     Args:
         state_dict: DDP model's state_dict.
     """
-    if not next(iter(state_dict)).startswith("module."):
+    if not next(iter(state_dict)).startswith('module.'):
         return state_dict
 
     new_state_dict = OrderedDict()
