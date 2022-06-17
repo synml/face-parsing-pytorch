@@ -10,7 +10,7 @@ dataset:
 
 # Model definitions (shape: [h, w])
 EAGR:
-  batch_size: 64
+  batch_size: 16
   epoch: 100
   criterion:
     name: CrossEntropyLoss
