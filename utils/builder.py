@@ -53,6 +53,8 @@ class Builder:
             dataset = datasets.celebamaskhq.CelebAMaskHQ(root, dataset_type, transforms=transforms)
         elif cfg_dataset['name'] == 'Lane':
             dataset = datasets.lane.Lane(root, dataset_type, transforms=transforms)
+        elif cfg_dataset['name'] == 'NIA':
+            dataset = datasets.nia.NIA(root, dataset_type, transforms=transforms)
         else:
             raise ValueError('Wrong dataset name.')
 
