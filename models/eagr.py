@@ -162,9 +162,9 @@ class EAGRModule(nn.Module):
         return out
 
 
-class EAGRNet(nn.Module):
+class EAGR(nn.Module):
     def __init__(self, num_classes):
-        super(EAGRNet, self).__init__()
+        super(EAGR, self).__init__()
         resnet101 = torchvision.models.resnet101(pretrained=True, replace_stride_with_dilation=[False, True, True])
         resnet101.conv1 = nn.Sequential(
             nn.Conv2d(3, 32, 3, stride=2, padding=1, bias=False),
@@ -208,5 +208,5 @@ class EAGRNet(nn.Module):
 
 if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model = EAGRNet(num_classes=19).to(device)
+    model = EAGR(num_classes=19).to(device)
     models.test.test_model(model, (1, 3, 512, 512), '../runs')

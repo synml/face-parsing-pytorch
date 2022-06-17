@@ -39,7 +39,7 @@ BiSeNet:
     RandomHorizontalFlip:
   pretrained_weight: weights/BiSeNet_best_mean_f1.pth
 
-EAGRNet:
+EAGR:
   batch_size: 64
   epoch: 100
   criterion:

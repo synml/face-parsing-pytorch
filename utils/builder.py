@@ -74,8 +74,8 @@ class Builder:
             model = models.bisenet.BiSeNet(num_classes)
         elif self.model_name == 'DeepLabV3':
             model = models.deeplabv3.DeepLabV3(cfg_model['backbone'], num_classes)
-        elif self.model_name == 'EAGRNet':
-            model = models.eagr.EAGRNet(num_classes)
+        elif self.model_name == 'EAGR':
+            model = models.eagr.EAGR(num_classes)
         elif self.model_name == 'RegSeg':
             model = models.regseg.RegSeg(num_classes)
         elif self.model_name == 'SFNet':
