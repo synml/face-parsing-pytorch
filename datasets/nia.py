@@ -53,10 +53,14 @@ class NIA(torchvision.datasets.VisionDataset):
                  target_transform: Optional[Callable] = None,
                  transforms: Optional[Callable] = None):
         super(NIA, self).__init__(root, transforms, transform, target_transform)
-        assert split in ('train', 'test')
+        assert split in ('train', 'val', 'test')
         self.split = split
         self.colors = [cls.color for cls in self.classes]
         self.num_classes = len(self.classes)
+
+        if self.split == 'val':
+            self.split = 'test'
+
         self.images = glob.glob(os.path.join(self.root, self.split, 'images', '*'))
         self.targets = glob.glob(os.path.join(self.root, self.split, 'labels', '*'))
         self.images.sort()
