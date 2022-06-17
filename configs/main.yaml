@@ -1,3 +1,3 @@
 # Specify a config and a model to use.
-config: celebamaskhq.yaml
+config: nia.yaml
 model_name: EAGR
