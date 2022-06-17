@@ -21,7 +21,7 @@ if __name__ == '__main__':
     # Create variables that control training
     epoch = config[model_name]['epoch']
     amp_enabled = config['train']['amp_enabled']
-    ddp_enabled = config['train']['ddp_enabled']
+    ddp_enabled = torch.distributed.is_torchelastic_launched()
     ddp_find_unused_parameters = config['train']['ddp_find_unused_parameters']
     optimizer_zero_grad_set_to_none = config['train']['optimizer_zero_grad_set_to_none']
     reproducibility = config['train']['reproducibility']
@@ -34,7 +34,6 @@ if __name__ == '__main__':
     world_size = 0
     if ddp_enabled:
         assert torch.distributed.is_available(), '"torch.distributed" package is not available.'
-        assert torch.distributed.is_torchelastic_launched(), 'Run the python process with "torch.distributed.run".'
         assert torch.distributed.is_nccl_available(), 'NCCL backend is not available.'
         torch.distributed.init_process_group(backend='nccl', init_method='env://')
         assert torch.distributed.is_initialized()
