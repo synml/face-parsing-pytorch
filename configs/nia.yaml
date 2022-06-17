@@ -27,9 +27,9 @@ EAGR:
     RandomRotation:
       degrees: [-10, 10]
     ColorJitter:
-      brightness: 0.4
-      contrast: 0.4
-      saturation: 0.4
+      brightness: 0.5
+      contrast: 0.5
+      saturation: 0.5
       hue: 0
     RandomHorizontalFlip:
   pretrained_weight: weights/EAGRNet_best_mean_f1.pth
